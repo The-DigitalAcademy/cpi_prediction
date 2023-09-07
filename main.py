@@ -20,7 +20,7 @@ st.title("CPI Prediction App")
 # User-friendly input fields
 selected_category = st.selectbox("Select Category", target_cols)
 selected_month = st.slider("Select Month", min_value=1, max_value=12)
-selected_year = st.slider("Select Year", min_value= min_year, max_value=max_year)  # Define min_year and max_year
+selected_year = st.slider("Select Year", min_value= 2022, max_value= 2023)  # Define min_year and max_year
 
 # Define a function to make predictions based on user input
 @st.cache  # Caching the function for improved performance
