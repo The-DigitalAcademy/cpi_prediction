@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 import joblib
 
 # Load your trained models
@@ -17,41 +16,33 @@ for target_col in target_cols:
 # Create Streamlit app
 st.title("CPI Prediction App")
 
-# User-friendly input fields for dataset upload
-st.write("Upload a CSV file with the required data:")
-uploaded_file = st.file_uploader("Choose a CSV file", type=["csv"])
+# User-friendly input fields
+selected_category = st.selectbox("Select Category", target_cols)
+selected_month = st.slider("Select Month", min_value=1, max_value=12)
+selected_year = st.slider("Select Year", min_value=2022, max_value= 2023)  # Define min_year and max_year
 
-if uploaded_file:
-    # Load the uploaded CSV file as the dataset
-    cpi_pivot = pd.read_csv(uploaded_file)
+# Define a function to make predictions based on user input
+@st.cache  # Caching the function for improved performance
+def make_prediction(category, month, year):
+    # Extract the corresponding model for the selected category
+    lr_model = loaded_models[category]
     
-    # User-friendly input fields
-    selected_category = st.selectbox("Select Category", target_cols)
-    selected_month = st.slider("Select Month", min_value=1, max_value=12)
-    selected_year = st.slider("Select Year", min_value= 2022, max_value= 2023)  # Define min_year and max_year
+    # Generate user input data based on the selected category, month, and year
+    user_input_data = pd.DataFrame(data={'Month': [f'{year}-{month:02d}-30'], 'Category': [category]})
     
-    # Define a function to make predictions based on user input
-    @st.cache  # Caching the function for improved performance
-    def make_prediction(category, month, year):
-        # Extract the corresponding model for the selected category
-        lr_model = loaded_models[category]
-        
-        # Generate user input data based on the selected category, month, and year
-        user_input_data = pd.DataFrame(data={'Month': [f'{year}-{month:02d}-30'], 'Category': [category]})
-        
-        # Implement data preprocessing based on your dataset (e.g., scaling, feature selection)
-        # Replace this part with your actual data preprocessing code
-        # Example: scaled_input_data = preprocess_data(user_input_data)
-        scaled_input_data = user_input_data  # Placeholder, no preprocessing
-        
-        # Make predictions using the loaded model
-        prediction = lr_model.predict(scaled_input_data)
-        
-        return prediction[0]  # Return the first element of the prediction (assuming it's a single value)
+    # Implement data preprocessing based on your dataset (e.g., scaling, feature selection)
+    # Replace this part with your actual data preprocessing code
+    # Example: scaled_input_data = preprocess_data(user_input_data)
+    scaled_input_data = user_input_data  # Placeholder, no preprocessing
     
-    # Display the prediction
-    if st.button("Predict CPI"):
-        prediction = make_prediction(selected_category, selected_month, selected_year)
-        st.write(f"Predicted CPI for {selected_category} in {selected_year}-{selected_month:02d} is {prediction:.2f}")
+    # Make predictions using the loaded model
+    prediction = lr_model.predict(scaled_input_data)
+    
+    return prediction[0]  # Return the first element of the prediction (assuming it's a single value)
+
+# Display the prediction
+if st.button("Predict CPI"):
+    prediction = make_prediction(selected_category, selected_month, selected_year)
+    st.write(f"Predicted CPI for {selected_category} in {selected_year}-{selected_month:02d} is {prediction:.2f}")
 
 # Optionally, display other information or visualizations
