@@ -111,15 +111,12 @@ def train_and_save_models(df_merged):
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42
 
-    # Specify which columns to standardize (excluding 'Month')
-    columns_to_standardize = [col for col in X_train.columns if col != 'Month']
-
     # Initialize the StandardScaler
     scaler = StandardScaler()
 
     # Fit and transform the scaler on the selected columns in both training and test sets
-    X_train[columns_to_standardize] = scaler.fit_transform(X_train[columns_to_standardize])
-    X_test[columns_to_standardize] = scaler.transform(X_test[columns_to_standardize])
+    X_train[columns_to_standardize] = scaler.fit_transform(X_train)
+    X_test[columns_to_standardize] = scaler.transform(X_test)
 
     ####### MODEL TRAINING ##########
 
