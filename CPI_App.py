@@ -7,6 +7,7 @@ from sklearn.metrics import mean_squared_error
 from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.layers import Dense
 import datetime
+from collections import defaultdict
 
 # Define target columns
 target_cols = ['Alcoholic beverages and tobacco', 'Clothing and footwear',
@@ -95,7 +96,6 @@ def preprocess_data(cpi_csv, vehicles_csv, currency_csv):
 
     return df_merged
 
-
 # Function to train and save models
 def train_and_save_models(df_merged):
     X = df_merged.drop(columns=['year_month', 'Month'] + target_cols)
@@ -175,7 +175,6 @@ def train_and_save_models(df_merged):
 
     return save_directory
 
-
 # Function to make predictions using trained models
 def make_predictions(data, models, X_test):
     # Directory where models are saved
@@ -199,7 +198,6 @@ def make_predictions(data, models, X_test):
         predictions[column] = round(y_pred[0][0], 2)
 
     return predictions
-
 
 # Streamlit app
 def main():
@@ -225,7 +223,8 @@ def main():
 
             # Display predictions
             st.write("Predicted CPI values:")
-            st.write(make_predictions(trained_models, df_merged, df_merged.tail(1)))
+            predictions = make_predictions(trained_models, df_merged, df_merged.tail(1))
+            st.write(predictions)
 
 if __name__ == "__main__":
     main()
