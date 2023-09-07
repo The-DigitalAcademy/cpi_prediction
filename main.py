@@ -14,13 +14,17 @@ target_cols = ['Alcoholic beverages and tobacco', 'Clothing and footwear',
 for target_col in target_cols:
     loaded_models[target_col] = joblib.load(f"{target_col}_model.pkl")
 
+# Load your data from the CSV file
+data_file = "UI.csv"  # Replace with the actual path to your CSV file
+cpi_pivot = pd.read_csv(data_file)
+
 # Create Streamlit app
 st.title("CPI Prediction App")
 
 # User-friendly input fields
 selected_category = st.selectbox("Select Category", target_cols)
 selected_month = st.slider("Select Month", min_value=1, max_value=12)
-selected_year = st.slider("Select Year", min_value= 2022, max_value= 2023)  # Define min_year and max_year
+selected_year = st.slider("Select Year", min_value=min_year, max_value=max_year)  # Define min_year and max_year
 
 # Define a function to make predictions based on user input
 @st.cache  # Caching the function for improved performance
@@ -28,11 +32,11 @@ def make_prediction(category, month, year):
     # Extract the corresponding model for the selected category
     lr_model = loaded_models[category]
     
-    # You can generate synthetic data based on user input if you don't load the entire dataset
-    # Here's a placeholder for data generation:
+    # Generate user input data based on the selected category, month, and year
     user_input_data = pd.DataFrame(data={'Month': [f'{year}-{month:02d}-30'], 'Category': [category]})
     
-    # Make predictions (Replace this part with your data preprocessing and prediction code)
+    # Implement data preprocessing and prediction logic here (Replace this part)
+    # Example: prediction = lr_model.predict(user_input_data)
     prediction = 0.0
     
     return prediction
@@ -43,4 +47,3 @@ if st.button("Predict CPI"):
     st.write(f"Predicted CPI for {selected_category} in {selected_year}-{selected_month:02d} is {prediction:.2f}")
 
 # Optionally, display other information or visualizations
-
