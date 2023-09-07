@@ -1,5 +1,6 @@
-import streamlit as st
+  import streamlit as st
 import pandas as pd
+import numpy as np
 import joblib
 
 # Load your trained models
@@ -19,26 +20,22 @@ st.title("CPI Prediction App")
 # User-friendly input fields
 selected_category = st.selectbox("Select Category", target_cols)
 selected_month = st.slider("Select Month", min_value=1, max_value=12)
-selected_year = st.slider("Select Year", min_value=2022, max_value= 2023)  # Define min_year and max_year
+selected_year = st.slider("Select Year", min_value=min_year, max_value=max_year)  # Define min_year and max_year
 
 # Define a function to make predictions based on user input
-@st.cache  # Caching the function for improved performanc
+@st.cache  # Caching the function for improved performance
 def make_prediction(category, month, year):
     # Extract the corresponding model for the selected category
     lr_model = loaded_models[category]
     
-    # Generate user input data based on the selected category, month, and year
+    # You can generate synthetic data based on user input if you don't load the entire dataset
+    # Here's a placeholder for data generation:
     user_input_data = pd.DataFrame(data={'Month': [f'{year}-{month:02d}-30'], 'Category': [category]})
     
-    # Implement data preprocessing based on your dataset (e.g., scaling, feature selection)
-    # Replace this part with your actual data preprocessing code
-    # Example: scaled_input_data = preprocess_data(user_input_data)
-    scaled_input_data = user_input_data  # Placeholder, no preprocessing
+    # Make predictions (Replace this part with your data preprocessing and prediction code)
+    prediction = 0.0
     
-    # Make predictions using the loaded model
-    prediction = lr_model.predict(scaled_input_data)
-    
-    return prediction[0]  # Return the first element of the prediction (assuming it's a single value)
+    return prediction
 
 # Display the prediction
 if st.button("Predict CPI"):
