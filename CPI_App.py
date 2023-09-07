@@ -89,10 +89,11 @@ def preprocess_data(cpi_csv, vehicles_csv, currency_csv):
 
     df_merged = df_merged.drop(0)
     df_merged = df_merged.bfill()
+    df_merged = df_merged.drop(['Month'], axis=1)
 
     df_merged = df_merged.drop(['Date'], axis=1)
     df_merged = df_merged.dropna()
-
+       
     return df_merged
 
 # Function to train and save models
@@ -220,10 +221,11 @@ def main():
 
             # Train models
             trained_models = train_and_save_models(df_merged)
+            input_for_predictions = df_merged.tail(1).drop(['Month'], axis=1)
 
             # Display predictions
             st.write("Predicted CPI values:")
-            predictions = make_predictions(trained_models, df_merged, df_merged.tail(1))
+            predictions = make_predictions(trained_models, df_merged, input_for_predictions)
             st.write(predictions)
 
 if __name__ == "__main__":
