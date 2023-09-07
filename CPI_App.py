@@ -9,12 +9,11 @@ from tensorflow.keras.layers import Dense
 import datetime
 from collections import defaultdict
 
-# Define target columns
 target_cols = ['Alcoholic beverages and tobacco', 'Clothing and footwear',
-               'Communication', 'Education', 'Food and non-alcoholic beverages',
-               'Headline_CPI', 'Health', 'Household contents and services',
-               'Housing and utilities', 'Miscellaneous goods and services',
-               'Recreation and culture', 'Restaurants and hotels', 'Transport']
+       'Communication', 'Education', 'Food and non-alcoholic beverages',
+       'Headline_CPI', 'Health', 'Household contents and services',
+       'Housing and utilities', 'Miscellaneous goods and services',
+       'Recreation and culture', 'Restaurants and hotels ', 'Transport']
 
 # Function to preprocess the data
 def preprocess_data(cpi_csv, vehicles_csv, currency_csv):
