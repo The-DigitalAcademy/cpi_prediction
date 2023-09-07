@@ -33,7 +33,7 @@ def make_prediction(category, month, year):
     user_input_data = pd.DataFrame(data={'Month': [f'{year}-{month:02d}-30'], 'Category': [category]})
     
     # Make predictions (Replace this part with your data preprocessing and prediction code)
-    prediction = 0.0
+    prediction = 0.8
     
     return prediction
 
