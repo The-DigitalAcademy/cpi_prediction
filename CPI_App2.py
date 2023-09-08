@@ -35,7 +35,7 @@ def preprocess_data(cpi_csv, vehicles_csv, currency_csv):
     cpi_pivot = pd.concat([cpi_pivot, new_row]).reset_index(drop=True)
 
     cpi_pivot['year_month'] = pd.to_datetime(cpi_pivot['Month'], format='%Y-%b').dt.strftime('%Y-%m')
-
+    cpi_pivot = cpi_p
     feats_to_lag = [col for col in cpi_pivot.columns if col not in ['Month', 'year_month']]
 
     # Create a new column for the rolling average and calculate the average for all 8 features
@@ -100,7 +100,7 @@ def preprocess_data(cpi_csv, vehicles_csv, currency_csv):
     # df_merged = df_merged.drop(['Month'], axis=1)
 
     df_merged = df_merged.drop(['Date'], axis=1)
-    # df_merged = df_merged.fillna(df_merged.mean())
+    # df_merged = df_merged.dropna()
 
 
     # Create features for the next 3 months
