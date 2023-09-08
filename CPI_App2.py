@@ -98,12 +98,18 @@ def preprocess_data(cpi_csv, vehicles_csv, currency_csv):
     for i in range(1, 4):
         df_merged[f"next_{i}_month"] = df_merged['Month'].shift(-i)
 
-    # Adjust target variable to predict next 3 months
+    # Adjust target variable to predict next 3 months for float columns
     for i in range(1, 4):
         for col in target_cols:
             df_merged[f"next_{i}_month_{col}"] = df_merged[col].shift(-i)
 
-    return df_merged
+    # Separate datetime values
+    date_cols = ['Month'] + [f"next_{i}_month" for i in range(1, 4)]
+    datetime_data = df_merged[date_cols]
+    df_merged = df_merged.drop(columns=date_cols)
+
+    return df_merged, datetime_data
+
 
 # Function to train and save models
 def train_and_save_models(df_merged):
@@ -186,7 +192,7 @@ def train_and_save_models(df_merged):
     return save_directory, X_test
 
 # Function to make predictions using trained models
-def make_predictions(data, models):
+def make_predictions(data, models, datetime_data):
     # Directory where models are saved
     save_directory = "saved_models/"
 
@@ -201,14 +207,21 @@ def make_predictions(data, models):
             loaded_model = load_model(model_path)
             loaded_models[col] = loaded_model
 
-    # Make predictions for the next 3 months for each category
-    predictions = {}
+    # Make predictions for the next 3 months for each category (float columns)
+    predictions_float = {}
     for i in range(1, 4):
         for col, model in loaded_models.items():
             y_pred = model.predict(data)
-            predictions[f"next_{i}_month_{col}"] = round(y_pred[0][0], 2)
+            predictions_float[f"next_{i}_month_{col}"] = round(y_pred[0][0], 2)
 
-    return predictions
+    # Combine datetime values and float predictions
+    predictions_combined = {}
+    for i in range(1, 4):
+        predictions_combined[f"Month_{i}"] = datetime_data[f"next_{i}_month"].iloc[0]
+        for col in target_cols:
+            predictions_combined[f"next_{i}_month_{col}"] = predictions_float[f"next_{i}_month_{col}"]
+
+    return predictions_combined
 
 # Streamlit app
 def main():
@@ -227,7 +240,7 @@ def main():
             st.sidebar.error("Please upload all three CSV files.")
         else:
             # Preprocess data
-            df_merged = preprocess_data(uploaded_cpi, uploaded_vehicles, uploaded_currency)
+            df_merged, datetime_data = preprocess_data(uploaded_cpi, uploaded_vehicles, uploaded_currency)
 
             # Train models
             trained_models = train_and_save_models(df_merged)
@@ -235,7 +248,7 @@ def main():
 
             # Display predictions for the next 3 months
             st.write("Predicted CPI values for the next 3 months:")
-            predictions = make_predictions(input_for_predictions, trained_models)
+            predictions = make_predictions(input_for_predictions, trained_models, datetime_data)
             for i in range(1, 4):
                 st.write(f"Month {i}:")
                 for col in target_cols:
