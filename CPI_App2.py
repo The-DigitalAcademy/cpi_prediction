@@ -34,7 +34,6 @@ def preprocess_data(cpi_csv, vehicles_csv, currency_csv):
     new_row = pd.DataFrame({'Month': [date_obj]})
     cpi_pivot = pd.concat([cpi_pivot, new_row]).reset_index(drop=True)
 
-    cpi_pivot['Month'] = pd.to_datetime(cpi_pivot['Month'], format='%B %Y-%d')
     cpi_pivot['year_month'] = pd.to_datetime(cpi_pivot['Month'], format='%Y-%b').dt.strftime('%Y-%m')
 
     feats_to_lag = [col for col in cpi_pivot.columns if col not in ['Month', 'year_month']]
@@ -90,12 +89,12 @@ def preprocess_data(cpi_csv, vehicles_csv, currency_csv):
 
     df_merged = cpi_vehicles.merge(currency_df, on='year_month', how='left')
 
-    # df_merged = df_merged.drop(0)
-    # df_merged = df_merged.bfill()
+    df_merged = df_merged.drop(0)
+    df_merged = df_merged.bfill()
     # df_merged = df_merged.drop(['Month'], axis=1)
 
     df_merged = df_merged.drop(['Date'], axis=1)
-    df_merged = df_merged.fillna(df_merged.mean())
+    # df_merged = df_merged.fillna(df_merged.mean())
 
 
     # Create features for the next 3 months
