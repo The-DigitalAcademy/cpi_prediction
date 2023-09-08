@@ -52,8 +52,8 @@ def preprocess_data(cpi_csv, vehicles_csv, currency_csv):
     columns_to_drop = [col for col in cpi_pivot.columns if 'prev' in col]
 
     cpi_pivot = cpi_pivot.drop(columns=columns_to_drop)
-    if 0 in cpi_pivot.index:
-       cpi_pivot = cpi_pivot.drop(index=0)
+    # if 0 in cpi_pivot.index:
+    #    cpi_pivot = cpi_pivot.drop(index=0)
 
 
     ####################################### VEHICLES ##############################################################
