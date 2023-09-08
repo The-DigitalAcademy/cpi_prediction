@@ -52,6 +52,9 @@ def preprocess_data(cpi_csv, vehicles_csv, currency_csv):
     columns_to_drop = [col for col in cpi_pivot.columns if 'prev' in col]
 
     cpi_pivot = cpi_pivot.drop(columns=columns_to_drop)
+    if 0 in cpi_pivot.index:
+       cpi_pivot = cpi_pivot.drop(index=0)
+
 
     ####################################### VEHICLES ##############################################################
 
@@ -108,7 +111,8 @@ def preprocess_data(cpi_csv, vehicles_csv, currency_csv):
     datetime_data = df_merged[date_cols]
     df_merged = df_merged.drop(columns=date_cols)
 
-    df_merged = df_merged.drop(index=0)
+    if 0 in df_merged.index:
+       df_merged = df_merged.drop(index=0)
     df_merged = df_merged.bfill()
 
     return df_merged, datetime_data
