@@ -113,7 +113,8 @@ def preprocess_data(cpi_csv, vehicles_csv, currency_csv):
 
     if 0 in df_merged.index:
        df_merged = df_merged.drop(index=0)
-    df_merged = df_merged.bfill()
+    
+       df_merged = df_merged.bfill()
 
     return df_merged, datetime_data
 
