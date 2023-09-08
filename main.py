@@ -28,14 +28,19 @@ def make_prediction(category, month, year):
     # Extract the corresponding model for the selected category
     lr_model = loaded_models[category]
     
-    # You can generate synthetic data based on user input if you don't load the entire dataset
-    # Here's a placeholder for data generation:
-    user_input_data = pd.DataFrame(data={'Month': [f'{year}-{month:02d}-30'], 'Category': [category]})
+    # Prepare user input data
+    user_input = pd.DataFrame({'Month': [f'{year}-{month:02d}-30'], 'Category': [category]})
     
-    # Make predictions (Replace this part with your data preprocessing and prediction code)
-    prediction = 0.8
+    # Implement data preprocessing and scaling (if necessary) based on your dataset
+    # Replace this part with your actual data preprocessing code
+    # Example: scaled_input_data = preprocess_data(user_input)
+    scaled_input_data = user_input  # Placeholder, no preprocessing
     
-    return prediction
+    # Make predictions using the loaded model
+    y_pred_user = lr_model.predict(scaled_input_data)
+    
+    return y_pred_user[0]  # Return the first element of the prediction (assuming it's a single value)
+
 
 # Display the prediction
 if st.button("Predict CPI"):
