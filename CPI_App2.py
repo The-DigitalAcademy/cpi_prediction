@@ -87,8 +87,8 @@ def preprocess_data(cpi_csv, vehicles_csv, currency_csv):
 
     df_merged = cpi_vehicles.merge(currency_df, on='year_month', how='left')
 
-    df_merged = df_merged.drop(0)
-    df_merged = df_merged.bfill()
+    # df_merged = df_merged.drop(0)
+    # df_merged = df_merged.bfill()
     # df_merged = df_merged.drop(['Month'], axis=1)
 
     df_merged = df_merged.drop(['Date'], axis=1)
@@ -107,6 +107,9 @@ def preprocess_data(cpi_csv, vehicles_csv, currency_csv):
     date_cols = ['Month'] + [f"next_{i}_month" for i in range(1, 4)]
     datetime_data = df_merged[date_cols]
     df_merged = df_merged.drop(columns=date_cols)
+
+    df_merged = df_merged.drop(0)
+    df_merged = df_merged.bfill()
 
     return df_merged, datetime_data
 
