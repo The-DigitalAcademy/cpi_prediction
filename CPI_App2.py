@@ -113,7 +113,7 @@ def preprocess_data(cpi_csv, vehicles_csv, currency_csv):
 
 # Function to train and save models
 def train_and_save_models(df_merged):
-    X = df_merged.drop(columns=['year_month', 'Month'] + target_cols)
+    X = df_merged.drop(columns=['year_month'] + target_cols)
     y = df_merged[[f"next_{i}_month_{col}" for i in range(1, 4) for col in target_cols]]
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
