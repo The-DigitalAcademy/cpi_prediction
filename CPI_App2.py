@@ -60,6 +60,12 @@ def preprocess_data(cpi_csv, vehicles_csv, currency_csv):
     start_date = datetime.datetime.strptime("2020-12-31", "%Y-%m-%d")
     end_date = datetime.datetime.strptime("2023-03-31", "%Y-%m-%d")
 
+        # Concatenate data for the next two months
+    for i in range(1, 3):
+        date_obj = end_date + datetime.timedelta(days=i)
+        new_row = pd.DataFrame({'Month': [date_obj]})
+        cpi_pivot = pd.concat([cpi_pivot, new_row]).reset_index(drop=True)
+
     # difference between each date. M means one month end
     D = 'M'
 
@@ -200,7 +206,7 @@ def train_and_save_models(df_merged):
     return save_directory, X_test
 
 # Function to make predictions using trained models
-def make_predictions(data, models, datetime_data):
+def make_predictions(data, models, num_months=1):
     # Directory where models are saved
     save_directory = "saved_models/"
 
@@ -216,20 +222,16 @@ def make_predictions(data, models, datetime_data):
             loaded_models[col] = loaded_model
 
     # Make predictions for the next 3 months for each category (float columns)
-    predictions_float = {}
-    for i in range(1, 4):
-        for col, model in loaded_models.items():
-            y_pred = model.predict(data)
-            predictions_float[f"next_{i}_month_{col}"] = round(y_pred[0][0], 2)
+    predictions = {}
+    for column, model in loaded_models.items():
+        # Predict for the next num_months
+        future_X_test = X_test.copy()
+        for _ in range(num_months):
+            future_X_test = future_X_test.append(future_X_test.tail(1), ignore_index=True)
+        y_pred = model.predict(future_X_test)
+        predictions[column] = [round(value[0], 2) for value in y_pred]
 
-    # Combine datetime values and float predictions
-    predictions_combined = {}
-    for i in range(1, 4):
-        predictions_combined[f"Month_{i}"] = datetime_data[f"next_{i}_month"].iloc[0]
-        for col in target_cols:
-            predictions_combined[f"next_{i}_month_{col}"] = predictions_float[f"next_{i}_month_{col}"]
-
-    return predictions_combined
+    return predictions
 
 # Streamlit app
 def main():
@@ -254,13 +256,10 @@ def main():
             trained_models = train_and_save_models(df_merged)
             input_for_predictions = df_merged.tail(1)  # Input for making predictions
 
-            # Display predictions for the next 3 months
-            st.write("Predicted CPI values for the next 3 months:")
-            predictions = make_predictions(input_for_predictions, trained_models, datetime_data)
-            for i in range(1, 4):
-                st.write(f"Month {i}:")
-                for col in target_cols:
-                    st.write(f"{col}: {predictions[f'next_{i}_month_{col}']}")
+        # Display predictions for the next 3 months
+        st.write("Predicted CPI values for the next 3 months:")
+        predictions = make_predictions(trained_models, df_merged, num_months=3)
+        st.write(predictions)
 
 if __name__ == "__main__":
     main()
