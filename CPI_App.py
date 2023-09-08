@@ -89,7 +89,7 @@ def preprocess_data(cpi_csv, vehicles_csv, currency_csv):
 
     df_merged = df_merged.drop(0)
     df_merged = df_merged.bfill()
-    df_merged = df_merged.drop(['Month'], axis=1)
+    # df_merged = df_merged.drop(['Month'], axis=1)
 
     df_merged = df_merged.drop(['Date'], axis=1)
     df_merged = df_merged.dropna()
