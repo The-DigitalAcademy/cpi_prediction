@@ -33,9 +33,10 @@ def preprocess_data(cpi_csv, vehicles_csv, currency_csv):
     date_obj = pd.to_datetime(date_str)
     new_row = pd.DataFrame({'Month': [date_obj]})
     cpi_pivot = pd.concat([cpi_pivot, new_row]).reset_index(drop=True)
-    cpi_pivot['Month'] = pd.to_datetime(cpi_pivot['Month'])
 
+    cpi_pivot['Month'] = pd.to_datetime(cpi_pivot['Month'])
     cpi_pivot['year_month'] = pd.to_datetime(cpi_pivot['Month'], format='%Y-%b').dt.strftime('%Y-%m')
+
     feats_to_lag = [col for col in cpi_pivot.columns if col not in ['Month', 'year_month']]
 
     # Create a new column for the rolling average and calculate the average for all 8 features
@@ -51,20 +52,20 @@ def preprocess_data(cpi_csv, vehicles_csv, currency_csv):
     columns_to_drop = [col for col in cpi_pivot.columns if 'prev' in col]
 
     cpi_pivot = cpi_pivot.drop(columns=columns_to_drop)
-    # if 0 in cpi_pivot.index:
-    #    cpi_pivot = cpi_pivot.drop(index=0)
-
+    
+    
+    
+    for i in range(1, 4):
+        next_month_date = cpi_pivot['Month'].max() + pd.DateOffset(months=i)
+        # Create a new row for the next month (similar to your existing code)
+        new_row = pd.DataFrame({'Month': [next_month_date]})
+        # Append the new row to the DataFrame
+        cpi_pivot = pd.concat([cpi_pivot, new_row]).reset_index(drop=True)
 
     ####################################### VEHICLES ##############################################################
 
     start_date = datetime.datetime.strptime("2020-12-31", "%Y-%m-%d")
     end_date = datetime.datetime.strptime("2023-03-31", "%Y-%m-%d")
-
-        # Concatenate data for the next two months
-    for i in range(1, 3):
-        date_obj = end_date + datetime.timedelta(days=i)
-        new_row = pd.DataFrame({'Month': [date_obj]})
-        cpi_pivot = pd.concat([cpi_pivot, new_row]).reset_index(drop=True)
 
     # difference between each date. M means one month end
     D = 'M'
@@ -101,38 +102,20 @@ def preprocess_data(cpi_csv, vehicles_csv, currency_csv):
 
     df_merged = df_merged.drop(['Date'], axis=1)
     df_merged = df_merged.dropna()
+       
+    return df_merged
 
-
-    # Create features for the next 3 months
-    for i in range(1, 4):
-        df_merged[f"next_{i}_month"] = df_merged['Month'].shift(-i)
-
-    # Adjust target variable to predict next 3 months for float columns
-    for i in range(1, 4):
-        for col in target_cols:
-            df_merged[f"next_{i}_month_{col}"] = df_merged[col].shift(-i)
-
-    # Separate datetime values
-    date_cols = ['Month'] + [f"next_{i}_month" for i in range(1, 4)]
-    datetime_data = df_merged[date_cols]
-    df_merged = df_merged.drop(columns=date_cols)
-
-    if 0 in df_merged.index:
-       df_merged = df_merged.drop(index=0)
-    
-       df_merged = df_merged.bfill()
-
-    return df_merged, datetime_data
 
 
 # Function to train and save models
-def train_and_save_models(df_merged):
-    X = df_merged.drop(columns=['year_month'] + target_cols)
-    y = df_merged[[f"next_{i}_month_{col}" for i in range(1, 4) for col in target_cols]]
+def train_and_save_models(df_merged):     
 
+    X = df_merged.drop(columns=['year_month','Month'] + target_cols)
+    y= df_merged[target_cols]
+       
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-    # Specify which columns to standardize (excluding 'Month')
+       
+# Specify which columns to standardize (excluding 'Month')
     columns_to_standardize = [col for col in X_train.columns if col != 'Month']
 
     # Initialize the StandardScaler
@@ -147,7 +130,8 @@ def train_and_save_models(df_merged):
     # Directory to save the models
     save_directory = "saved_models/"
 
-    # Ensure the directory exists
+# Ensure the directory exists
+    import os
     os.makedirs(save_directory, exist_ok=True)
 
     models = defaultdict(dict)
@@ -159,79 +143,105 @@ def train_and_save_models(df_merged):
         ('Deep Neural Network', Sequential([
             Dense(128, activation='relu', input_dim=X_train.shape[1]),
             Dense(64, activation='relu'),
-            Dense(len(target_cols) * 3, activation='linear')  # Adjust output size for 3 months
+            Dense(1, activation='linear')
         ]))
     ]
 
-    for col in target_cols:
+    # Number of months to predict
+    num_months_to_predict = 3
+
+    for column in target_cols:
         mse_values = []
 
         for model_name, model_architecture in model_types:
-            # Create the model instance
+        # Create the model instance
             model = model_architecture
 
             if isinstance(model, Sequential):
-                # Compile the model
+            # Compile the model
                 model.compile(optimizer='adam', loss='mean_squared_error')
 
-                # Fit the model
-                model.fit(X_train, y_train[[f"next_{i}_month_{col}" for i in range(1, 4)]], epochs=100, batch_size=32,
-                          verbose=0)
+                for i in range(num_months_to_predict):
+                # Split the data for the current month
+                    X_train_month = X_train  
+                    y_train_month = y_train[column]  
 
-                # Save the model
-                model.save(os.path.join(save_directory, f"{col}_{model_name}.h5"))
+                # Fit the model for the current month
+                    model.fit(X_train_month, y_train_month, epochs=100, batch_size=32, verbose=0)
 
-                # Make predictions
-                y_pred = model.predict(X_test)
+                # Save the model for the current month
+                    model.save(os.path.join(save_directory, f"{column}_{model_name}_month_{i + 1}.h5"))
 
-                # Calculate mean squared error for evaluation
-                mse = mean_squared_error(y_test[[f"next_{i}_month_{col}" for i in range(1, 4)]], y_pred)
-                mse_values.append((model_name, mse))
+                # Make predictions for the current month
+                    y_pred = model.predict(X_test)  # Adjust X_test as needed
 
+                # Calculate mean squared error for evaluation for the current month
+                    mse = mean_squared_error(y_test[column], y_pred)
+                    mse_values.append((model_name, mse))
+
+    # Check if any models were trained and saved
         if mse_values:
-            # Choose the best model based on the lowest MSE
+        # Choose the best model based on the lowest MSE
             best_model_name, best_mse = min(mse_values, key=lambda x: x[1])
-            print(f"Best Model for {col}: {best_model_name}, Mean Squared Error: {best_mse}")
+            print(f"Best Model for {column}: {best_model_name}, Mean Squared Error: {best_mse}")
 
-            # Store the trained best model
-            best_model = [model_architecture for model_name, model_architecture in model_types if
-                          model_name == best_model_name][0]
-            models[col]['model'] = best_model
-            models[col]['mse'] = best_mse
+        # Store the trained best model
+            best_model = [model_architecture for model_name, model_architecture in model_types if model_name == best_model_name][0]
+            models[column]['model'] = best_model
+            models[column]['mse'] = best_mse
         else:
-            print(f"No models found for {col}.")
+            print(f"No models found for {column}.")
 
     ############################# END OF TRAINING ###################
 
-    return save_directory, X_test
+    return save_directory,X_test
+
+# ...
 
 # Function to make predictions using trained models
-def make_predictions(data, models, num_months=1):
+def make_predictions(data, models):
     # Directory where models are saved
+
+# Directory where models are saved
     save_directory = "saved_models/"
 
-    # Define a dictionary to store the loaded models
+# Define a dictionary to store the loaded models
     loaded_models = {}
 
-    # Load the models for each target column
-    for col in target_cols:
-        # Check if a model exists for the column
-        model_path = os.path.join(save_directory, f"{col}_Deep Neural Network.h5")
-        if os.path.exists(model_path):
-            loaded_model = load_model(model_path)
-            loaded_models[col] = loaded_model
+# Load the models for each target column
+    for column in target_cols:
+    # Check if a model exists for the column
+        for i in range(1, 4):  # Loop for 3 months
+            model_path = os.path.join(save_directory, f"{column}_Deep Neural Network_month_{i}.h5")
+            if os.path.exists(model_path):
+                loaded_model = load_model(model_path)
+                loaded_models[f"{column}_month_{i}"] = loaded_model
+        # Get X_test from the tuple returned by train_and_save_models
+    X_test = data[1]
 
-    # Make predictions for the next 3 months for each category (float columns)
+# Make predictions for each target column on the test data (X_test) for each month
     predictions = {}
-    for column, model in loaded_models.items():
-        # Predict for the next num_months
-        future_X_test = X_test.copy()
-        for _ in range(num_months):
-            future_X_test = future_X_test.append(future_X_test.tail(1), ignore_index=True)
-        y_pred = model.predict(future_X_test)
-        predictions[column] = [round(value[0], 2) for value in y_pred]
+
+    for month in range(1, 4):  # Loop for 3 months
+        month_predictions = {}
+    
+        for column, model in loaded_models.items():
+            if f"_month_{month}" in column:
+                y_pred = model.predict(X_test)  # Adjust X_test as needed
+                month_predictions[column.replace(f"_month_{month}", "")] = round(y_pred[0][0], 2)
+    
+        predictions[f"Month_{month}"] = month_predictions
+
+# Print the predictions for all target variables for each of the three months
+    for month, month_predictions in predictions.items():
+        print(f"Predictions for {month}:")
+        for target, prediction in month_predictions.items():
+            print(f"Predicted {target}: {prediction}")
+
+
 
     return predictions
+
 
 # Streamlit app
 def main():
@@ -250,16 +260,16 @@ def main():
             st.sidebar.error("Please upload all three CSV files.")
         else:
             # Preprocess data
-            df_merged, datetime_data = preprocess_data(uploaded_cpi, uploaded_vehicles, uploaded_currency)
+            df_merged = preprocess_data(uploaded_cpi, uploaded_vehicles, uploaded_currency)
 
             # Train models
             trained_models = train_and_save_models(df_merged)
-            input_for_predictions = df_merged.tail(1)  # Input for making predictions
+            # input_for_predictions = df_merged.tail(1), axis=1)
 
-        # Display predictions for the next 3 months
-        st.write("Predicted CPI values for the next 3 months:")
-        predictions = make_predictions(trained_models, df_merged, num_months=3)
-        st.write(predictions)
+            # Display predictions
+            st.write("Predicted CPI values:")
+            predictions = make_predictions(trained_models, df_merged)
+            st.write(predictions)
 
 if __name__ == "__main__":
     main()
