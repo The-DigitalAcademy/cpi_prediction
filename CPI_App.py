@@ -222,11 +222,11 @@ def main():
 
             # Train models
             trained_models = train_and_save_models(df_merged)
-            input_for_predictions = df_merged.tail(1).drop(['Month'], axis=1)
+            # input_for_predictions = df_merged.tail(1).drop(['Month'], axis=1)
 
             # Display predictions
             st.write("Predicted CPI values:")
-            predictions = make_predictions(trained_models, df_merged, input_for_predictions)
+            predictions = make_predictions(trained_models, df_merged)
             st.write(predictions)
 
 if __name__ == "__main__":
