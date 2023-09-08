@@ -100,7 +100,7 @@ def preprocess_data(cpi_csv, vehicles_csv, currency_csv):
     # df_merged = df_merged.drop(['Month'], axis=1)
 
     df_merged = df_merged.drop(['Date'], axis=1)
-    # df_merged = df_merged.dropna()
+    df_merged = df_merged.dropna()
 
 
     # Create features for the next 3 months
