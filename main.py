@@ -34,17 +34,23 @@ def make_prediction(category, month, year):
     # Prepare user input data
     user_input = pd.DataFrame({'Month': [f'{year}-{month:02d}-30'], 'Category': [category]})
     
-    # Implement data preprocessing based on your dataset
-    # Replace this part with your actual data preprocessing code
-    # Example: scaled_input_data = preprocess_data(user_input)
+    # Data preprocessing
+    # Date feature handling
+    user_input['Month'] = pd.to_datetime(user_input['Month'])
+    user_input['Year'] = user_input['Month'].dt.year
+    user_input['Month'] = user_input['Month'].dt.month
     
-    # Assuming you need to preprocess and scale the input data
+    # Categorical encoding (assuming one-hot encoding)
+    user_input = pd.get_dummies(user_input, columns=['Category'], drop_first=True)
+    
+    # Scaling (assuming Min-Max scaling with the same scaler used during training)
     user_input_scaled = scaler.transform(user_input)
     
     # Make predictions using the loaded model
     prediction = lr_model.predict(user_input_scaled)
     
     return prediction[0]  # Return the first element of the prediction (assuming it's a single value)
+
 
 # Display the prediction
 if st.button("Predict CPI"):
