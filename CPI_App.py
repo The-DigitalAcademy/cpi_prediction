@@ -96,14 +96,15 @@ def preprocess_data(cpi_csv, vehicles_csv, currency_csv):
        
     return df_merged
 
+X = df_merged.drop(columns=['year_month','Month'] + target_cols)
+y= df_merged[target_cols]
+       
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
 # Function to train and save models
 def train_and_save_models(df_merged):
-       
-    X = df_merged.drop(columns=['year_month','Month'] + target_cols)
-    y= df_merged[target_cols]
-       
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
+ #      
+#
 # Specify which columns to standardize (excluding 'Month')
     columns_to_standardize = [col for col in X_train.columns if col != 'Month']
 
@@ -178,7 +179,7 @@ def train_and_save_models(df_merged):
     return save_directory
 
 # Function to make predictions using trained models
-def make_predictions(data, models, X_test):
+def make_predictions(data, models):
     # Directory where models are saved
     save_directory = "saved_models/"
 
