@@ -33,9 +33,9 @@ def preprocess_data(cpi_csv, vehicles_csv, currency_csv):
     date_obj = pd.to_datetime(date_str)
     new_row = pd.DataFrame({'Month': [date_obj]})
     cpi_pivot = pd.concat([cpi_pivot, new_row]).reset_index(drop=True)
+    cpi_pivot['Month'] = pd.to_datetime(cpi_pivot['Month'])
 
     cpi_pivot['year_month'] = pd.to_datetime(cpi_pivot['Month'], format='%Y-%b').dt.strftime('%Y-%m')
-    cpi_pivot = cpi_p
     feats_to_lag = [col for col in cpi_pivot.columns if col not in ['Month', 'year_month']]
 
     # Create a new column for the rolling average and calculate the average for all 8 features
