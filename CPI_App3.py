@@ -17,16 +17,19 @@ def main():
     # Set the title
     st.title("CPI Prediction Dashboard")
 
-    # Display a dropdown to select the category for prediction
-    selected_category = st.selectbox("Select a category to predict:", target_cols)
+selected_categories = st.multiselect("Select categories to predict:", target_cols)
 
-    # Display input fields for previous CPI values
+# Iterate over selected categories
+for selected_category in selected_categories:
+    st.write(f"Predictions for {selected_category}:")
+    
+    # Display input fields for previous CPI values for the selected category
     st.write(f"Enter previous CPI value for {selected_category}:")
     previous_cpi_value = st.number_input(f"Previous CPI for {selected_category}", value=0.0)
-
-    # Display input fields for vehicle sales and currency
-    vehicle_sales = st.number_input("Vehicle Sales", value=0.0)
-    currency_input = st.number_input("Currency Input", value=0.0)
+    
+    # Display input fields for vehicle sales and currency for the selected category
+    vehicle_sales = st.number_input(f"{selected_category} Vehicle Sales", value=0.0)
+    currency_input = st.number_input(f"{selected_category} Currency Input", value=0.0)
 
     # Dictionary to store loaded models
     loaded_models = {}
