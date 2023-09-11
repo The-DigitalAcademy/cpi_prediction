@@ -6,7 +6,12 @@ from tensorflow.keras.models import load_model
 import datetime
 from collections import defaultdict
 
-# ... (previous code for data preprocessing, model saving)
+
+target_cols = ['Headline_CPI','Alcoholic beverages and tobacco', 'Clothing and footwear',
+       'Communication', 'Education', 'Food and non-alcoholic beverages',
+        'Health', 'Household contents and services',
+       'Housing and utilities', 'Miscellaneous goods and services',
+       'Recreation and culture', 'Restaurants and hotels ', 'Transport']
 
 # Streamlit app
 def main():
