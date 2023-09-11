@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 import os
 from tensorflow.keras.models import load_model
 
@@ -13,40 +14,43 @@ def main():
     # Set the title
     st.title("CPI Prediction Dashboard")
 
-    # Display a dropdown to select the category for prediction
-    selected_category = st.selectbox("Select a category to predict:", target_cols)
+    # Allow the user to select multiple categories for prediction
+    selected_categories = st.multiselect("Select categories to predict:", target_cols)
 
-    # Display input fields for previous CPI values
-    st.write(f"Enter previous CPI value for {selected_category}:")
-    previous_cpi_value = st.number_input(f"Previous CPI for {selected_category}", value=0.0)
+    # Display input fields for previous CPI values for selected categories
+    input_values = {}
+    for category in selected_categories:
+        st.write(f"Enter previous CPI value for {category}:")
+        previous_cpi_value = st.number_input(f"Previous CPI for {category}", value=0.0)
+        input_values[category] = previous_cpi_value
+
+    # Display input fields for vehicle sales and currency
+    vehicle_sales = st.number_input("Vehicle Sales", value=0.0)
+    currency_input = st.number_input("Currency Input", value=0.0)
 
     # Dictionary to store loaded models
     loaded_models = {}
 
-    # Iterate over target columns and months
-    for column in target_cols:
+    # Iterate over selected categories and months
+    for column in selected_categories:
         for i in range(1, 4):
-            model_path = os.path.join(save_directory, f"{column}_Deep Neural Network_month_{i}.h5")
+            model_path = os.path.join(f"{column}_Deep Neural Network_month_{i}.h5")
             if os.path.exists(model_path):
                 loaded_model = load_model(model_path)
                 loaded_models[f"{column}_month_{i}"] = loaded_model
 
     # Create input data for prediction
-    input_data = df_merged.tail(1).copy()  # Input for making predictions
-    input_data[selected_category] = previous_cpi_value
-
-    # Display input fields for other X_train columns
-    st.write("Enter previous values for other features:")
-    for col in X_train.columns:
-        if col != selected_category:  # Exclude the selected category
-            input_value = st.number_input(f"Previous {col}", value=0.0)
-            input_data[col] = input_value
+    input_data = pd.DataFrame(columns=target_cols)  # Create an empty DataFrame
+    for category in selected_categories:
+        input_data.at[0, category] = input_values[category]
+    input_data.at[0, 'Vehicle Sales'] = vehicle_sales
+    input_data.at[0, 'Currency Input'] = currency_input
 
     # Dictionary to store predictions
     predictions = {}
 
-    # Iterate over target columns and months
-    for column in target_cols:
+    # Iterate over selected categories and months
+    for column in selected_categories:
         for i in range(1, 4):
             model_key = f"{column}_month_{i}"
             if model_key in loaded_models:
@@ -57,7 +61,8 @@ def main():
     # Display predictions
     st.write("Predicted CPI values for the next 3 months:")
     for i in range(1, 4):
-        st.write(f"Month {i}: {selected_category} CPI: {predictions[f'next_{i}_month_{selected_category}']:.2f}")
+        for category in selected_categories:
+            st.write(f"Month {i}: {category} CPI: {predictions[f'next_{i}_month_{category}']:.2f}")
 
 if __name__ == "__main__":
     main()
