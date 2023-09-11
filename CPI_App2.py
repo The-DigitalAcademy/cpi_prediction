@@ -9,9 +9,9 @@ from tensorflow.keras.layers import Dense
 import datetime
 from collections import defaultdict
 
-target_cols = ['Alcoholic beverages and tobacco', 'Clothing and footwear',
+target_cols = ['Headline_CPI','Alcoholic beverages and tobacco', 'Clothing and footwear',
        'Communication', 'Education', 'Food and non-alcoholic beverages',
-       'Headline_CPI', 'Health', 'Household contents and services',
+        'Health', 'Household contents and services',
        'Housing and utilities', 'Miscellaneous goods and services',
        'Recreation and culture', 'Restaurants and hotels ', 'Transport']
 
