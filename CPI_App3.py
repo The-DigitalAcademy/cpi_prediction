@@ -70,6 +70,9 @@ def main():
         # Dictionary to store predictions
         predictions = {}
 
+        # Allow the user to select which month they want to predict
+        selected_month = st.selectbox("Select a month for prediction:", ["Next Month", "Two Months Later", "Three Months Later"])
+
         # Calculate the reference date based on the current date
         current_date = datetime.date.today()
         if selected_month == "Next Month":
@@ -80,12 +83,12 @@ def main():
             reference_date = current_date.replace(month=current_date.month + 3)
 
         # Make predictions for the selected category
-        make_prediction(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, selected_month)
+        make_prediction(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date)
 
         # Display predictions
         st.write(f"Predicted CPI values for {selected_month} for {selected_category}:")
         category_formatted = selected_category.replace(' ', '_')  # Replace spaces with underscores
-        st.write(f"{selected_category} CPI for {reference_date.strftime('%B_%Y')} ({selected_month}): {predictions[category_formatted + '_CPI_for_' + reference_date.strftime('%B_%Y')}_{selected_month}']:.2f}")
+        st.write(f"{selected_category} CPI for {reference_date.strftime('%B_%Y')}: {predictions[category_formatted + '_CPI_for_' + reference_date.strftime('%B_%Y')]:.2f}")
 
 if __name__ == "__main__":
     main()
