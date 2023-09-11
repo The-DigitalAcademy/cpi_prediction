@@ -19,31 +19,40 @@ def main():
     st.title("CPI Prediction Dashboard")
 
     # Display a dropdown to select the category for prediction
-    selected_categories = st.multiselect("Select categories to predict:", target_cols)
+    selected_category = st.selectbox("Select a category to predict:", target_cols)
 
-    if not selected_categories:
-        st.warning("Please select at least one category to predict.")
-        return
+    # Display input fields for previous CPI values
+    st.write(f"Enter previous CPI value for {selected_category}:")
+    previous_cpi_value = st.number_input(f"Previous CPI for {selected_category}", value=0.0)
 
-    # Create a dictionary to store input values for each category
+    # Display input fields for vehicle sales and currency
+    vehicle_sales = st.number_input("Vehicle Sales", value=0.0)
+    currency_input = st.number_input("Currency Input", value=0.0)
+
+    # Dictionary to store loaded models
+    loaded_models = {}
     input_values = {}
+    # Iterate over target columns and months
+    for column in target_cols:
+        for i in range(1, 4):
+            model_path = os.path.join(f"{column}_Deep Neural Network_month_{i}.h5")
+            if os.path.exists(model_path):
+                loaded_model = load_model(model_path)
+                loaded_models[f"{column}_month_{i}"] = loaded_model
 
-    # Iterate over selected categories
-    for selected_category in selected_categories:
-        # Display input fields for previous CPI values
-        st.write(f"Enter previous CPI value for {selected_category}:")
-        previous_cpi_value = st.number_input(f"Previous CPI for {selected_category}", value=0.0)
+    # Create input data for prediction
+    input_data = pd.DataFrame(columns=target_cols)  # Create an empty DataFrame
+    input_data.at[0, selected_category] = previous_cpi_value
+    input_data.at[0, 'Vehicle Sales'] = vehicle_sales
+    input_data.at[0, 'Currency Input'] = currency_input
 
-        # Display input fields for vehicle sales and currency
-        vehicle_sales = st.number_input(f"{selected_category} Vehicle Sales", value=0.0)
-        currency_input = st.number_input(f"{selected_category} Currency Input", value=0.0)
-
-        # Store the input values for the selected category
+      # Store the input values for the selected category
         input_values[selected_category] = {
             "previous_cpi_value": previous_cpi_value,
             "vehicle_sales": vehicle_sales,
             "currency_input": currency_input
         }
+
 
     # Add a button to trigger model predictions
     if st.button("Predict CPI"):
