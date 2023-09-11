@@ -68,18 +68,18 @@ def main():
     predictions = {}
 
     # Iterate over target columns and months
-    for column in target_cols:
+    for category in target_cols:
         for i in range(1, 4):
-            model_key = f"{column}_month_{i}"
+            model_key = f"{category}_month_{i}"
             if model_key in loaded_models:
                 loaded_model = loaded_models[model_key]
                 y_pred = loaded_model.predict(input_data)
-                predictions[f'next_{i}_month_{column}'] = round(y_pred[0][0], 2)
+                predictions[f'{category} CPI for {reference_date.strftime('%B %Y')}'] = round(y_pred[0][0], 2)
 
     # Display predictions
     st.write(f"Predicted CPI values for {selected_month}:")
     for category in target_cols:
-        st.write(f"{category} CPI for {reference_date.strftime('%B %Y')}: {predictions[f'{category} CPI for {{reference_date.strftime('%B %Y')}}']:.2f}")
+        st.write(f"{category} CPI for {reference_date.strftime('%B %Y')}: {predictions[f'{category} CPI for {reference_date.strftime('%B %Y')}']:.2f}")
 
 if __name__ == "__main__":
     main()
