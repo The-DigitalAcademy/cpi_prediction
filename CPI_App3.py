@@ -26,10 +26,6 @@ for selected_category in selected_categories:
     # Display input fields for previous CPI values for the selected category
     st.write(f"Enter previous CPI value for {selected_category}:")
     previous_cpi_value = st.number_input(f"Previous CPI for {selected_category}", value=0.0)
-    
-    # Display input fields for vehicle sales and currency for the selected category
-vehicle_sales = st.number_input(f"{selected_category} Vehicle Sales", value=0.0)
-currency_input = st.number_input(f"{selected_category} Currency Input", value=0.0)
 
     # Dictionary to store loaded models
     loaded_models = {}
