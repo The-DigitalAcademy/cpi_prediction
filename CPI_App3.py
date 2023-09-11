@@ -23,12 +23,14 @@ def load_models():
     return loaded_models
 
 # Function to create input data for prediction
-def create_input_data(selected_categories, previous_cpi_value, vehicle_sales, currency_input):
+def create_input_data(selected_categories, previous_cpi_value, vehicle_sales, USD/ZAR, GBP/ZAR, EUR/ZAR):
     input_data = pd.DataFrame(columns=target_cols)  # Create an empty DataFrame
     for category in selected_categories:
         input_data.at[0, category] = previous_cpi_value
     input_data.at[0, 'Vehicle Sales'] = vehicle_sales
-    input_data.at[0, 'Currency Input'] = currency_input
+    input_data.at[0, 'USD/ZAR'] = USD/ZAR
+    input_data.at[0, 'GBP/ZAR'] = GBP/ZAR
+    input_data.at[0, 'EUR/ZAR'] = EUR/ZAR
     return input_data
 
 # Function to make predictions for a category
@@ -55,7 +57,9 @@ def main():
     # Display input fields for vehicle sales and currency
     st.write("Enter Vehicle Sales and Currency Input:")
     vehicle_sales = st.number_input("Vehicle Sales", value=0.0)
-    currency_input = st.number_input("Currency Input", value=0.0)
+    USD/ZAR = st.number_input("USD/ZAR", value=0.0)
+    GBP/ZAR = st.number_input("GBP/ZAR", value=0.0)
+    EUR/ZAR = st.number_input("EUR/ZAR", value=0.0)
 
     # Load saved models
     loaded_models = load_models()
@@ -78,7 +82,7 @@ def main():
             reference_date = current_date.replace(month=current_date.month + 3)
 
         # Make predictions for the selected categories
-        make_prediction(selected_categories, create_input_data(selected_categories, previous_cpi_value, vehicle_sales, currency_input), loaded_models, "_".join(selected_categories), predictions, reference_date, selected_month)
+        make_prediction(selected_categories, create_input_data(selected_categories, previous_cpi_value, vehicle_sales, USD/ZAR, GBP/ZAR, EUR/ZAR), loaded_models, "_".join(selected_categories), predictions, reference_date, selected_month)
 
         # Display predictions
         st.write(f"Predicted CPI values for {selected_month} for the selected categories:")
