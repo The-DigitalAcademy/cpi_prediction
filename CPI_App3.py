@@ -81,7 +81,7 @@ def main():
     st.write(f"Predicted CPI values for {selected_month}:")
     for category in target_cols:
         category_formatted = category.replace(' ', '_')  # Replace spaces with underscores
-        st.write(f"{category} CPI for {reference_date.strftime('%B %Y')}: {predictions[f'{category_formatted}_CPI_for_{reference_date.strftime('%B_%Y')}']:.2f}")
+        st.write(f"{category} CPI for {reference_date.strftime('%B_%Y')}: {predictions[f'{category_formatted}_CPI_for_{reference_date.strftime('%B_%Y')}']:.2f}")
 
 if __name__ == "__main__":
     main()
