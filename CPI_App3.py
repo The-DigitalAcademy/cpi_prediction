@@ -31,13 +31,13 @@ def create_input_data(selected_category, previous_cpi_value, vehicle_sales, curr
     return input_data
 
 # Function to make predictions for a category
-def make_prediction(selected_category, input_data, loaded_models, category_formatted, predictions, reference_date):
+def make_prediction(selected_category, input_data, loaded_models, category_formatted, predictions, reference_date, selected_month):
     for i in range(1, 4):
         model_key = f"{selected_category}_month_{i}"
         if model_key in loaded_models:
             loaded_model = loaded_models[model_key]
             y_pred = loaded_model.predict(input_data)
-            predictions[f'{category_formatted}_CPI_for_{reference_date.strftime("%B_%Y")}'] = round(y_pred[0][0], 2)
+            predictions[f'{category_formatted}_CPI_for_{reference_date.strftime("%B_%Y")}_{selected_month}'] = round(y_pred[0][0], 2)
 
 # Streamlit app
 def main():
@@ -62,13 +62,13 @@ def main():
     # Create input data for prediction
     input_data = create_input_data(selected_category, previous_cpi_value, vehicle_sales, currency_input)
 
+    # Allow the user to select which month they want to predict
+    selected_month = st.selectbox("Select a month for prediction:", ["Next Month", "Two Months Later", "Three Months Later"])
+
     # Add a button to trigger model predictions
     if st.button("Predict CPI"):
         # Dictionary to store predictions
         predictions = {}
-
-        # Allow the user to select which month they want to predict
-        selected_month = st.selectbox("Select a month for prediction:", ["Next Month", "Two Months Later", "Three Months Later"])
 
         # Calculate the reference date based on the current date
         current_date = datetime.date.today()
@@ -80,12 +80,12 @@ def main():
             reference_date = current_date.replace(month=current_date.month + 3)
 
         # Make predictions for the selected category
-        make_prediction(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date)
+        make_prediction(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, selected_month)
 
         # Display predictions
         st.write(f"Predicted CPI values for {selected_month} for {selected_category}:")
         category_formatted = selected_category.replace(' ', '_')  # Replace spaces with underscores
-        st.write(f"{selected_category} CPI for {reference_date.strftime('%B_%Y')}: {predictions[category_formatted + '_CPI_for_' + reference_date.strftime('%B_%Y')]:.2f}")
+        st.write(f"{selected_category} CPI for {reference_date.strftime('%B_%Y')} ({selected_month}): {predictions[category_formatted + '_CPI_for_' + reference_date.strftime('%B_%Y')}_{selected_month}']:.2f}")
 
 if __name__ == "__main__":
     main()
