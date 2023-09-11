@@ -21,7 +21,8 @@ def main():
     # Display input fields for previous CPI values for selected categories
     input_values = {}
     for category in selected_categories:
-        st.write(f"Enter previous CPI value for {category}:")
+        st.write(f"{category} CPI for {reference_date.strftime('%B %Y')}: {predictions[f'{category} CPI for {reference_date.strftime('%B %Y')}']:.2f}")
+
         previous_cpi_value = st.number_input(f"Previous CPI for {category}", value=0.0)
         input_values[category] = previous_cpi_value
 
