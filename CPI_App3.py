@@ -79,7 +79,7 @@ def main():
     # Display predictions
     st.write(f"Predicted CPI values for {selected_month}:")
     for category in target_cols:
-        st.write(f"{category} CPI for {reference_date.strftime('%B %Y')}: {predictions[f'{category} CPI for {reference_date.strftime('%B %Y')}']:.2f}")
+        st.write(f"{category} CPI for {reference_date.strftime('%B %Y')}: {predictions[f'{category} CPI for {{reference_date.strftime('%B %Y')}}']:.2f}")
 
 if __name__ == "__main__":
     main()
