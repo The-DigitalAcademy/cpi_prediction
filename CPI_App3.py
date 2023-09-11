@@ -28,41 +28,43 @@ def main():
     vehicle_sales = st.number_input("Vehicle Sales", value=0.0)
     currency_input = st.number_input("Currency Input", value=0.0)
 
-    # Dictionary to store loaded models
-    loaded_models = {}
+    # Add a prediction button
+    if st.button("Predict CPI"):
+        # Dictionary to store loaded models
+        loaded_models = {}
 
-    # Iterate over selected categories and months
-    for column in selected_categories:
-        for i in range(1, 4):
-            model_path = os.path.join(f"{column}_Deep Neural Network_month_{i}.h5")
-            if os.path.exists(model_path):
-                loaded_model = load_model(model_path)
-                loaded_models[f"{column}_month_{i}"] = loaded_model
+        # Iterate over selected categories and months
+        for column in selected_categories:
+            for i in range(1, 4):
+                model_path = os.path.join(f"{column}_Deep Neural Network_month_{i}.h5")
+                if os.path.exists(model_path):
+                    loaded_model = load_model(model_path)
+                    loaded_models[f"{column}_month_{i}"] = loaded_model
 
-    # Create input data for prediction
-    input_data = pd.DataFrame(columns=target_cols)  # Create an empty DataFrame
-    for category in selected_categories:
-        input_data.at[0, category] = input_values[category]
-    input_data.at[0, 'Vehicle Sales'] = vehicle_sales
-    input_data.at[0, 'Currency Input'] = currency_input
-
-    # Dictionary to store predictions
-    predictions = {}
-
-    # Iterate over selected categories and months
-    for column in selected_categories:
-        for i in range(1, 4):
-            model_key = f"{column}_month_{i}"
-            if model_key in loaded_models:
-                loaded_model = loaded_models[model_key]
-                y_pred = loaded_model.predict(input_data)
-                predictions[f'next_{i}_month_{column}'] = round(y_pred[0][0], 2)
-
-    # Display predictions
-    st.write("Predicted CPI values for the next 3 months:")
-    for i in range(1, 4):
+        # Create input data for prediction
+        input_data = pd.DataFrame(columns=target_cols)  # Create an empty DataFrame
         for category in selected_categories:
-            st.write(f"Month {i}: {category} CPI: {predictions[f'next_{i}_month_{category}']:.2f}")
+            input_data.at[0, category] = input_values[category]
+        input_data.at[0, 'Vehicle Sales'] = vehicle_sales
+        input_data.at[0, 'Currency Input'] = currency_input
+
+        # Dictionary to store predictions
+        predictions = {}
+
+        # Iterate over selected categories and months
+        for column in selected_categories:
+            for i in range(1, 4):
+                model_key = f"{column}_month_{i}"
+                if model_key in loaded_models:
+                    loaded_model = loaded_models[model_key]
+                    y_pred = loaded_model.predict(input_data)
+                    predictions[f'next_{i}_month_{column}'] = round(y_pred[0][0], 2)
+
+        # Display predictions
+        st.write("Predicted CPI values for the next 3 months:")
+        for i in range(1, 4):
+            for category in selected_categories:
+                st.write(f"Month {i}: {category} CPI: {predictions[f'next_{i}_month_{category}']:.2f}")
 
 if __name__ == "__main__":
     main()
