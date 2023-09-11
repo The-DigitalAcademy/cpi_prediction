@@ -52,8 +52,8 @@ def main():
         input_data.at[0, 'Vehicle Sales'] = vehicle_sales
         input_data.at[0, 'Currency Input'] = currency_input
 
-        # Display input fields for other X_train columns
-        st.write("Enter previous values for other features:")
+        # Display input fields for other X_train columns for the selected category
+        st.write(f"Enter previous values for other features for {selected_category}:")
         for col in target_cols:
             if col != selected_category and col not in ['Vehicle Sales', 'Currency Input']:
                 input_value = st.number_input(f"Previous {col}", value=0.0)
@@ -85,10 +85,9 @@ def main():
                     predictions[f'{category_formatted}_CPI_for_{reference_date.strftime("%B_%Y")}'] = round(y_pred[0][0], 2)
 
         # Display predictions
-        st.write(f"Predicted CPI values for {selected_month}:")
-        for category in target_cols:
-            category_formatted = category.replace(' ', '_')  # Replace spaces with underscores
-            st.write(f"{category} CPI for {reference_date.strftime('%B_%Y')}: {predictions[category_formatted + '_CPI_for_' + reference_date.strftime('%B_%Y')]:.2f}")
+        st.write(f"Predicted CPI values for {selected_month} for {selected_category}:")
+        category_formatted = selected_category.replace(' ', '_')  # Replace spaces with underscores
+        st.write(f"{selected_category} CPI for {reference_date.strftime('%B_%Y')}: {predictions[category_formatted + '_CPI_for_' + reference_date.strftime('%B_%Y')]:.2f}")
 
 if __name__ == "__main__":
     main()
