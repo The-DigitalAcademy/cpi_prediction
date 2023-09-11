@@ -26,9 +26,10 @@ def main():
     previous_cpi_value = st.number_input(f"Previous CPI for {selected_category}", value=0.0)
 
     # Load pre-trained models for the selected category
-    model_path = os.path.join(f"{selected_category}_Deep Neural Network.h5")
+    model_path = os.path.join(save_directory, f"{column}_Deep Neural Network_month_{i}.h5")
     if os.path.exists(model_path):
-        loaded_model = load_model(model_path)
+       loaded_model = load_model(model_path)
+       loaded_models[f"{column}_month_{i}"] = loaded_model
 
         # Create input data for prediction
         input_data = df_merged.tail(1).copy()  # Input for making predictions
