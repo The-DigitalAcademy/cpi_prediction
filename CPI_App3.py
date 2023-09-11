@@ -47,7 +47,7 @@ def main():
     input_data.at[0, 'Currency Input'] = currency_input
 
       # Store the input values for the selected category
-        input_values[selected_category] = {
+    input_values[selected_category] = {
             "previous_cpi_value": previous_cpi_value,
             "vehicle_sales": vehicle_sales,
             "currency_input": currency_input
