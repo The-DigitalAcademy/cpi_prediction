@@ -46,8 +46,8 @@ def main():
     # Set the title
     st.title("CPI Prediction Dashboard")
 
-    # Allow the user to select multiple categories for prediction
-    selected_categories = st.selectbox("Select categories to predict:", target_cols, index=[0], multiple=True)
+    # Allow the user to select categories for prediction
+    selected_categories = st.multiselect("Select categories to predict:", target_cols, default=target_cols[0])
 
     # Display input fields for previous CPI values
     previous_cpi_value = st.number_input("Enter previous CPI value:", value=0.0)
