@@ -74,12 +74,14 @@ def main():
             if model_key in loaded_models:
                 loaded_model = loaded_models[model_key]
                 y_pred = loaded_model.predict(input_data)
-                (predictions[f'{category} CPI for {reference_date.strftime("%B %Y")}']) = round(y_pred[0][0], 2)
+                category_formatted = category.replace(' ', '_')  # Replace spaces with underscores
+                predictions[f'{category_formatted}_CPI_for_{reference_date.strftime("%B_%Y")}'] = round(y_pred[0][0], 2)
 
     # Display predictions
     st.write(f"Predicted CPI values for {selected_month}:")
     for category in target_cols:
-        st.write(f"{category} CPI for {reference_date.strftime('%B %Y')}: {predictions[f'{category} CPI for {reference_date.strftime('%B %Y')}']:.2f}")
+        category_formatted = category.replace(' ', '_')  # Replace spaces with underscores
+        st.write(f"{category} CPI for {reference_date.strftime('%B %Y')}: {predictions[f'{category_formatted}_CPI_for_{reference_date.strftime('%B_%Y')}']:.2f}")
 
 if __name__ == "__main__":
     main()
