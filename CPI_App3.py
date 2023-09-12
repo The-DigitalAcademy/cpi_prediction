@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import os
 import numpy as np
-
 from tensorflow.keras.models import load_model
 import datetime
 from sklearn.preprocessing import StandardScaler
@@ -26,11 +25,12 @@ def load_models():
     return loaded_models
 
 # Function to create input data for prediction
-def create_input_data(selected_categories, previous_cpi_value, vehicle_sales, USD_ZAR, GBP_ZAR, EUR_ZAR):
+def create_input_data(selected_categories, previous_cpi_value,Total_Local_Sales, Total_Export_Sales, USD_ZAR, GBP_ZAR, EUR_ZAR):
     input_data = np.zeros((1, len(target_cols)))  # Create an empty array of the correct shape
     for category in selected_categories:
         input_data[0, target_cols.index(category)] = previous_cpi_value
-    input_data[0, target_cols.index('Vehicle Sales')] = vehicle_sales
+    input_data[0, target_cols.index(' Total_Local Sales')] = vehicle_sales
+    input_data[0, target_cols.index('Total_Export_Sales')] = vehicle_sales
     input_data[0, target_cols.index('USD/ZAR')] = USD_ZAR
     input_data[0, target_cols.index('GBP/ZAR')] = GBP_ZAR
     input_data[0, target_cols.index('EUR/ZAR')] = EUR_ZAR
@@ -63,7 +63,8 @@ def main():
 
     # Display input fields for vehicle sales and currency
     st.write("Enter Vehicle Sales and Currency Input:")
-    vehicle_sales = st.number_input("Vehicle Sales", value=0.0)
+    Total_Local_Sales = st.number_input("Total_Local Sales", value=0.0)
+    Total_Export_Sales = st.number_input("Total_Export_Sales", value=0.0)
     USD_ZAR = st.number_input("USD/ZAR", value=0.0)
     GBP_ZAR = st.number_input("GBP/ZAR", value=0.0)
     EUR_ZAR = st.number_input("EUR/ZAR", value=0.0)
@@ -89,7 +90,7 @@ def main():
             reference_date = current_date.replace(month=current_date.month + 3)
 
         # Make predictions for the selected categories
-        make_prediction(selected_categories, create_input_data(selected_categories, previous_cpi_value, vehicle_sales, USD_ZAR, GBP_ZAR, EUR_ZAR), loaded_models, "_".join(selected_categories), predictions, reference_date, selected_month)
+        make_prediction(selected_categories, create_input_data(selected_categories, previous_cpi_value, Total_Local_Sales, Total_Export_Sales, USD_ZAR, GBP_ZAR, EUR_ZAR), loaded_models, "_".join(selected_categories), predictions, reference_date, selected_month)
 
         # Display predictions
         st.write(f"Predicted CPI values for {selected_month} for the selected categories:")
