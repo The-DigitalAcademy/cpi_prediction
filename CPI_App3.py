@@ -23,7 +23,7 @@ def load_models():
                 loaded_models[f"{column}_month_{i}"] = loaded_model
                 print(model_path)
             else:
-                print(f"Model file not found for {column}_month_{i}")
+                print(model_path)
     return loaded_models
 
 
