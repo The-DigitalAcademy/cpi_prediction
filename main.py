@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
@@ -39,9 +38,16 @@ target_cols = ['Alcoholic beverages and tobacco', 'Clothing and footwear',
 features = [col for col in cpi_pivot.columns if col not in target_cols + ['Month', 'year_month']]
 
 # Initialize models and scaler
-result = train_model(cpi_pivot)
-lr_models, scaler, rmse_dict = result[0], result[1], result[2]
+lr_models = {col: LinearRegression() for col in target_cols}
+scaler = MinMaxScaler()
 
+# Training
+for target_col in target_cols:
+    train = cpi_pivot[cpi_pivot['Month'] != '2023-04-30']
+    X_train = train[features]
+    y_train = train[target_col]
+    X_train_scaled = scaler.fit_transform(X_train)
+    lr_models[target_col].fit(X_train_scaled, y_train)
 
 # Create a Streamlit app
 st.title("CPI Prediction App")
@@ -62,23 +68,24 @@ except ValueError:
     st.sidebar.warning("Please enter a valid Month and Year (YYYY-MM).")
     st.stop()
 
-# Get user input (you need to implement this based on your UI design)
-user_input = cpi_pivot[cpi_pivot['Month'] == user_month_year]
-
 # Check if the user-selected category is valid
 if category not in target_cols:
     st.sidebar.warning("Please select a valid category from the dropdown.")
     st.stop()
 
+# Get user input (you need to implement this based on your UI design)
+user_input = cpi_pivot[cpi_pivot['Month'] == user_month_year]
+
 # Preprocess user input
 user_input = preprocess_data(user_input)
 
 # Make CPI predictions
-cpi_prediction, rmse = predict_cpi(user_input, lr_models[category], scaler, rmse_dict[category])
+X_test = user_input[features]
+X_test_scaled = scaler.transform(X_test)
+cpi_prediction = lr_models[category].predict(X_test_scaled)
 
 # Display the predictions
 st.write(f"Predicted CPI for {category} in {user_month_year}:")
-st.write(cpi_prediction)
+st.write(cpi_prediction[0])  # Display the first prediction
 
-# Display RMSE
-st.write(f"Root Mean Squared Error (RMSE) for {category}: {rmse}")
+# Note: This code displays only the first prediction for the selected category.
