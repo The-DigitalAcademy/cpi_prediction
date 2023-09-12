@@ -39,7 +39,9 @@ target_cols = ['Alcoholic beverages and tobacco', 'Clothing and footwear',
 features = [col for col in cpi_pivot.columns if col not in target_cols + ['Month', 'year_month']]
 
 # Initialize models and scaler
-lr_models, scaler, rmse_dict = train_model(cpi_pivot)
+result = train_model(cpi_pivot)
+lr_models, scaler, rmse_dict = result[0], result[1], result[2]
+
 
 # Create a Streamlit app
 st.title("CPI Prediction App")
