@@ -39,7 +39,7 @@ features = [col for col in cpi_pivot.columns if col not in target_cols + ['Month
 
 # Initialize models and scaler
 lr_models = {col: LinearRegression() for col in target_cols}
-scaler = MinMaxScaler()
+#scaler = MinMaxScaler()
 
 # Training
 for target_col in target_cols:
