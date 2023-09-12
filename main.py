@@ -39,14 +39,14 @@ features = [col for col in cpi_pivot.columns if col not in target_cols + ['Month
 
 # Initialize models and scaler
 lr_models = {col: LinearRegression() for col in target_cols}
-#scaler = MinMaxScaler()
+scaler = MinMaxScaler()
 
 # Training
 for target_col in target_cols:
     train = cpi_pivot[cpi_pivot['Month'] != '2023-04-30']
     X_train = train[features]
     y_train = train[target_col]
-    X_train_scaled = scaler.fit_transform(X_train)
+    X_train_scaled = scaler.fit_transform(X_train)  # Move this line here
     lr_models[target_col].fit(X_train_scaled, y_train)
 
 # Create a Streamlit app
