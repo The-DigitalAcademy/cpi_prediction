@@ -47,7 +47,7 @@ def make_prediction(selected_categories, input_data, loaded_models, category_for
             if model_key in loaded_models:
                 loaded_model = loaded_models[model_key]
                 y_pred = loaded_model.predict(input_data)
-                predictions[f'{category_formatted}_CPI_for_{reference_date.strftime("%B_%Y")}_{selected_month}'] = round(y_pred[0][0], 2)
+                (predictions[f"{category_formatted}_CPI_for_{reference_date.strftime('%B_%Y')}_{selected_month}"])
 
 # Streamlit app
 def main():
@@ -94,7 +94,10 @@ def main():
         st.write(f"Predicted CPI values for {selected_month} for the selected categories:")
         for category in selected_categories:
             category_formatted = category.replace(' ', '_')  # Replace spaces with underscores
-            st.write(f"{category} CPI for {reference_date.strftime('%B_%Y')}: {predictions[category_formatted + '_CPI_for_{reference_date.strftime('%B_%Y')}_{selected_month}']:.2f}")
+            st.write(f"{category} CPI for {reference_date.strftime('%B_%Y')}: {predictions[f'{category_formatted}_CPI_for_{reference_date.strftime('%B_%Y')}_{selected_month}']:.2f}")
+
+
+
 
 if __name__ == "__main__":
     main()
