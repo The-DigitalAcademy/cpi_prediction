@@ -1,69 +1,108 @@
-
 import streamlit as st
 import pandas as pd
 import numpy as np
-import joblib
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import mean_squared_error
+import datetime
 
-# Load the saved models
-model_filenames = {
-    'Alcoholic beverages and tobacco': 'Alcoholic beverages and tobacco_model.pkl',
-    'Clothing and footwear': 'Clothing and footwear_model.pkl',
-    'Communication': 'Communication_model.pkl',
-    'Education': 'Education_model.pkl',
-    'Food and non-alcoholic beverages': 'Food and non-alcoholic beverages_model.pkl',
-    'Headline_CPI': 'Headline_CPI_model.pkl',
-    'Health': 'Health_model.pkl',
-    'Household contents and services': 'Household contents and services_model.pkl',
-    'Housing and utilities': 'Housing and utilities_model.pkl',
-    'Miscellaneous goods and services': 'Miscellaneous goods and services_model.pkl',
-    'Recreation and culture': 'Recreation and culture_model.pkl',
-    'Restaurants and hotels': 'Restaurants and hotels_model.pkl',
-    'Transport': 'Transport_model.pkl'
-    # Add model filenames for other columns...
-}
+# Load your data
+# Replace 'your_data.csv' with the actual path to your dataset
+cpi_pivot = pd.read_csv('UI2.csv')
 
-lr_models = {}
-for col, model_filename in model_filenames.items():
-    lr_models[col] = joblib.load(model_filename)
+# Define functions for data preprocessing and model prediction
+def preprocess_data(data):
+    # Add your data preprocessing steps here
+    return data
 
-# Create the Streamlit app
-st.title('CPI Prediction for April')
+def train_model(data):
+    # Split the data into training and validation sets
+    train = data[data['Month'] != '2023-04-30']
+    validation = data[data['Month'] == '2023-04-30']
+    
+    # Define target and feature columns
+    target_cols = ['Alcoholic beverages and tobacco', 'Clothing and footwear',
+                   'Communication', 'Education', 'Food and non-alcoholic beverages',
+                   'Headline_CPI', 'Health', 'Household contents and services',
+                   'Housing and utilities', 'Miscellaneous goods and services',
+                   'Recreation and culture', 'Restaurants and hotels ', 'Transport']
+    
+    features = [col for col in data.columns if col not in target_cols + ['Month', 'year_month', 'Total_Local Sales', 'Total_Export_Sales']]
+    
+    # Initialize models and scalers
+    lr_models = {}
+    y_pred = []
+    scaler = MinMaxScaler()
+    
+    # Training
+    for target_col in target_cols:
+        lr_model = LinearRegression()
+        X_train = train[features]
+        y_train = train[target_col]
+        X_train_scaled = scaler.fit_transform(X_train)
+        lr_model.fit(X_train_scaled, y_train)
+        lr_models[target_col] = lr_model
+    
+    # Validation
+    for target_col in target_cols:
+        lr_model = lr_models[target_col]
+        X_val = validation[features]
+        y_val = validation[target_col]
+        X_val_scaled = scaler.transform(X_val)
+        y_pred_col = lr_model.predict(X_val_scaled)
+        y_pred.append(y_pred_col)
+    
+    # Calculate RMSE
+    y_pred = np.array(y_pred).T
+    df = pd.DataFrame({'y_pred': y_pred.flatten(), 'y_val': y_val.values.flatten()})
+    rmse = np.sqrt(mean_squared_error(df['y_pred'], df['y_val']))
+    
+    return lr_models, scaler, rmse
 
-# Input features
-st.header('Input Features')
+def predict_cpi(user_input, models, scaler):
+    # Preprocess user input
+    user_input = preprocess_data(user_input)
+    
+    # Make CPI predictions
+    y_pred_test = []
+    for target_col in target_cols:
+        lr_model = models[target_col]
+        X_test = user_input[features]
+        X_test_scaled = scaler.transform(X_test)
+        y_pred_col = lr_model.predict(X_test_scaled)
+        y_pred_test.append(y_pred_col)
+    
+    # Combine predictions into a DataFrame
+    df_pred = pd.DataFrame({col: y_pred_test[i] for i, col in enumerate(target_cols)})
+    
+    return df_pred
 
-# Select category
-selected_category = st.selectbox('Select Category', list(model_filenames.keys()))
+# Create a Streamlit app
+st.title("CPI Prediction App")
 
-# Select month
-selected_month = st.text_input('Enter Month (YYYY-MM)', '2023-03')  # Default value for example
+# Add user input sidebar
+st.sidebar.header("User Input")
+# Add UI components for user input (e.g., text inputs, sliders, date pickers)
 
-# Define a function to make predictions
-@st.cache
-def make_prediction(category, month):
-    # Assuming you have a function or code to load your dataset and preprocess it
-    # Replace this with your actual dataset loading and preprocessing code
-    # dataset = load_and_preprocess_dataset()
+# Define target columns
+target_cols = ['Alcoholic beverages and tobacco', 'Clothing and footwear',
+               'Communication', 'Education', 'Food and non-alcoholic beverages',
+               'Headline_CPI', 'Health', 'Household contents and services',
+               'Housing and utilities', 'Miscellaneous goods and services',
+               'Recreation and culture', 'Restaurants and hotels ', 'Transport']
 
-    # Assuming you have a function or code to extract the lagged feature value
-    # Replace this with your actual feature extraction code
-    # lagged_feature = extract_lagged_feature(dataset, selected_category, selected_month)
+# Initialize models and scaler
+lr_models, scaler, rmse = train_model(cpi_pivot)
 
-    # Instead of the above lines, you can manually set a default value for the lagged feature
-    # Here, we assume a default value of 0.0 for the example
-    lagged_feature = 0.0
+# Get user input (you need to implement this based on your UI design)
+user_input = get_user_input()
 
-    # Use the selected model to make predictions
-    lr_model = lr_models[category]
-    user_inputs_scaled = scaler.transform([[lagged_feature]])
-    predicted_cpi = lr_model.predict(user_inputs_scaled)[0]
+# Make CPI predictions
+cpi_predictions = predict_cpi(user_input, lr_models, scaler)
 
-    return predicted_cpi
+# Display the predictions
+st.write("Predicted CPI for April:")
+st.write(cpi_predictions)
 
-# Make predictions
-if st.button('Predict'):
-    if selected_month and selected_category:
-        predicted_cpi = make_prediction(selected_category, selected_month)
-        st.success(f'Predicted CPI for {selected_category} in {selected_month}: {predicted_cpi:.2f}')
-    else:
-        st.warning('Please select a category and enter a valid month.')
+# Display RMSE
+st.write(f"Root Mean Squared Error (RMSE): {rmse}")
