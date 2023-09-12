@@ -2,8 +2,6 @@ import streamlit as st
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import mean_squared_error
-import datetime
 
 # Load your data
 # Replace 'your_data.csv' with the actual path to your dataset
@@ -35,7 +33,9 @@ target_cols = ['Alcoholic beverages and tobacco', 'Clothing and footwear',
                'Housing and utilities', 'Miscellaneous goods and services',
                'Recreation and culture', 'Restaurants and hotels ', 'Transport']
 
-features = [col for col in cpi_pivot.columns if col not in target_cols + ['Month', 'year_month']]
+# Exclude columns that were dropped during preprocessing
+excluded_cols = ['Month', 'year_month', 'Total_Local Sales', 'Total_Export_Sales']
+features = [col for col in cpi_pivot.columns if col not in target_cols + excluded_cols]
 
 # Initialize models and scaler
 lr_models = {col: LinearRegression() for col in target_cols}
@@ -46,7 +46,7 @@ for target_col in target_cols:
     train = cpi_pivot[cpi_pivot['Month'] != '2023-04-30']
     X_train = train[features]
     y_train = train[target_col]
-    X_train_scaled = scaler.fit_transform(X_train)  # Move this line here
+    X_train_scaled = scaler.fit_transform(X_train)
     lr_models[target_col].fit(X_train_scaled, y_train)
 
 # Create a Streamlit app
@@ -87,5 +87,3 @@ cpi_prediction = lr_models[category].predict(X_test_scaled)
 # Display the predictions
 st.write(f"Predicted CPI for {category} in {user_month_year}:")
 st.write(cpi_prediction[0])  # Display the first prediction
-
-# Note: This code displays only the first prediction for the selected category.
