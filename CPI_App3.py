@@ -21,7 +21,7 @@ def load_models():
             if os.path.exists(model_path):
                 loaded_model = load_model(model_path)
                 loaded_models[f"{column}_month_{i}"] = loaded_model
-                print(f"Loaded model for {column}_month_{i}")
+                print(model_path)
             else:
                 print(f"Model file not found for {column}_month_{i}")
     return loaded_models
