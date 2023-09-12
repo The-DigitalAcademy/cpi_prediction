@@ -27,10 +27,10 @@ def create_input_data(selected_category, previous_cpi_value, vehicle_sales, USD_
     input_data = pd.DataFrame(columns=target_cols)  # Create an empty DataFrame
     for category in selected_category:
         input_data.at[0, category] = previous_cpi_value
-    input_data.at[0, 'Vehicle Sales'] = vehicle_sales
-    input_data.at[0, 'USD/ZAR'] = USD_ZAR
-    input_data.at[0, 'GBP/ZAR'] = GBP_ZAR
-    input_data.at[0, 'EUR/ZAR'] = EUR_ZAR
+    input_data.at[[0, 'Vehicle Sales']] = vehicle_sales
+    input_data.at[[0, 'USD/ZAR']] = USD_ZAR
+    input_data.at[[0, 'GBP/ZAR']] = GBP_ZAR
+    input_data.at[[0, 'EUR/ZAR']] = EUR_ZAR
     return input_data
 
 # Function to make predictions for a category
