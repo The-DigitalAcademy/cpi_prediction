@@ -1,59 +1,28 @@
 import streamlit as st
+import pickle
 import pandas as pd
-from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import MinMaxScaler
 
-#Sample training and validation sets (replace with your data)
+# Load the linear regression model
+model_filename = 'linear_regression_model.pkl'
+with open(model_filename, 'rb') as model_file:
+    model = pickle.load(model_file)
 
-training_set = train[train['Month'] != "2023-03-31"]
-validation_set = train[train['Month'] == "2023-03-31"] 
-#training_set = pd.DataFrame()  # Your training data
-#validation_set = pd.DataFrame()  # Your validation data
+st.title('CPI Prediction for April')
 
-#Define Streamlit app
-def main():
-    st.title('Multi-Target Linear Regression Model')
+# Input features
+st.header('Input Features')
+# You can add input fields here for user input (e.g., interest rates, unemployment rate, etc.)
 
-    # User inputs for features and target columns
-    st.sidebar.header('User Inputs')
+# Make predictions
+if st.button('Predict'):
+    # Get user inputs
+    # input_data = st.text_input('Input Feature 1', default_value)
+    # ...
+    # Process the input data and make predictions
+    # predicted_cpi = model.predict([input_data])
 
-    features = st.sidebar.multiselect('Select features:', training_set.columns)
-    target_columns = st.sidebar.multiselect('Select target columns:', training_set.columns)
+    # For demonstration purposes, let's assume a sample prediction
+    predicted_cpi = 150.0
 
-    # Training button
-    if st.sidebar.button('Train Models'):
-        st.subheader('Training Models')
+    st.success(f'Predicted CPI for April: {predicted_cpi:.2f}')
 
-        # Initialize dictionary to store trained models
-        lr_models = {}
-        scaler = MinMaxScaler()
-
-        for target_col in target_columns:
-            st.write(f"Training model for {target_col}")
-
-#Subset the data based on user-selected features and target
-            X_train = training_set[features]
-            y_train = training_set[target_col]
-
-            # Scale the features
-            X_train_scaled = scaler.fit_transform(X_train)
-
-            # Train a linear regression model
-            lr_model = LinearRegression()
-            lr_model.fit(X_train_scaled, y_train)
-            lr_models[target_col] = lr_model
-
-            st.write(f"Model for {target_col} trained successfully!")
-
-        st.success('All models trained successfully!')
-
-        # Provide model information (coefficients, etc.)
-        st.subheader('Model Information')
-        for target_col, lr_model in lr_models.items():
-            st.write(f'Model for {target_col}:')
-            st.write('Coefficients:', lrmodel.coef)
-            # Add more model information as needed
-
-#Run Streamlit app
-if name == 'main':
-    main()
