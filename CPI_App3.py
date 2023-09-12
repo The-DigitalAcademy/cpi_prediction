@@ -73,8 +73,7 @@ def main():
     # Allow the user to select which month they want to predict
     selected_month = st.selectbox("Select a month for prediction:", ["Next Month", "Two Months Later", "Three Months Later"])
 
-    # Add a button to trigger model predictions
-    if st.button("Predict CPI"):
+ if st.button("Predict CPI"):
         # Dictionary to store predictions
         predictions = {}
 
@@ -91,12 +90,16 @@ def main():
         for selected_category in selected_categories:
             make_prediction(selected_category, create_input_data(selected_category, previous_cpi_values[selected_category], total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar), loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, selected_month)
 
-
         # Display predictions
         st.write(f"Predicted CPI values for {selected_month} for the selected categories:")
-        for category in selected_categories:
-            category_formatted = category.replace(' ', '_')  # Replace spaces with underscores
-            st.write(f"{category} CPI for {reference_date.strftime('%B_%Y')}: {predictions[category_formatted + '_CPI_for_' + reference_date.strftime('%B_%Y') + '_' + selected_month]:.2f}")
+        for selected_category in selected_categories:
+            category_formatted = selected_category.replace(' ', '_')  # Replace spaces with underscores
+            key = f"{category_formatted}_CPI_for_{reference_date.strftime('%B_%Y')}_{selected_month}"
+    
+            if key in predictions:
+                st.write(f"{selected_category} CPI for {reference_date.strftime('%B_%Y')}: {predictions[key]:.2f}")
+            else:
+                st.write(f"No prediction found for {selected_category} in {selected_month}")
 
 if __name__ == "__main__":
     main()
