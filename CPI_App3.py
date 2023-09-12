@@ -73,7 +73,7 @@ def main():
     # Allow the user to select which month they want to predict
     selected_month = st.selectbox("Select a month for prediction:", ["Next Month", "Two Months Later", "Three Months Later"])
 
- if st.button("Predict CPI"):
+    if st.button("Predict CPI"):
         # Dictionary to store predictions
         predictions = {}
 
