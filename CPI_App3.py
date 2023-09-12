@@ -13,7 +13,6 @@ target_cols = ['Headline_CPI', 'Alcoholic_beverages_and_tobacco', 'Clothing_and_
               'Housing_and_utilities', 'Miscellaneous_goods_and_services',
               'Recreation_and_culture', 'Restaurants_and_hotels', 'Transport']
 
-# Function to load models for all categories
 def load_models():
     loaded_models = {}
     for column in target_cols:
@@ -22,7 +21,11 @@ def load_models():
             if os.path.exists(model_path):
                 loaded_model = load_model(model_path)
                 loaded_models[f"{column}_month_{i}"] = loaded_model
+                print(f"Loaded model for {column}_month_{i}")
+            else:
+                print(f"Model file not found for {column}_month_{i}")
     return loaded_models
+
 
 def create_input_data(selected_category, previous_cpi_value, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
     input_data = np.zeros((1, len(target_cols) + 6))  # Create an empty array with additional columns
