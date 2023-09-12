@@ -24,13 +24,12 @@ def load_models():
                 loaded_models[f"{column}_month_{i}"] = loaded_model
     return loaded_models
 
-# Function to create input data for prediction
 def create_input_data(selected_categories, previous_cpi_value, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
     input_data = np.zeros((1, len(target_cols)))  # Create an empty array of the correct shape
     for category in selected_categories:
         input_data[0, target_cols.index(category)] = previous_cpi_value
-    input_data[0, target_cols.index('Total_Local_Sales')] = total_local_sales
-    input_data[0, target_cols.index('Total_Export_Sales')] = total_export_sales
+    input_data[0, target_cols.index('Total Local Sales')] = total_local_sales
+    input_data[0, target_cols.index('Total Export Sales')] = total_export_sales
     input_data[0, target_cols.index('USD_ZAR')] = usd_zar
     input_data[0, target_cols.index('GBP_ZAR')] = gbp_zar
     input_data[0, target_cols.index('EUR_ZAR')] = eur_zar
