@@ -23,9 +23,9 @@ def load_models():
     return loaded_models
 
 # Function to create input data for prediction
-def create_input_data(selected_categories, previous_cpi_value, vehicle_sales, USD_ZAR, GBP_ZAR, EUR_ZAR):
+def create_input_data(selected_category, previous_cpi_value, vehicle_sales, USD_ZAR, GBP_ZAR, EUR_ZAR):
     input_data = pd.DataFrame(columns=target_cols)  # Create an empty DataFrame
-    for category in selected_categories:
+    for category in selected_category:
         input_data.at[0, category] = previous_cpi_value
     input_data.at[0, 'Vehicle Sales'] = vehicle_sales
     input_data.at[0, 'USD/ZAR'] = USD_ZAR
@@ -34,8 +34,8 @@ def create_input_data(selected_categories, previous_cpi_value, vehicle_sales, US
     return input_data
 
 # Function to make predictions for a category
-def make_prediction(selected_categories, input_data, loaded_models, category_formatted, predictions, reference_date, selected_month):
-    for category in selected_categories:
+def make_prediction(selected_category, input_data, loaded_models, category_formatted, predictions, reference_date, selected_month):
+    for category in selected_category:
         for i in range(1, 4):
             model_key = f"{category}_month_{i}"
             if model_key in loaded_models:
@@ -49,7 +49,7 @@ def main():
     st.title("CPI Prediction Dashboard")
 
     # Allow the user to select categories for prediction
-    selected_categories = st.multiselect("Select categories to predict:", target_cols, default=target_cols[0])
+    selected_categories = st.multiselect("Select categories to predict:", target_cols, default=[target_cols[0]])
 
     # Display input fields for previous CPI values
     previous_cpi_value = st.number_input("Enter previous CPI value:", value=0.0)
