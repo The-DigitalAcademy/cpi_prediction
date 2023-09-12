@@ -28,17 +28,18 @@ def create_input_data(selected_categories, previous_cpi_value, total_local_sales
     input_data = np.zeros((1, len(target_cols)))  # Create an empty array of the correct shape
     for category in selected_categories:
         input_data[0, target_cols.index(category)] = previous_cpi_value
-    input_data[0, target_cols.index('Total Local Sales')] = total_local_sales
-    input_data[0, target_cols.index('Total Export Sales')] = total_export_sales
-    input_data[0, target_cols.index('USD_ZAR')] = usd_zar
-    input_data[0, target_cols.index('GBP_ZAR')] = gbp_zar
-    input_data[0, target_cols.index('EUR_ZAR')] = eur_zar
+    input_data[0, target_cols.index('Total_Local Sales')] = total_local_sales
+    input_data[0, target_cols.index('Total_Export_Sales')] = total_export_sales
+    input_data[0, target_cols.index('USD/ZAR')] = usd_zar
+    input_data[0, target_cols.index('GBP/ZAR')] = gbp_zar
+    input_data[0, target_cols.index('EUR/ZAR')] = eur_zar
     
     # Apply StandardScaler to scale the input data
     scaler = StandardScaler()
     input_data_scaled = scaler.fit_transform(input_data)
     
     return input_data_scaled
+
 
 def make_prediction(selected_categories, input_data, loaded_models, category_formatted, predictions, reference_date, selected_month):
     for category in selected_categories:
