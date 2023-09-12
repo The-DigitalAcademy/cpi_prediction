@@ -94,11 +94,17 @@ def main():
         # Make predictions for the selected categories
         make_prediction(selected_categories, create_input_data(selected_categories, previous_cpi_value, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar), loaded_models, "_".join(selected_categories), predictions, reference_date, selected_month)
 
-        # Display predictions
-        st.write(f"Predicted CPI values for {selected_month} for the selected categories:")
-        for category in selected_categories:
-            category_formatted = category.replace(' ', '_')  # Replace spaces with underscores
-            st.write(f"{category} CPI for {reference_date.strftime('%B_%Y')}: {predictions[category_formatted + '_CPI_for_' + reference_date.strftime('%B_%Y') + '_' + selected_month]:.2f}")
+        ## Display predictions
+st.write(f"Predicted CPI values for {selected_month} for the selected categories:")
+for category in selected_categories:
+    category_formatted = category.replace(' ', '_')  # Replace spaces with underscores
+    key = f"{category_formatted}_CPI_for_{reference_date.strftime('%B_%Y')}_{selected_month}"
+    
+    if key in predictions:
+        st.write(f"{category} CPI for {reference_date.strftime('%B_%Y')}: {predictions[key]:.2f}")
+    else:
+        st.write(f"No prediction found for {category} in {selected_month}")
+
 
 if __name__ == "__main__":
     main()
