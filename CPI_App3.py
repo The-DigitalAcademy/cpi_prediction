@@ -13,15 +13,17 @@ target_cols = ['Headline_CPI', 'Alcoholic_beverages_and_tobacco', 'Clothing_and_
               'Housing_and_utilities', 'Miscellaneous_goods_and_services',
               'Recreation_and_culture', 'Restaurants_and_hotels', 'Transport']
 
-# Function to load models for all categories
 def load_models():
     loaded_models = {}
     for column in target_cols:
         for i in range(1, 4):
-            model_path = os.path.join(f"{column}_Deep Neural Network_month_{i}.h5")
+            model_path = os.path.join(f"{column}_Deep_Neural_Network_month_{i}.h5")
             if os.path.exists(model_path):
                 loaded_model = load_model(model_path)
                 loaded_models[f"{column}_month_{i}"] = loaded_model
+                print(model_path)
+            else:
+                print(model_path)
     return loaded_models
 
 def create_input_data(selected_category, previous_cpi_value, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
