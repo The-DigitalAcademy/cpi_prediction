@@ -54,6 +54,6 @@ def main():
             st.write('Coefficients:', lrmodel.coef)
             # Add more model information as needed
 
-Run Streamlit app
+#Run Streamlit app
 if name == 'main':
     main()
