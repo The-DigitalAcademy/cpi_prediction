@@ -7,7 +7,7 @@ import datetime
 from sklearn.preprocessing import StandardScaler
 
 target_cols = ['Alcoholic beverages and tobacco', 'Clothing and footwear',
-       'Communication', 'Education', 'Food and non-alcoholic beverages',
+       'Communication', 'Education', 'Food and non alcoholic beverages',
        'Headline_CPI', 'Health', 'Household contents and services',
        'Housing and utilities', 'Miscellaneous goods and services',
        'Recreation and culture', 'Restaurants and hotels ', 'Transport']
