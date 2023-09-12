@@ -39,7 +39,6 @@ def create_input_data(selected_categories, previous_cpi_value, vehicle_sales, US
     
     return input_data_scaled
 
-# Function to make predictions for a category
 def make_prediction(selected_categories, input_data, loaded_models, category_formatted, predictions, reference_date, selected_month):
     for category in selected_categories:
         for i in range(1, 4):
@@ -47,7 +46,7 @@ def make_prediction(selected_categories, input_data, loaded_models, category_for
             if model_key in loaded_models:
                 loaded_model = loaded_models[model_key]
                 y_pred = loaded_model.predict(input_data)
-                (predictions[f"{category_formatted}_CPI_for_{reference_date.strftime('%B_%Y')}_{selected_month}"])
+                predictions[f'{category_formatted}_CPI_for_{reference_date.strftime("%B_%Y")}_{selected_month}'] = round(y_pred[0][0], 2)
 
 # Streamlit app
 def main():
@@ -55,7 +54,7 @@ def main():
     st.title("CPI Prediction Dashboard")
 
     # Allow the user to select categories for prediction
-    selected_categories = st.multiselect("Select categories to predict:", target_cols, default=[target_cols[0]])
+    selected_categories = st.multiselect("Select categories to predict:", target_cols, default=target_cols[0])
 
     # Display input fields for previous CPI values
     previous_cpi_value = st.number_input("Enter previous CPI value:", value=0.0)
@@ -94,10 +93,8 @@ def main():
         st.write(f"Predicted CPI values for {selected_month} for the selected categories:")
         for category in selected_categories:
             category_formatted = category.replace(' ', '_')  # Replace spaces with underscores
-            st.write(f"{category} CPI for {reference_date.strftime('%B_%Y')}: {predictions[f'{category_formatted}_CPI_for_{reference_date.strftime('%B_%Y')}_{selected_month}']:.2f}")
-
-
-
+            st.write(f"{category} CPI for {reference_date.strftime('%B_%Y')}: {predictions[category_formatted + '_CPI_for_' + reference_date.strftime('%B_%Y') + '_' + selected_month]:.2f}")
 
 if __name__ == "__main__":
     main()
+
