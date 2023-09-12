@@ -25,13 +25,13 @@ def load_models():
 
 # Function to create input data for prediction
 def create_input_data(selected_categories, previous_cpi_value, vehicle_sales, USD_ZAR, GBP_ZAR, EUR_ZAR):
-    input_data = pd.DataFrame(columns=target_cols)  # Create an empty DataFrame
+    input_data = np.zeros((1, len(target_cols)))  # Create an empty array of the correct shape
     for category in selected_categories:
-        input_data.at[0, category] = previous_cpi_value
-    input_data.at[0, 'Vehicle Sales'] = vehicle_sales
-    input_data.at[0, 'USD/ZAR'] = USD_ZAR
-    input_data.at[0, 'GBP/ZAR'] = GBP_ZAR
-    input_data.at[0, 'EUR/ZAR'] = EUR_ZAR
+        input_data[0, target_cols.index(category)] = previous_cpi_value
+    input_data[0, target_cols.index('Vehicle Sales')] = vehicle_sales
+    input_data[0, target_cols.index('USD/ZAR')] = USD_ZAR
+    input_data[0, target_cols.index('GBP/ZAR')] = GBP_ZAR
+    input_data[0, target_cols.index('EUR/ZAR')] = EUR_ZAR
     
     # Apply StandardScaler to scale the input data
     scaler = StandardScaler()
