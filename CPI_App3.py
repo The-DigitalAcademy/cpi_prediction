@@ -7,11 +7,11 @@ import datetime
 from sklearn.preprocessing import StandardScaler
 
 # Define the target columns
-target_cols = ['Headline_CPI', 'Alcoholic beverages and tobacco', 'Clothing and footwear',
-              'Communication', 'Education', 'Food and non-alcoholic beverages',
-              'Health', 'Household contents and services',
-              'Housing and utilities', 'Miscellaneous goods and services',
-              'Recreation and culture', 'Restaurants and hotels ', 'Transport']
+target_cols = ['Headline_CPI', 'Alcoholic_beverages_and_tobacco', 'Clothing_and_footwear',
+              'Communication', 'Education', 'Food_and_non_alcoholic_beverages',
+              'Health', 'Household_contents_and_services',
+              'Housing_and_utilities', 'Miscellaneous_goods_and_services',
+              'Recreation_and_culture', 'Restaurants_and_hotels', 'Transport']
 
 # Function to load models for all categories
 def load_models():
