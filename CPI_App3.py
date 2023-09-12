@@ -53,6 +53,7 @@ def make_prediction(selected_category, input_data, loaded_models, category_forma
             predictions[f'{category_formatted}_CPI_for_{reference_date.strftime("%B_%Y")}_{selected_month}_month_{i}'] = round(y_pred[0][0], 2)
 
 
+
 # Streamlit app
 def main():
     # Set the title
