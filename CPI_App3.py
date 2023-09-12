@@ -29,8 +29,8 @@ def create_input_data(selected_categories, previous_cpi_value,Total_Local_Sales,
     input_data = np.zeros((1, len(target_cols)))  # Create an empty array of the correct shape
     for category in selected_categories:
         input_data[0, target_cols.index(category)] = previous_cpi_value
-    input_data[0, target_cols.index(' Total_Local Sales')] = vehicle_sales
-    input_data[0, target_cols.index('Total_Export_Sales')] = vehicle_sales
+    input_data[0, target_cols.index('Total_Local Sales')] = Total_Local_Sales
+    input_data[0, target_cols.index('Total_Export_Sales')] = Total_Export_Sales
     input_data[0, target_cols.index('USD/ZAR')] = USD_ZAR
     input_data[0, target_cols.index('GBP/ZAR')] = GBP_ZAR
     input_data[0, target_cols.index('EUR/ZAR')] = EUR_ZAR
