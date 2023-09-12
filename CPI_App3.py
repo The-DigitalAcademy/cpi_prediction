@@ -45,10 +45,9 @@ def make_prediction(selected_category, input_data, loaded_models, category_forma
     for i in range(1, 4):  # Loop through the three models for the selected category
         model_key = f"{selected_category}_month_{i}"
         if model_key in loaded_models:
-            loaded_model = loaded_models[model_key]  # Corrected from loaded_models([model_key])
+            loaded_model = loaded_models[model_key]  # Use square brackets here, not parentheses
             y_pred = loaded_model.predict(input_data)
             predictions[f'{category_formatted}_CPI_for_{reference_date.strftime("%B_%Y")}_{selected_month}_month_{i}'] = round(y_pred[0][0], 2)
-
 
 
 # Streamlit app
