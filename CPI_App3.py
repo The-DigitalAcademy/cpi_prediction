@@ -3,6 +3,7 @@ import pandas as pd
 import os
 from tensorflow.keras.models import load_model
 import datetime
+from sklearn.preprocessing import StandardScaler
 
 # Define the target columns
 target_cols = ['Headline_CPI', 'Alcoholic beverages and tobacco', 'Clothing and footwear',
@@ -23,19 +24,24 @@ def load_models():
     return loaded_models
 
 # Function to create input data for prediction
-def create_input_data(selected_category, previous_cpi_value, vehicle_sales, USD_ZAR, GBP_ZAR, EUR_ZAR):
+def create_input_data(selected_categories, previous_cpi_value, vehicle_sales, USD_ZAR, GBP_ZAR, EUR_ZAR):
     input_data = pd.DataFrame(columns=target_cols)  # Create an empty DataFrame
-    for category in selected_category:
+    for category in selected_categories:
         input_data.at[0, category] = previous_cpi_value
-    input_data.at[[0, 'Vehicle Sales']] = vehicle_sales
-    input_data.at[[0, 'USD/ZAR']] = USD_ZAR
-    input_data.at[[0, 'GBP/ZAR']] = GBP_ZAR
-    input_data.at[[0, 'EUR/ZAR']] = EUR_ZAR
-    return input_data
+    input_data.at[0, 'Vehicle Sales'] = vehicle_sales
+    input_data.at[0, 'USD/ZAR'] = USD_ZAR
+    input_data.at[0, 'GBP/ZAR'] = GBP_ZAR
+    input_data.at[0, 'EUR/ZAR'] = EUR_ZAR
+    
+    # Apply StandardScaler to scale the input data
+    scaler = StandardScaler()
+    input_data_scaled = scaler.fit_transform(input_data)
+    
+    return input_data_scaled
 
 # Function to make predictions for a category
-def make_prediction(selected_category, input_data, loaded_models, category_formatted, predictions, reference_date, selected_month):
-    for category in selected_category:
+def make_prediction(selected_categories, input_data, loaded_models, category_formatted, predictions, reference_date, selected_month):
+    for category in selected_categories:
         for i in range(1, 4):
             model_key = f"{category}_month_{i}"
             if model_key in loaded_models:
@@ -88,7 +94,7 @@ def main():
         st.write(f"Predicted CPI values for {selected_month} for the selected categories:")
         for category in selected_categories:
             category_formatted = category.replace(' ', '_')  # Replace spaces with underscores
-            st.write(f"{category} CPI for {reference_date.strftime('%B_%Y')}: {predictions[category_formatted + '_CPI_for_' + reference_date.strftime('%B_%Y') + '_' + selected_month]:.2f}")
+            st.write(f"{category} CPI for {reference_date.strftime('%B_%Y')}: {predictions[category_formatted + '_CPI_for_{reference_date.strftime('%B_%Y')}_{selected_month}']:.2f}")
 
 if __name__ == "__main__":
     main()
