@@ -1,13 +1,13 @@
 import streamlit as st
 import pandas as pd
-from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import MinMaxScaler
+import joblib
 
 # Load your data
 # Replace 'your_data.csv' with the actual path to your dataset
 cpi_pivot = pd.read_csv('UI2.csv')
 
-# Define functions for data preprocessing and model prediction
+# Define functions for data preprocessing
 def preprocess_data(data):
     # Convert 'Month' column to datetime format
     data['Month'] = pd.to_datetime(data['Month'], format='%Y-%m-%d')
@@ -37,17 +37,11 @@ target_cols = ['Alcoholic beverages and tobacco', 'Clothing and footwear',
 excluded_cols = ['Month', 'year_month', 'Total_Local Sales', 'Total_Export_Sales']
 features = [col for col in cpi_pivot.columns if col not in target_cols + excluded_cols]
 
-# Initialize models and scaler
-lr_models = {col: LinearRegression() for col in target_cols}
-scaler = MinMaxScaler()
-
-# Training
-for target_col in target_cols:
-    train = cpi_pivot[cpi_pivot['Month'] != '2023-04-30']
-    X_train = train[features]
-    y_train = train[target_col]
-    X_train_scaled = scaler.fit_transform(X_train)
-    lr_models[target_col].fit(X_train_scaled, y_train)
+# Load pre-trained models for each category
+loaded_models = {}
+for category in target_cols:
+    model_filename = f'{category}_model.pkl'
+    loaded_models[category] = joblib.load(model_filename)
 
 # Create a Streamlit app
 st.title("CPI Prediction App")
@@ -81,8 +75,13 @@ user_input = preprocess_data(user_input)
 
 # Make CPI predictions
 X_test = user_input[features]
-X_test_scaled = scaler.transform(X_test)
-cpi_prediction = lr_models[category].predict(X_test_scaled)
+
+# Initialize MinMaxScaler and scale the user input
+scaler = MinMaxScaler()
+X_test_scaled = scaler.fit_transform(X_test)
+
+# Make CPI predictions using the loaded model for the selected category
+cpi_prediction = loaded_models[category].predict(X_test_scaled)
 
 # Display the predictions
 st.write(f"Predicted CPI for {category} in {user_month_year}:")
