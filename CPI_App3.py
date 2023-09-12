@@ -57,15 +57,18 @@ def main():
     # Allow the user to select categories for prediction
     selected_categories = st.multiselect("Select categories to predict:", target_cols, default=target_cols[0])
 
-    # Display input fields for previous CPI values
-    previous_cpi_value = st.number_input("Enter previous CPI value:", value=0.0)
+    # Display input fields for previous CPI values for each selected category
+    previous_cpi_values = {}
+    for selected_category in selected_categories:
+        previous_cpi_values[selected_category] = st.number_input(f"Enter previous CPI value for {selected_category}:", value=0.0)
 
     # Display input fields for vehicle sales and currency
     st.write("Enter Vehicle Sales and Currency Input:")
-    vehicle_sales = st.number_input("Vehicle Sales", value=0.0)
-    USD_ZAR = st.number_input("USD/ZAR", value=0.0)
-    GBP_ZAR = st.number_input("GBP/ZAR", value=0.0)
-    EUR_ZAR = st.number_input("EUR/ZAR", value=0.0)
+    total_local_sales = st.number_input("Total_Local_Sales", value=0.0)
+    total_export_sales = st.number_input("Total_Export_Sales", value=0.0)
+    usd_zar = st.number_input("USD_ZAR", value=0.0)
+    gbp_zar = st.number_input("GBP_ZAR", value=0.0)
+    eur_zar = st.number_input("EUR_ZAR", value=0.0)
 
     # Load saved models
     loaded_models = load_models()
