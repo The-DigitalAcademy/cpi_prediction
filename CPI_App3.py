@@ -95,4 +95,14 @@ def main():
 
         # Display predictions
         st.write(f"Predicted CPI values for {selected_month} for the selected categories:")
-        for selected_category in
+        for selected_category in selected_categories:
+            category_formatted = selected_category.replace(' ', '_')  # Replace spaces with underscores
+            key = f"{category_formatted}_CPI_for_{reference_date.strftime('%B_%Y')}_{selected_month}"
+    
+            if key in predictions:
+                st.write(f"{selected_category} CPI for {reference_date.strftime('%B_%Y')}: {predictions[key]:.2f}")
+            else:
+                st.write(f"No prediction found for {selected_category} in {selected_month}")
+
+if __name__ == "__main__":
+    main()
