@@ -7,17 +7,17 @@ import datetime
 from sklearn.preprocessing import StandardScaler
 
 # Define the target columns
-target_cols = ['Alcoholic beverages and tobacco', 'Clothing and footwear',
-       'Communication', 'Education', 'Food and non-alcoholic beverages',
-       'Headline_CPI', 'Health', 'Household contents and services',
-       'Housing and utilities', 'Miscellaneous goods and services',
-       'Recreation and culture', 'Restaurants and hotels ', 'Transport']
+target_cols = ['Headline_CPI', 'Alcoholic_beverages_and_tobacco', 'Clothing_and_footwear',
+              'Communication', 'Education', 'Food_and_non_alcoholic_beverages',
+              'Health', 'Household_contents_and_services',
+              'Housing_and_utilities', 'Miscellaneous_goods_and_services',
+              'Recreation_and_culture', 'Restaurants_and_hotels', 'Transport']
 
 def load_models():
     loaded_models = {}
     for column in target_cols:
         for i in range(1, 4):
-            model_path = os.path.join(f"{column}_Deep Neural Network.h5")
+            model_path = os.path.join(f"{column}_Deep_Neural_Network.h5")
             if os.path.exists(model_path):
                 loaded_model = load_model(model_path)
                 loaded_models[f"{column}_month_{i}"] = loaded_model
