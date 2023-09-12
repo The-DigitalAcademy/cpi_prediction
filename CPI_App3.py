@@ -88,7 +88,7 @@ def main():
         current_directory = os.getcwd()
 
 # Print the current working directory
-        print("Current Working Directory:", current_directory)
+        st.write("Current Working Directory:", current_directory)
 
         # Dictionary to store predictions
         predictions = {}
