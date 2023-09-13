@@ -93,8 +93,11 @@ def main():
             reference_date = current_date.replace(month=current_date.month + 3)
 
         # Make predictions for the selected categories
-        for selected_category in selected_categories:
-            make_prediction(selected_category, create_input_data(selected_category, previous_cpi_values[selected_category], total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar), loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, selected_month)
+       for selected_category in selected_categories:
+    # Create input data excluding the 19th feature (month selection)
+          input_data = create_input_data(selected_category, previous_cpi_values[selected_category], total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)[:, :-1]
+    
+          make_prediction(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, selected_month)
 
         # Display predictions
         st.write(f"Predicted CPI values for {selected_month} for the selected categories:")
