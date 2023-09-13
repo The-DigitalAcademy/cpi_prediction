@@ -20,7 +20,7 @@ dataw = {"Alcoholic beverages and tobacco": 100.0, "Clothing and footwear": 100.
          "Housing and utilities": 100.0, "Miscellaneous goods and services": 100.6, "Recreation and culture": 100.2,
          "Restaurants and hotels ": 101.2, "Transport": 98.9, "Total_Local Sales": 41382.0, "Total_Export_Sales": 19089.0}
 
-ccc = ccc.drop(['Month', 'year_month'], axis=1)
+#ccc = ccc.drop(['Month', 'year_month'], axis=1)
 cpi_pivot1 = pd.DataFrame(dataw, index=[0])  # Use a single-row DataFrame
 
 # Concatenate cpi_pivot1 and ccc horizontally
