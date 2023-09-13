@@ -1,4 +1,4 @@
-ls.import streamlit as st
+import streamlit as st
 import pandas as pd
 import os
 import tensorflow as tf
