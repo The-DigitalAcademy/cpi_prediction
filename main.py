@@ -1,88 +1,82 @@
 import streamlit as st
 import pandas as pd
+from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import MinMaxScaler
+import numpy as np
 import joblib
 
-# Load your data
-# Replace 'your_data.csv' with the actual path to your dataset
-cpi_pivot = pd.read_csv('UI2.csv')
-
-# Define functions for data preprocessing
-def preprocess_data(data):
-    # Convert 'Month' column to datetime format
-    data['Month'] = pd.to_datetime(data['Month'], format='%Y-%m-%d')
-
-    # Add your data preprocessing steps here
-    # For example, fill missing values, handle categorical variables, etc.
-    # You can also include the lagging method you mentioned in your original code here.
-
-    # Assuming you have already created lag features for each category, e.g., 'prev_1_month_...'
-    # Drop unnecessary columns
-    cols_to_drop = ['year_month', 'Total_Local Sales', 'Total_Export_Sales']
-    data = data.drop(columns=cols_to_drop, axis=1)
-
-    # Fill any remaining missing values
-    data = data.fillna(method='bfill')  # Backfill missing values
-
-    return data
-
-# Define the target columns and features as you did before
+# Load your trained models here
+ccc = pd.read_csv('ccc.csv')
+lr_models = {}  # This should be populated with your models
+scaler = MinMaxScaler()  # Use the same scaler used during training
 target_cols = ['Alcoholic beverages and tobacco', 'Clothing and footwear',
-               'Communication', 'Education', 'Food and non-alcoholic beverages',
-               'Headline_CPI', 'Health', 'Household contents and services',
-               'Housing and utilities', 'Miscellaneous goods and services',
-               'Recreation and culture', 'Restaurants and hotels ', 'Transport']
+       'Communication', 'Education', 'Food and non-alcoholic beverages',
+       'Headline_CPI', 'Health', 'Household contents and services',
+       'Housing and utilities', 'Miscellaneous goods and services',
+       'Recreation and culture', 'Restaurants and hotels ', 'Transport']
 
-# Exclude columns that were dropped during preprocessing
-excluded_cols = ['Month', 'year_month', 'Total_Local Sales', 'Total_Export_Sales']
-features = [col for col in cpi_pivot.columns if col not in target_cols + excluded_cols]
+dataw= [{"Alcoholic beverages and tobacco":100.0,	"Clothing and footwear":100.2	,"Communication":99.8,	"Education":100.0,	
+         "Food and non-alcoholic beverages":100.9	,"Headline_CPI":100.2,	"Health":100.1,	"Household contents and services":100.4,
+         "Housing and utilities":100.0, "Miscellaneous goods and services":100.6,	"Recreation and culture":100.2	,
+         "Restaurants and hotels ":101.2,	"Transport":98.9,"Total_Local Sales":41382.0,	"Total_Export_Sales":19089.0}]
+ccc = ccc.drop(['Month', 'year_month'], axis=1)
+cpi_pivot1 = pd.DataFrame(dataw)
+cpi_pivot1 = pd.concat([cpi_pivot1,ccc ])
 
-# Load pre-trained models for each category
-loaded_models = {}
-for category in target_cols:
-    model_filename = f'{category}_model.pkl'
-    loaded_models[category] = joblib.load(model_filename)
+for target_col in target_cols:
+    # Load the serialized models, replace 'model_filename.pkl' with your actual filenames
+    model = joblib.load(f'models/{target_col}_model.pkl')
+    lr_models[target_col] = model
 
-# Create a Streamlit app
-st.title("CPI Prediction App")
+# Function to make predictions
+# Function to make predictions
+def predict_cpi(data):
+    # Create a DataFrame from user input data
+    input_df = pd.DataFrame([data])
 
-# Add user input sidebar
-st.sidebar.header("User Input")
+    # Apply the same data preprocessing as during training
+    feats_to_lag = [col for col in input_df.columns if col not in ['Total_Local Sales', 'Total_Export_Sales']]
+    for col in feats_to_lag:
+        for i in range(1, 8):
+            input_df[f"prev_{i}_month_{col}"] = input_df[col].shift(i)
+    input_df = input_df.bfill()
 
-# Input for selecting the category
-category = st.sidebar.selectbox("Select Category", target_cols)
+    # Make predictions for each category
+    y_pred_test = []
 
-# Input for specifying the month and year
-month_year_input = st.sidebar.text_input("Enter Month and Year (e.g., '2023-04'):")
+    for target_col in target_cols:
+        lr_model = lr_models[target_col]
+        X_test_scaled = scaler.transform(input_df)  # Scale the test data
+        y_pred_col = lr_model.predict(X_test_scaled)  # Make predictions
+        y_pred_test.append(y_pred_col)
 
-# Parse the user input for month and year
-try:
-    user_month_year = pd.to_datetime(month_year_input, format='%Y-%m')
-except ValueError:
-    st.sidebar.warning("Please enter a valid Month and Year (YYYY-MM).")
-    st.stop()
+    # Combine predictions into a DataFrame
+    df_pred = pd.DataFrame({col: y_pred_test[i] for i, col in enumerate(target_cols)})
+    
+    return df_pred
 
-# Check if the user-selected category is valid
-if category not in target_cols:
-    st.sidebar.warning("Please select a valid category from the dropdown.")
-    st.stop()
+# Streamlit app
+def main():
+    st.title("CPI Prediction App")
 
-# Get user input (you need to implement this based on your UI design)
-user_input = cpi_pivot[cpi_pivot['Month'] == user_month_year]
+    # User input for April data
+    st.write("Enter data for April:")
+    data_input = st.text_input("Data (comma-separated values):")
+    
+    if data_input:
+        # Parse user input as a dictionary
+        try:
+            data = {col: float(value) for col, value in zip(target_cols, data_input.split(","))}
+        except ValueError:
+            st.error("Invalid input format. Please use comma-separated values.")
+            return
 
-# Preprocess user input
-user_input = preprocess_data(user_input)
+        # Make predictions
+        predictions = predict_cpi(data)
 
-# Make CPI predictions
-X_test = user_input[features]
+        # Display predictions
+        st.subheader("Predicted CPI Values for April:")
+        st.dataframe(predictions)
 
-# Initialize MinMaxScaler and scale the user input
-scaler = MinMaxScaler()
-X_test_scaled = scaler.fit_transform(X_test)
-
-# Make CPI predictions using the loaded model for the selected category
-cpi_prediction = loaded_models[category].predict(X_test_scaled)
-
-# Display the predictions
-st.write(f"Predicted CPI for {category} in {user_month_year}:")
-st.write(cpi_prediction[0])  # Display the first prediction
+if __name__ == "__main__":
+    main()
