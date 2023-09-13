@@ -7,6 +7,8 @@ from tensorflow.keras.models import load_model
 import datetime
 from sklearn.preprocessing import StandardScaler
 
+
+
 target_cols = ['Alcoholic beverages and tobacco', 'Clothing and footwear',
        'Communication', 'Education', 'Food and non alcoholic beverages',
        'Headline_CPI', 'Health', 'Household contents and services',
@@ -45,13 +47,15 @@ def create_input_data(selected_category, previous_cpi_value, total_local_sales, 
     return input_data_scaled
 
 # Function to make predictions for a category
-def make_prediction(selected_category, input_data, loaded_models, category_formatted, predictions, reference_date, selected_month):
-    for i in range(1, 4):
-        model_key = f"{selected_category}_month_{i}"
-        if model_key in loaded_models:
-            loaded_model = loaded_models[model_key]
-            y_pred = model.predict(input_data)
-            predictions[f'{category_formatted}_CPI_for_{reference_date.strftime("%B_%Y")}_{selected_month}'] = round(y_pred[0][0], 2)
+def make_prediction(selected_categories, input_data, loaded_models, category_formatted, predictions, reference_date, selected_month):
+    for category in selected_categories:
+        for i in range(1, 4):
+            model_key = f"{category}_month_{i}"
+            if model_key in loaded_models:
+                loaded_model = loaded_models[model_key]
+                y_pred = loaded_model.predict(input_data)  # Use loaded_model, not model
+                predictions[f'{category_formatted}_CPI_for_{reference_date.strftime("%B_%Y")}_{selected_month}'] = round(y_pred[0][0], 2)
+
 
 # Streamlit app
 def main():
