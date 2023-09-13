@@ -17,7 +17,7 @@ def load_models():
     loaded_models = {}
     for column in target_cols:
         for i in range(1, 4):
-            model_path = os.path.join(f"{column}_Deep Neural Network__month_{i}.h5")
+            model_path = os.path.join(f"{column}_Deep Neural Network_month_{i}.h5")
             if os.path.exists(model_path):
                 loaded_model = load_model(model_path)
                 loaded_models[f"{column}_month_{i}"] = loaded_model
