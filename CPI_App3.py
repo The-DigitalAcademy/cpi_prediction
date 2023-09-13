@@ -1,4 +1,4 @@
-import streamlit as st
+ls.import streamlit as st
 import pandas as pd
 import os
 import tensorflow as tf
@@ -25,7 +25,7 @@ def load_models():
             else:
                 print(model_path)
     return loaded_models
-model=tf.keras.load_model("Deep_Neural_Network.h5")
+model=tf.keras.models.load_model("Deep_Neural_Network.h5")
 
 def create_input_data(selected_category, previous_cpi_value, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
     input_data = np.zeros((1, len(target_cols) + 6))  # Create an empty array with additional columns
