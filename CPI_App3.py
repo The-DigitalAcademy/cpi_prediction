@@ -17,7 +17,7 @@ def load_models():
     loaded_models = {}
     for column in target_cols:
         for i in range(1, 4):
-            model_path = os.path.join(f"{column}_Deep_Neural_Network.h5")
+            model_path = os.path.join(f"{column}_Deep Neural Network__month_{i}.h5")
             if os.path.exists(model_path):
                 loaded_model = load_model(model_path)
                 loaded_models[f"{column}_month_{i}"] = loaded_model
@@ -25,7 +25,7 @@ def load_models():
             else:
                 print(model_path)
     return loaded_models
-model=tf.keras.models.load_model("Deep_Neural_Network.h5")
+
 
 def create_input_data(selected_category, previous_cpi_value, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
     input_data = np.zeros((1, len(target_cols) + 6))  # Create an empty array with additional columns
