@@ -24,6 +24,7 @@ def load_models():
             else:
                 print(model_path)
     return loaded_models
+model=tf.keras.load_model("Deep_Neural_Network.h5")
 
 def create_input_data(selected_category, previous_cpi_value, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
     input_data = np.zeros((1, len(target_cols) + 6))  # Create an empty array with additional columns
@@ -48,7 +49,7 @@ def make_prediction(selected_category, input_data, loaded_models, category_forma
         model_key = f"{selected_category}_month_{i}"
         if model_key in loaded_models:
             loaded_model = loaded_models[model_key]
-            y_pred = loaded_model.predict(input_data)
+            y_pred = model.predict(input_data)
             predictions[f'{category_formatted}_CPI_for_{reference_date.strftime("%B_%Y")}_{selected_month}'] = round(y_pred[0][0], 2)
 
 # Streamlit app
