@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import MinMaxScaler
 import numpy as np
 import joblib
@@ -15,20 +14,23 @@ target_cols = ['Alcoholic beverages and tobacco', 'Clothing and footwear',
        'Housing and utilities', 'Miscellaneous goods and services',
        'Recreation and culture', 'Restaurants and hotels ', 'Transport']
 
-dataw= [{"Alcoholic beverages and tobacco":100.0,	"Clothing and footwear":100.2	,"Communication":99.8,	"Education":100.0,	
-         "Food and non-alcoholic beverages":100.9	,"Headline_CPI":100.2,	"Health":100.1,	"Household contents and services":100.4,
-         "Housing and utilities":100.0, "Miscellaneous goods and services":100.6,	"Recreation and culture":100.2	,
-         "Restaurants and hotels ":101.2,	"Transport":98.9,"Total_Local Sales":41382.0,	"Total_Export_Sales":19089.0}]
+# Your dataw variable should be a dictionary, not a list of dictionaries
+dataw = {"Alcoholic beverages and tobacco": 100.0, "Clothing and footwear": 100.2, "Communication": 99.8, "Education": 100.0,
+         "Food and non-alcoholic beverages": 100.9, "Headline_CPI": 100.2, "Health": 100.1, "Household contents and services": 100.4,
+         "Housing and utilities": 100.0, "Miscellaneous goods and services": 100.6, "Recreation and culture": 100.2,
+         "Restaurants and hotels ": 101.2, "Transport": 98.9, "Total_Local Sales": 41382.0, "Total_Export_Sales": 19089.0}
+
 ccc = ccc.drop(['Month', 'year_month'], axis=1)
-cpi_pivot1 = pd.DataFrame(dataw)
-cpi_pivot1 = pd.concat([cpi_pivot1,ccc ])
+cpi_pivot1 = pd.DataFrame(dataw, index=[0])  # Use a single-row DataFrame
+
+# Concatenate cpi_pivot1 and ccc horizontally
+cpi_pivot1 = pd.concat([cpi_pivot1, ccc], axis=1)
 
 for target_col in target_cols:
     # Load the serialized models, replace 'model_filename.pkl' with your actual filenames
     model = joblib.load(f'models/{target_col}_model.pkl')
     lr_models[target_col] = model
 
-# Function to make predictions
 # Function to make predictions
 def predict_cpi(data):
     # Create a DataFrame from user input data
