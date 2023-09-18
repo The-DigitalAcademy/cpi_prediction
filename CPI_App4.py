@@ -37,6 +37,7 @@ def load_models():
                 print(model_path)
     return loaded_models
 
+
 # Function to extract text from PDF and process it to get CPI values
 def process_pdf(pdf_path):
     with pdfplumber.open(pdf_path) as pdf:
@@ -83,6 +84,24 @@ def process_pdf(pdf_path):
             st.text(f"{column}: Category not found in the extracted data.")
 
     return category_values
+
+
+def create_input_data(selected_category, previous_cpi_value, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
+    input_data = np.zeros((1, len(target_cols) + 6))  # Create an empty array with additional columns
+    input_data[0, target_cols.index(selected_category)] = previous_cpi_value
+    
+    # Set the values for the non-category columns
+    input_data[0, -6] = total_local_sales
+    input_data[0, -5] = total_export_sales
+    input_data[0, -4] = usd_zar
+    input_data[0, -3] = gbp_zar
+    input_data[0, -2] = eur_zar
+    
+    # Apply StandardScaler to scale the input data
+    scaler = StandardScaler()
+    input_data_scaled = scaler.fit_transform(input_data)
+    
+    return input_data_scaled
 
 # Streamlit app
 def main():
