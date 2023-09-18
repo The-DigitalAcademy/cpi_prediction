@@ -7,24 +7,34 @@ import datetime
 from tensorflow.keras.models import load_model
 from sklearn.preprocessing import StandardScaler
 
-# Define the target columns
-target_cols = ['Alcoholic beverages and tobacco', 'Clothing and footwear',
-               'Communication', 'Education', 'Food and non-alcoholic beverages',
-               'Headline CPI', 'Health', 'Household contents and services',
-               'Housing and utilities', 'Miscellaneous goods and services',
-               'Recreation and culture', 'Restaurants and hotels ', 'Transport']
+# Define the target columns with their corresponding prefixes
+target_cols_with_prefixes = {
+    'Headline CPI': 'Headline',
+    'Food and non-alcoholic beverages': 'Food and non-',
+    'Alcoholic beverages and tobacco': 'Alcoholic beverages',
+    'Clothing and footwear': 'Clothing and footwear',
+    'Housing and utilities': 'Housing and utilities',
+    'Household contents and services': 'Household contents',
+    'Health': 'Health',
+    'Transport': 'Transport',
+    'Communication': 'Communication',
+    'Recreation and culture': 'Recreation and culture',
+    'Education': 'Education',
+    'Restaurants and hotels ': 'Restaurants and hotels',
+    'Miscellaneous goods and services': 'Miscellaneous goods',
+}
 
 def load_models():
     loaded_models = {}
-    for column in target_cols:
+    for column in target_cols_with_prefixes:
         for i in range(1, 4):
-            model_path = os.path.join(f"{column}_Deep Neural Network_month_{i}.h5")
+            model_path = os.path.join(f"{column.replace(' ', '_')}_Deep_Neural_Network_month_{i}.h5")
             if os.path.exists(model_path):
                 loaded_model = load_model(model_path)
-                loaded_models[f"{column}_month_{i}"] = loaded_model
-                print(model_path)
+                loaded_models[f"{column.replace(' ', '_')}_month_{i}"] = loaded_model
+                st.write(model_path)
             else:
-                print(model_path)
+                st.write(model_path)
     return loaded_models
 
 # Function to extract text from PDF and process it to get CPI values
@@ -54,24 +64,8 @@ def process_pdf(pdf_path):
             # Add the category and its value to the dictionary
             category_values[category] = value
 
-    # List of category prefixes to extract values for
-    category_prefixes = ['Headline',
-        'Food and non-',
-        'Alcoholic beverages',
-        'Clothing and footwear',
-        'Housing and utilities',
-        'Household contents',
-        'Health',
-        'Transport',
-        'Communication',
-        'Recreation and culture',
-        'Education',
-        'Restaurants and hotels',
-        'Miscellaneous goods',
-    ]
-
     # Iterate through the category prefixes
-    for prefix in category_prefixes:
+    for column, prefix in target_cols_with_prefixes.items():
         category_value = None
 
         # Iterate through the dictionary items
@@ -83,38 +77,11 @@ def process_pdf(pdf_path):
 
         # Print the category and its value
         if category_value is not None:
-            print(f"{prefix}: {category_value}")
+            st.text(f"{column}: {category_value}")
         else:
-            print(f"{prefix}: Category not found in the extracted data.")
+            st.text(f"{column}: Category not found in the extracted data.")
 
     return category_values
-
-# Function to create input data for CPI prediction
-def create_input_data(selected_category, previous_cpi_value, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
-    input_data = np.zeros((1, len(target_cols) + 6))  # Create an empty array with additional columns
-    input_data[0, target_cols.index(selected_category)] = previous_cpi_value
-    
-    # Set the values for the non-category columns
-    input_data[0, -6] = total_local_sales
-    input_data[0, -5] = total_export_sales
-    input_data[0, -4] = usd_zar
-    input_data[0, -3] = gbp_zar
-    input_data[0, -2] = eur_zar
-    
-    # Apply StandardScaler to scale the input data
-    scaler = StandardScaler()
-    input_data_scaled = scaler.fit_transform(input_data)
-    
-    return input_data_scaled
-
-# Function to make predictions for a category
-def make_prediction(selected_category, input_data, loaded_models, category_formatted, predictions, reference_date, selected_month):
-    for i in range(1, 4):
-        model_key = f"{selected_category}_month_{i}"
-        if model_key in loaded_models:
-            loaded_model = loaded_models[model_key]
-            y_pred = loaded_model.predict(input_data)
-            predictions[f'{category_formatted}_CPI_for_{reference_date.strftime("%B_%Y")}_{selected_month}'] = round(y_pred[0][0], 2)
 
 # Streamlit app
 def main():
@@ -135,12 +102,21 @@ def main():
             st.text(f"{category}: {value}")
 
         # Allow the user to select categories for prediction
-        selected_categories = st.multiselect("Select categories to predict:", target_cols, default=target_cols[0])
+        selected_categories = st.multiselect(
+            "Select categories to predict:", list(target_cols_with_prefixes.keys()), default=[list(target_cols_with_prefixes.keys())[0]]
+        )
 
         # Display input fields for previous CPI values for each selected category
         previous_cpi_values = {}
         for selected_category in selected_categories:
-            previous_cpi_values[selected_category] = st.number_input(f"Enter previous CPI value for {selected_category}:", value=0.0)
+            # Get the corresponding category prefix
+            category_prefix = target_cols_with_prefixes[selected_category]
+            
+            # Display the previous CPI value for the selected category
+            previous_cpi_values[selected_category] = st.number_input(
+                f"Enter previous CPI value for {category_prefix}:", value=0.0
+            )
+
 
         # Display input fields for vehicle sales and currency
         st.write("Enter Vehicle Sales and Currency Input:")
