@@ -3,7 +3,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
-from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt  # Import matplotlib for plotting
 
 # Load your scaler and linear regression models for each target column
 scaler = joblib.load("last_scaler.pkl")
@@ -26,7 +26,6 @@ selected_year = st.selectbox("Select Year", ["2022", "2023"], index=1)  # Defaul
 def preprocess_input_data(selected_month, selected_year):
     # Load your input data (similar to what you did during training)
     input_data = pd.read_csv('train.csv')
-    st.write(input_data)
 
     # Add the code to calculate lagged features
     feats_to_lag = input_data.columns[1:].to_list()
@@ -38,7 +37,7 @@ def preprocess_input_data(selected_month, selected_year):
     input_data.drop(0)
     input_data.bfill()
     input_data = input_data.drop([0, 1]).reset_index(drop=True)  # Assign the result back to input_data
-    #st.write(input_data)
+
     # Drop columns that are not needed for prediction
     input_data = input_data.drop(columns=target_cols + ['Total_Local Sales', 'Total_Export_Sales'])
 
@@ -65,11 +64,9 @@ if st.button("Predict CPI"):
 
         # Display the predicted CPI value to the user
         st.write(f"Predicted CPI for {category} in {selected_year}-{selected_month}: {predicted_cpi[0]:.2f}")
+
+        # Create a bar chart to compare CPI values
+        st.bar_chart(input_data[['year_month', 'predicted_cpi']], use_container_width=True)
+
     else:
         st.write(f"No data available for {selected_year}-{selected_month}. Please select a different month and year.")
-
-   st.bar_chart(input_data
-    ,
-    x='year_month',
-    y=['predicted_cpi',
-    color=['#FF0000','#0000FF']  # Optional
