@@ -26,6 +26,7 @@ selected_year = st.selectbox("Select Year", ["2022", "2023"], index=1)  # Defaul
 def preprocess_input_data(selected_month, selected_year):
     # Load your input data (similar to what you did during training)
     input_data = pd.read_csv('train.csv')
+    st.write(input_data)
 
     # Add the code to calculate lagged features
     feats_to_lag = input_data.columns[1:].to_list()
