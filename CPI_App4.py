@@ -138,6 +138,11 @@ def main():
             "Select categories to predict:", list(target_cols_with_prefixes.keys()), default=[list(target_cols_with_prefixes.keys())[0]]
         )
 
+        # Display previous CPI values for selected categories
+        for selected_category in selected_categories:
+            if selected_category in category_values:
+                st.text(f"Previous CPI value for {selected_category}: {category_values[selected_category]}")
+
         # Display input fields for vehicle sales and currency
         st.write("Enter Vehicle Sales and Currency Input:")
         total_local_sales = st.number_input("Total_Local_Sales", value=0.0)
