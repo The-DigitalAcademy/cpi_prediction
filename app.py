@@ -10,7 +10,7 @@ from sklearn.preprocessing import MinMaxScaler
 
 # Load your scaler and linear regression models for each target column
 scaler = joblib.load("last_scaler.pkl")
-target_cols = ['Alcoholic beverages and tobacco', 'Clothing and footwear', 'Communication', 'Education', 'Food and non-alcoholic beverages', 'Headline CPI', 'Health', 'Household contents and services', 'Housing and utilities', 'Miscellaneous goods and services', 'Recreation and culture', 'Restaurants and hotels ', 'Transport']
+target_cols = ['Alcoholic beverages and tobacco', 'Clothing and footwear', 'Communication', 'Education', 'Food and non-alcoholic beverages', 'Headline_CPI', 'Health', 'Household contents and services', 'Housing and utilities', 'Miscellaneous goods and services', 'Recreation and culture', 'Restaurants and hotels ', 'Transport']
 model_dict = {target_col: joblib.load(f"{target_col}_model.pkl") for target_col in target_cols}
 
 # Streamlit UI
