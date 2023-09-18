@@ -83,9 +83,7 @@ def process_pdf(pdf_path):
 
         # Print the category and its value
         if category_value is not None:
-            print(f"{prefix}: {category_value}")
-        else:
-            print(f"{prefix}: Category not found in the extracted data.")
+            st.write(f"{prefix}: {category_value}")
 
     return category_values
 
