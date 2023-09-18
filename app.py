@@ -1,11 +1,9 @@
+# User input - Select Category
 import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
-import matplotlib 
-from sklearn.preprocessing import MinMaxScaler
-
-import matplotlib.pyplot as plt  # Import matplotlib for plotting
+from sklearn.preprocessing import StandardScaler
 
 # Load your scaler and linear regression models for each target column
 scaler = joblib.load("last_scaler.pkl")
@@ -15,60 +13,55 @@ model_dict = {target_col: joblib.load(f"{target_col}_model.pkl") for target_col 
 # Streamlit UI
 st.title("Manoko's CPI Prediction App")
 
-# User input
+# User input - Select Category
 category = st.selectbox("Select Category", target_cols)
 
-# Preprocess the input data (similar to what you did during training)
-input_data = pd.read_csv('train.csv')
+# User input - Select Month
+selected_month = st.selectbox("Select Month", ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"], index=3)  # Default to April (04)
 
-# Drop the first and second rows
-input_data = input_data.drop([0, 1]).reset_index(drop=True)
+# User input - Select Year
+selected_year = st.selectbox("Select Year", ["2022", "2023"], index=1)  # Default to 2023
 
-# Add the code to calculate lagged features
-feats_to_lag = input_data.columns[1:].to_list()
-for col in feats_to_lag:
-    if col != 'year_month':
-        for i in range(1, 3):
-            input_data[f"prev_{i}_month_{col}"] = input_data[col].shift(i)
+# Create a function to preprocess input data for prediction based on the selected month and year
+def preprocess_input_data(selected_month, selected_year):
+    # Load your input data (similar to what you did during training)
+    input_data = pd.read_csv('train.csv')
 
-# Allow the user to select a specific month for prediction
-selected_month = st.selectbox("Select Month", input_data['year_month'].unique())
+    # Add the code to calculate lagged features
+    feats_to_lag = input_data.columns[1:].to_list()
+    for col in feats_to_lag:
+        if col != 'year_month':
+            for i in range(1, 3):
+                input_data[f"prev_{i}_month_{col}"] = input_data[col].shift(i)
 
-# Prepare input data for the selected month (similar to the training data preprocessing)
-input_data_selected = input_data[input_data['year_month'] == selected_month]
+    input_data.drop(0)
+    input_data.bfill()
+    input_data = input_data.drop([0, 1]).reset_index(drop=True)  # Assign the result back to input_data
+    #st.write(input_data)
+    # Drop columns that are not needed for prediction
+    input_data = input_data.drop(columns=target_cols + ['Total_Local Sales', 'Total_Export_Sales'])
 
-# Transform the input data using the scaler
-input_scaled = scaler.transform(input_data_selected.drop(columns=['Month', 'year_month']))
+    # Filter data for the selected month and year
+    selected_date = f"{selected_year}-{selected_month}"
+    selected_data = input_data[input_data['year_month'] == selected_date]
 
-# Lists to store data for plotting
-predicted_cpi_values = []
-previous_month_cpi_values = []
+    return selected_data
 
-# Predict for the selected month
-for target_col in target_cols:
-    lr_model = model_dict[target_col]
-    predicted_cpi = lr_model.predict(input_scaled)
-    
-    # Append predicted CPI to the list
-    predicted_cpi_values.append(predicted_cpi[0])
-    
-    # Get the CPI value for the previous month
-    previous_month = pd.to_datetime(selected_month) - pd.DateOffset(months=1)
-    previous_month_data = input_data[input_data['year_month'] == previous_month.strftime("%Y-%m")]
-    previous_month_cpi = previous_month_data[target_col].values[0]
-    
-    # Append previous month's CPI to the list
-    previous_month_cpi_values.append(previous_month_cpi)
-    
-    # Display the predicted CPI for the selected month and category
-    st.write(f"Predicted CPI for {target_col} in {selected_month}: {predicted_cpi[0]:.2f}")
+# Add a button to trigger predictions
+if st.button("Predict CPI"):
+    # Preprocess input data for the selected month and year
+    input_data = preprocess_input_data(selected_month, selected_year)
 
-# Create a bar graph to compare predicted CPI and previous month's CPI
-plt.figure(figsize=(8, 4))
-plt.bar([category], predicted_cpi_values, label="Predicted CPI", color='blue')
-plt.bar([category], previous_month_cpi_values, label="Previous Month CPI", color='orange', alpha=0.7)
-plt.xlabel("Category")
-plt.ylabel("CPI Value")
-plt.title(f"Comparison of Predicted CPI and Previous Month's CPI for {selected_month}")
-plt.legend()
-st.pyplot(plt)  # Display the plot in Streamlit
+    # Ensure that the selected month and year exist in the data
+    if not input_data.empty:
+        # Transform the input data using the scaler
+        input_scaled = scaler.transform(input_data.drop(columns=['Month', 'year_month']))
+
+        # Use your trained model to make predictions
+        lr_model = model_dict[category]
+        predicted_cpi = lr_model.predict(input_scaled)
+
+        # Display the predicted CPI value to the user
+        st.write(f"Predicted CPI for {category} in {selected_year}-{selected_month}: {predicted_cpi[0]:.2f}")
+    else:
+        st.write(f"No data available for {selected_year}-{selected_month}. Please select a different month and year.")
