@@ -50,7 +50,7 @@ def preprocess_input_data(selected_month, selected_year):
 
 # Add a button to trigger predictions
 if st.button("Predict CPI"):
-    st.write(input_data)
+    
     # Preprocess input data for the selected month and year
     input_data = preprocess_input_data(selected_month, selected_year)
 
