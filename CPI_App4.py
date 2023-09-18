@@ -40,7 +40,7 @@ def load_models():
 # Function to extract text from PDF and process it to get CPI values
 def process_pdf(pdf_path):
     with pdfplumber.open(pdf_path) as pdf:
-        page7 = pdf.pages[7]  # Page numbering starts from 0
+        page7 = pdf.pages[7]  
         page8 = pdf.pages[8]
         text1 = page7.extract_text()
         text2 = page8.extract_text()
@@ -82,14 +82,14 @@ def process_pdf(pdf_path):
         else:
             st.text(f"{column}: Category not found in the extracted data.")
 
-    return category_values
+    return category_value
 
-def create_input_data(selected_category, category_values, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
+def create_input_data(selected_category, category_value, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
     # Adjust the selected category to match the keys in target_cols_with_prefixes
     selected_category_adjusted = selected_category.replace(' ', '_')
     
     input_data = np.zeros((1, len(target_cols_with_prefixes) + 6))  # Create an empty array with additional columns
-    input_data[0, list(target_cols_with_prefixes.keys()).index(selected_category_adjusted)] = float(category_values[selected_category])
+    input_data[0, list(target_cols_with_prefixes.keys()).index(selected_category_adjusted)] = float(category_value[selected_category])
     
     # Set the values for the non-category columns
     input_data[0, -6] = total_local_sales
@@ -152,7 +152,7 @@ def main():
 
             # Make predictions for the selected categories
             for selected_category in selected_categories:
-                input_data = create_input_data(selected_category, category_values, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
+                input_data = create_input_data(selected_category, category_value, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
                 make_prediction(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, selected_month)
 
             # Display predictions
