@@ -93,7 +93,7 @@ def create_input_data(selected_category, category_value, total_local_sales, tota
         if category == selected_category_adjusted:
             input_data[0, target_cols_with_prefixes.index(selected_category_adjusted)] = float(category_value)
 
-    # input_data = np.zeros((1, len(target_cols) + 6))  # Create an empty array with additional columns
+    # input_data = np.zeros((1, len(target_cols) + 5))  # Create an empty array with additional columns
     # input_data[0, target_cols_with_prefixes.index(selected_category)] = previous_cpi_value
     
     
