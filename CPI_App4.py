@@ -85,7 +85,7 @@ def process_pdf(pdf_path):
     return category_values
     
 def create_input_data(selected_category, category_value, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
-    input_data = np.zeros((1, len(target_cols_with_prefixes) + 5))  # Create an empty array with additional columns
+    input_data = np.zeros((1, len(target_cols_with_prefixes) + 6))  # Create an empty array with additional columns
     selected_category_adjusted = selected_category.replace(' ', '_')
     
     # Iterate through the target columns and find the index for the selected category
@@ -137,11 +137,6 @@ def main():
         selected_categories = st.multiselect(
             "Select categories to predict:", list(target_cols_with_prefixes.keys()), default=[list(target_cols_with_prefixes.keys())[0]]
         )
-
-        # Display previous CPI values for selected categories
-        for selected_category in selected_categories:
-            if selected_category in category_values:
-                st.write(f"Current CPI for {selected_category} is: {category_values[selected_category]}")
 
         # Display input fields for vehicle sales and currency
         st.write("Enter Vehicle Sales and Currency Input:")
