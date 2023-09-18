@@ -12,6 +12,9 @@ model_dict = {target_col: joblib.load(f"{target_col}_model.pkl") for target_col 
 # Streamlit UI
 st.title("Manoko's CPI Prediction App")
 
+# User input - Select Category
+category = st.selectbox("Select Category", target_cols)
+
 # User input - Select Month
 selected_month = st.selectbox("Select Month", ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"], index=3)  # Default to April (04)
 
