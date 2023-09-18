@@ -84,12 +84,12 @@ def process_pdf(pdf_path):
 
     return category_value
 
-def create_input_data(selected_category, category_value, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
+def create_input_data(selected_category, category_values, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
     # Adjust the selected category to match the keys in target_cols_with_prefixes
     selected_category_adjusted = selected_category.replace(' ', '_')
     
     input_data = np.zeros((1, len(target_cols_with_prefixes) + 6))  # Create an empty array with additional columns
-    input_data[0, list(target_cols_with_prefixes.keys()).index(selected_category_adjusted)] = float(category_value[selected_category])
+    input_data[0, list(target_cols_with_prefixes.keys()).index(selected_category_adjusted)] = float(category_values[selected_category])
     
     # Set the values for the non-category columns
     input_data[0, -6] = total_local_sales
@@ -103,6 +103,7 @@ def create_input_data(selected_category, category_value, total_local_sales, tota
     input_data_scaled = scaler.fit_transform(input_data)
     
     return input_data_scaled
+
 
 # Streamlit app
 def main():
