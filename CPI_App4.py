@@ -83,7 +83,7 @@ def process_pdf(pdf_path):
         else:
             st.text(f"{column}: Category not found in the extracted data.")
 
-    return category_values
+    return category_values,category_value
 
 
 def create_input_data(selected_category, previous_cpi_value, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
