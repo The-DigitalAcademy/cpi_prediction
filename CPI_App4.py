@@ -104,7 +104,6 @@ def create_input_data(selected_category, category_value, total_local_sales, tota
     
     return input_data_scaled
 
-
 # Streamlit app
 def main():
     # Set the title
@@ -125,43 +124,4 @@ def main():
 
         # Display input fields for vehicle sales and currency
         st.write("Enter Vehicle Sales and Currency Input:")
-        total_local_sales = st.number_input("Total_Local_Sales", value=0.0)
-        total_export_sales = st.number_input("Total_Export_Sales", value=0.0)
-        usd_zar = st.number_input("USD_ZAR", value=0.0)
-        gbp_zar = st.number_input("GBP_ZAR", value=0.0)
-        eur_zar = st.number_input("EUR_ZAR", value=0.0)
-
-        # Load saved models
-        loaded_models = load_models()
-
-        # Allow the user to select which month they want to predict
-        selected_month = st.selectbox("Select a month for prediction:", ["Next Month", "Two Months Later", "Three Months Later"])
-
-
-        if st.button("Predict CPI"):
-    # Dictionary to store predictions
-    predictions = {}
-
-    # Calculate the reference date based on the current date
-    current_date = datetime.date.today()
-    if selected_month == "Next Month":
-        reference_date = current_date.replace(month=current_date.month + 1)
-    elif selected_month == "Two Months Later":
-        reference_date = current_date.replace(month=current_date.month + 2)
-    elif selected_month == "Three Months Later":
-        reference_date = current_date.replace(month=current_date.month + 3)
-
-    # Make predictions for the selected categories
-    for selected_category in selected_categories:
-        input_data = create_input_data(selected_category, category_values, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
-        make_prediction(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, selected_month)
-
-    # Display predictions
-    st.text(f"Predicted CPI values for {selected_month} for the selected categories:")
-    for category, value in predictions.items():
-        st.text(f"{category}: {value}")
-
-
-          
-if __name__ == "__main__":
-    main()
+        total_local_sales = st.number_input("Total_Local_Sales", value=
