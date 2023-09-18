@@ -77,6 +77,7 @@ def process_pdf(pdf_path):
 
         # Print the category and its value
         if category_value is not None:
+            st.text("Extracted CPI values from the PDF:")
             st.text(f"{column}: {category_value}")
         else:
             st.text(f"{column}: Category not found in the extracted data.")
@@ -97,9 +98,8 @@ def main():
         category_values = process_pdf(uploaded_file)
 
         # Display extracted CPI values
-        st.text("Extracted CPI values from the PDF:")
-        for category, value in category_values.items():
-            st.text(f"{category}: {value}")
+
+
 
         # Allow the user to select categories for prediction
         selected_categories = st.multiselect(
