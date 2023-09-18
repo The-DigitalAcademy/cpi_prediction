@@ -90,7 +90,11 @@ def create_input_data(selected_category, category_value, total_local_sales, tota
     # Iterate through the target columns and find the index for the selected category
     for index, (category, prefix) in enumerate(target_cols_with_prefixes.items()):
         if category == selected_category_adjusted:
-            input_data[0, index] = float(category_value)
+            input_data[0, target_cols_with_prefixes.index(selected_category)] = float(category_value)
+
+    # input_data = np.zeros((1, len(target_cols) + 6))  # Create an empty array with additional columns
+    # input_data[0, target_cols_with_prefixes.index(selected_category)] = previous_cpi_value
+    
     
     # Set the values for the non-category columns
     input_data[0, -6] = total_local_sales
