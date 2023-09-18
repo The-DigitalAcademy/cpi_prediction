@@ -16,9 +16,6 @@ st.title("Manoko's CPI Prediction App")
 # User input
 category = st.selectbox("Select Category", target_cols)
 
-# Allow the user to select the number of months to predict into the future
-num_months = st.number_input("Number of Months into the Future", min_value=1, value=1)
-
 # Preprocess the input data (similar to what you did during training)
 input_data = pd.read_csv('train.csv')
 
@@ -32,59 +29,44 @@ for col in feats_to_lag:
         for i in range(1, 3):
             input_data[f"prev_{i}_month_{col}"] = input_data[col].shift(i)
 
-# Get the last available date in your dataset
-last_date = pd.to_datetime(input_data['year_month'].iloc[-1])
-st.write(last_date)
-# Generate future dates starting from the last available date
-future_dates = [last_date + pd.DateOffset(months=i) for i in range(1, num_months + 1)]
+# Allow the user to select a specific month for prediction
+selected_month = st.selectbox("Select Month", input_data['year_month'].unique())
+
+# Prepare input data for the selected month (similar to the training data preprocessing)
+input_data_selected = input_data[input_data['year_month'] == selected_month]
+
+# Transform the input data using the scaler
+input_scaled = scaler.transform(input_data_selected.drop(columns=['Month', 'year_month']))
 
 # Lists to store data for plotting
 predicted_cpi_values = []
 previous_month_cpi_values = []
 
-# Predict for each future date
-for future_date in future_dates:
-    selected_month = future_date.month
-    selected_year = future_date.year
-    
-    # Prepare input data for the future date (similar to the training data preprocessing)
-    input_data_future = input_data.copy()  # Start with a copy of the last available data
-    input_data_future['year_month'] = future_date.strftime("%Y-%m")
-    
-    # Calculate lagged features for the future date
-    for col in feats_to_lag:
-        if col != 'year_month':
-            for i in range(1, 3):
-                input_data_future[f"prev_{i}_month_{col}"] = input_data_future[col].shift(i)
-    
-    # Transform the input data using the scaler
-    input_scaled = scaler.transform(input_data_future.drop(columns=['Month', 'year_month']))
-    
-    # Make predictions for the future date
-    lr_model = model_dict[category]
+# Predict for the selected month
+for target_col in target_cols:
+    lr_model = model_dict[target_col]
     predicted_cpi = lr_model.predict(input_scaled)
     
     # Append predicted CPI to the list
     predicted_cpi_values.append(predicted_cpi[0])
     
     # Get the CPI value for the previous month
-    previous_month = future_date - pd.DateOffset(months=1)
+    previous_month = pd.to_datetime(selected_month) - pd.DateOffset(months=1)
     previous_month_data = input_data[input_data['year_month'] == previous_month.strftime("%Y-%m")]
-    previous_month_cpi = previous_month_data[category].values[0]
+    previous_month_cpi = previous_month_data[target_col].values[0]
     
     # Append previous month's CPI to the list
     previous_month_cpi_values.append(previous_month_cpi)
     
-    # Display the predicted CPI for the future date
-    st.write(f"Predicted CPI for {category} in {selected_month}/{selected_year}: {predicted_cpi[0]:.2f}")
+    # Display the predicted CPI for the selected month and category
+    st.write(f"Predicted CPI for {target_col} in {selected_month}: {predicted_cpi[0]:.2f}")
 
 # Create a bar graph to compare predicted CPI and previous month's CPI
 plt.figure(figsize=(8, 4))
-plt.bar(future_dates, predicted_cpi_values, label="Predicted CPI", color='blue')
-plt.bar(future_dates, previous_month_cpi_values, label="Previous Month CPI", color='orange', alpha=0.7)
-plt.xlabel("Date")
+plt.bar([category], predicted_cpi_values, label="Predicted CPI", color='blue')
+plt.bar([category], previous_month_cpi_values, label="Previous Month CPI", color='orange', alpha=0.7)
+plt.xlabel("Category")
 plt.ylabel("CPI Value")
-plt.title("Comparison of Predicted CPI and Previous Month's CPI")
-plt.xticks(rotation=45)
+plt.title(f"Comparison of Predicted CPI and Previous Month's CPI for {selected_month}")
 plt.legend()
 st.pyplot(plt)  # Display the plot in Streamlit
