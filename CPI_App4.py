@@ -137,28 +137,31 @@ def main():
         # Allow the user to select which month they want to predict
         selected_month = st.selectbox("Select a month for prediction:", ["Next Month", "Two Months Later", "Three Months Later"])
 
+
         if st.button("Predict CPI"):
-            # Dictionary to store predictions
-            predictions = {}
+    # Dictionary to store predictions
+    predictions = {}
 
-            # Calculate the reference date based on the current date
-            current_date = datetime.date.today()
-            if selected_month == "Next Month":
-                reference_date = current_date.replace(month=current_date.month + 1)
-            elif selected_month == "Two Months Later":
-                reference_date = current_date.replace(month=current_date.month + 2)
-            elif selected_month == "Three Months Later":
-                reference_date = current_date.replace(month=current_date.month + 3)
+    # Calculate the reference date based on the current date
+    current_date = datetime.date.today()
+    if selected_month == "Next Month":
+        reference_date = current_date.replace(month=current_date.month + 1)
+    elif selected_month == "Two Months Later":
+        reference_date = current_date.replace(month=current_date.month + 2)
+    elif selected_month == "Three Months Later":
+        reference_date = current_date.replace(month=current_date.month + 3)
 
-            # Make predictions for the selected categories
-            for selected_category in selected_categories:
-                input_data = create_input_data(selected_category, category_value, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
-                make_prediction(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, selected_month)
+    # Make predictions for the selected categories
+    for selected_category in selected_categories:
+        input_data = create_input_data(selected_category, category_values, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
+        make_prediction(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, selected_month)
 
-            # Display predictions
-            st.text(f"Predicted CPI values for {selected_month} for the selected categories:")
-            for category, value in predictions.items():
-                st.text(f"{category}: {value}")
+    # Display predictions
+    st.text(f"Predicted CPI values for {selected_month} for the selected categories:")
+    for category, value in predictions.items():
+        st.text(f"{category}: {value}")
+
+
           
 if __name__ == "__main__":
     main()
