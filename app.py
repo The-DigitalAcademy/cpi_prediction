@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import joblib
 from sklearn.preprocessing import MinMaxScaler
+
 import matplotlib.pyplot as plt  # Import matplotlib for plotting
 
 # Load your scaler and linear regression models for each target column
