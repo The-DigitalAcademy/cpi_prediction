@@ -33,6 +33,7 @@ for col in feats_to_lag:
 
 # Get the last available date in your dataset
 last_date = pd.to_datetime(input_data['year_month'].iloc[-1])
+st.write(last_date)
 # Generate future dates starting from the last available date
 future_dates = [last_date + pd.DateOffset(months=i) for i in range(1, num_months + 1)]
 
