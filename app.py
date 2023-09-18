@@ -1,9 +1,9 @@
-# User input - Select Category
 import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
+import matplotlib.pyplot as plt  # Import matplotlib for plotting
 
 # Load your scaler and linear regression models for each target column
 scaler = joblib.load("last_scaler.pkl")
@@ -13,55 +13,78 @@ model_dict = {target_col: joblib.load(f"{target_col}_model.pkl") for target_col 
 # Streamlit UI
 st.title("Manoko's CPI Prediction App")
 
-# User input - Select Category
+# User input
 category = st.selectbox("Select Category", target_cols)
 
-# User input - Select Month
-selected_month = st.selectbox("Select Month", ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"], index=3)  # Default to April (04)
+# Allow the user to select the number of months to predict into the future
+num_months = st.number_input("Number of Months into the Future", min_value=1, value=1)
 
-# User input - Select Year
-selected_year = st.selectbox("Select Year", ["2022", "2023"], index=1)  # Default to 2023
+# Preprocess the input data (similar to what you did during training)
+input_data = pd.read_csv('train.csv')
 
-# Create a function to preprocess input data for prediction based on the selected month and year
-def preprocess_input_data(selected_month, selected_year):
-    # Load your input data (similar to what you did during training)
-    input_data = pd.read_csv('train.csv')
+# Drop the first and second rows
+input_data = input_data.drop([0, 1]).reset_index(drop=True)
 
-    # Add the code to calculate lagged features
-    feats_to_lag = input_data.columns[1:].to_list()
+# Add the code to calculate lagged features
+feats_to_lag = input_data.columns[1:].to_list()
+for col in feats_to_lag:
+    if col != 'year_month':
+        for i in range(1, 3):
+            input_data[f"prev_{i}_month_{col}"] = input_data[col].shift(i)
+
+# Get the last available date in your dataset
+last_date = pd.to_datetime(input_data['year_month'].iloc[-1])
+st.write(last_date)
+# Generate future dates starting from the last available date
+future_dates = [last_date + pd.DateOffset(months=i) for i in range(1, num_months + 1)]
+
+# Lists to store data for plotting
+predicted_cpi_values = []
+previous_month_cpi_values = []
+
+# Predict for each future date
+for future_date in future_dates:
+    selected_month = future_date.month
+    selected_year = future_date.year
+    
+    # Prepare input data for the future date (similar to the training data preprocessing)
+    input_data_future = input_data.copy()  # Start with a copy of the last available data
+    input_data_future['year_month'] = future_date.strftime("%Y-%m")
+    
+    # Calculate lagged features for the future date
     for col in feats_to_lag:
         if col != 'year_month':
             for i in range(1, 3):
-                input_data[f"prev_{i}_month_{col}"] = input_data[col].shift(i)
+                input_data_future[f"prev_{i}_month_{col}"] = input_data_future[col].shift(i)
+    
+    # Transform the input data using the scaler
+    input_scaled = scaler.transform(input_data_future.drop(columns=['Month', 'year_month']))
+    
+    # Make predictions for the future date
+    lr_model = model_dict[category]
+    predicted_cpi = lr_model.predict(input_scaled)
+    
+    # Append predicted CPI to the list
+    predicted_cpi_values.append(predicted_cpi[0])
+    
+    # Get the CPI value for the previous month
+    previous_month = future_date - pd.DateOffset(months=1)
+    previous_month_data = input_data[input_data['year_month'] == previous_month.strftime("%Y-%m")]
+    previous_month_cpi = previous_month_data[category].values[0]
+    
+    # Append previous month's CPI to the list
+    previous_month_cpi_values.append(previous_month_cpi)
+    
+    # Display the predicted CPI for the future date
+    st.write(f"Predicted CPI for {category} in {selected_month}/{selected_year}: {predicted_cpi[0]:.2f}")
 
-    input_data.drop(0)
-    input_data.bfill()
-    input_data = input_data.drop([0, 1]).reset_index(drop=True)  # Assign the result back to input_data
-    #st.write(input_data)
-    # Drop columns that are not needed for prediction
-    input_data = input_data.drop(columns=target_cols + ['Total_Local Sales', 'Total_Export_Sales'])
-
-    # Filter data for the selected month and year
-    selected_date = f"{selected_year}-{selected_month}"
-    selected_data = input_data[input_data['year_month'] == selected_date]
-
-    return selected_data
-
-# Add a button to trigger predictions
-if st.button("Predict CPI"):
-    # Preprocess input data for the selected month and year
-    input_data = preprocess_input_data(selected_month, selected_year)
-
-    # Ensure that the selected month and year exist in the data
-    if not input_data.empty:
-        # Transform the input data using the scaler
-        input_scaled = scaler.transform(input_data.drop(columns=['Month', 'year_month']))
-
-        # Use your trained model to make predictions
-        lr_model = model_dict[category]
-        predicted_cpi = lr_model.predict(input_scaled)
-
-        # Display the predicted CPI value to the user
-        st.write(f"Predicted CPI for {category} in {selected_year}-{selected_month}: {predicted_cpi[0]:.2f}")
-    else:
-        st.write(f"No data available for {selected_year}-{selected_month}. Please select a different month and year.")
+# Create a bar graph to compare predicted CPI and previous month's CPI
+plt.figure(figsize=(8, 4))
+plt.bar(future_dates, predicted_cpi_values, label="Predicted CPI", color='blue')
+plt.bar(future_dates, previous_month_cpi_values, label="Previous Month CPI", color='orange', alpha=0.7)
+plt.xlabel("Date")
+plt.ylabel("CPI Value")
+plt.title("Comparison of Predicted CPI and Previous Month's CPI")
+plt.xticks(rotation=45)
+plt.legend()
+st.pyplot(plt)  # Display the plot in Streamlit
