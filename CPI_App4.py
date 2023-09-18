@@ -37,7 +37,6 @@ def load_models():
                 print(model_path)
     return loaded_models
 
-
 # Function to extract text from PDF and process it to get CPI values
 def process_pdf(pdf_path):
     with pdfplumber.open(pdf_path) as pdf:
@@ -83,12 +82,11 @@ def process_pdf(pdf_path):
         else:
             st.text(f"{column}: Category not found in the extracted data.")
 
-    return category_values,category_value
+    return category_values
 
-
-def create_input_data(selected_category, previous_cpi_value, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
+def create_input_data(selected_category, category_values, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
     input_data = np.zeros((1, len(target_cols_with_prefixes) + 6))  # Create an empty array with additional columns
-    input_data[0, target_cols_with_prefixes.index(selected_category)] = previous_cpi_value
+    input_data[0, list(target_cols_with_prefixes.keys()).index(selected_category)] = float(category_values[selected_category])
     
     # Set the values for the non-category columns
     input_data[0, -6] = total_local_sales
@@ -106,7 +104,7 @@ def create_input_data(selected_category, previous_cpi_value, total_local_sales, 
 # Streamlit app
 def main():
     # Set the title
-    st.title("CPI Prediction Dashboard")
+    st.title("CPI Vision")
 
     # Allow the user to upload a PDF document
     uploaded_file = st.file_uploader("Upload a CPI PDF document", type=["pdf"])
@@ -116,25 +114,10 @@ def main():
         st.text("Processing the uploaded PDF...")
         category_values = process_pdf(uploaded_file)
 
-        # Display extracted CPI values
-
-
-
         # Allow the user to select categories for prediction
         selected_categories = st.multiselect(
             "Select categories to predict:", list(target_cols_with_prefixes.keys()), default=[list(target_cols_with_prefixes.keys())[0]]
         )
-
-        # Display input fields for previous CPI values for each selected category
-        previous_cpi_values = {}
-        for selected_category in selected_categories:
-            # Get the corresponding category prefix
-            category_prefix = target_cols_with_prefixes[selected_category]
-            
-            # Display the previous CPI value for the selected category
-            previous_cpi_values[selected_category] = st.number_input(
-                f"Previous CPI value for {category_prefix}:",value=0.0
-            )
 
         # Display input fields for vehicle sales and currency
         st.write("Enter Vehicle Sales and Currency Input:")
@@ -165,9 +148,7 @@ def main():
 
             # Make predictions for the selected categories
             for selected_category in selected_categories:
-                # Create input data excluding the 19th feature (month selection)
-                input_data = create_input_data(selected_category, previous_cpi_values[selected_category], total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)[:, :-1]
-        
+                input_data = create_input_data(selected_category, category_values, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
                 make_prediction(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, selected_month)
 
             # Display predictions
