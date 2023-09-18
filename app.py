@@ -67,3 +67,9 @@ if st.button("Predict CPI"):
         st.write(f"Predicted CPI for {category} in {selected_year}-{selected_month}: {predicted_cpi[0]:.2f}")
     else:
         st.write(f"No data available for {selected_year}-{selected_month}. Please select a different month and year.")
+
+   st.bar_chart(input_data
+    ,
+    x='year_month',
+    y=['predicted_cpi',
+    color=['#FF0000','#0000FF']  # Optional
