@@ -133,7 +133,7 @@ def main():
             
             # Display the previous CPI value for the selected category
             previous_cpi_values[selected_category] = st.number_input(
-                f"Previous CPI value for {category_prefix}:", {category_value},value=0.0
+                f"Previous CPI value for {category_prefix}:",value=0.0
             )
 
         # Display input fields for vehicle sales and currency
