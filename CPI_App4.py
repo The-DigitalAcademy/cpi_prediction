@@ -145,4 +145,6 @@ def main():
 
             # Display predictions
             st.text(f"Predicted CPI values for {selected_month} for the selected categories:")
-           
+          
+if __name__ == "__main__":
+  main()       
