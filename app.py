@@ -35,6 +35,7 @@ def preprocess_input_data(selected_month, selected_year):
 
     input_data.drop(0)
     input_data.bfill()
+    input_data.fillna(input_data.mean())
     st.write(input_data)
 
     # Drop columns that are not needed for prediction
