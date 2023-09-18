@@ -1,5 +1,5 @@
 import streamlit as st
-import pdfplumber
+# import pdfplumber
 import re
 import numpy as np
 import os
