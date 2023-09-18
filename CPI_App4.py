@@ -117,7 +117,6 @@ def main():
                 f"Enter previous CPI value for {category_prefix}:", value=0.0
             )
 
-
         # Display input fields for vehicle sales and currency
         st.write("Enter Vehicle Sales and Currency Input:")
         total_local_sales = st.number_input("Total_Local_Sales", value=0.0)
@@ -154,6 +153,8 @@ def main():
 
             # Display predictions
             st.text(f"Predicted CPI values for {selected_month} for the selected categories:")
+            for category, value in predictions.items():
+                st.text(f"{category}: {value}")
           
 if __name__ == "__main__":
     main()
