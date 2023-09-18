@@ -83,6 +83,7 @@ def process_pdf(pdf_path):
             st.text(f"{column}: Category not found in the extracted data.")
 
     return category_values
+    
 def create_input_data(selected_category, category_value, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
     input_data = np.zeros((1, len(target_cols_with_prefixes) + 6))  # Create an empty array with additional columns
     selected_category_adjusted = selected_category.replace(' ', '_')
@@ -90,7 +91,7 @@ def create_input_data(selected_category, category_value, total_local_sales, tota
     # Iterate through the target columns and find the index for the selected category
     for index, (category, prefix) in enumerate(target_cols_with_prefixes.items()):
         if category == selected_category_adjusted:
-            input_data[0, target_cols_with_prefixes.index(selected_category)] = float(category_value)
+            input_data[0, target_cols_with_prefixes.index(selected_category_adjusted)] = float(category_value)
 
     # input_data = np.zeros((1, len(target_cols) + 6))  # Create an empty array with additional columns
     # input_data[0, target_cols_with_prefixes.index(selected_category)] = previous_cpi_value
