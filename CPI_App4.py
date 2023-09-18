@@ -1,6 +1,7 @@
 import streamlit as st
+import pdfplumber
+import re
 import numpy as np
-import pandas as pd
 import os
 import datetime
 from tensorflow.keras.models import load_model
@@ -8,8 +9,8 @@ from sklearn.preprocessing import StandardScaler
 
 # Define the target columns
 target_cols = ['Alcoholic beverages and tobacco', 'Clothing and footwear',
-               'Communication', 'Education', 'Food and non alcoholic beverages',
-               'Headline_CPI', 'Health', 'Household contents and services',
+               'Communication', 'Education', 'Food and non-alcoholic beverages',
+               'Headline CPI', 'Health', 'Household contents and services',
                'Housing and utilities', 'Miscellaneous goods and services',
                'Recreation and culture', 'Restaurants and hotels ', 'Transport']
 
@@ -26,6 +27,36 @@ def load_models():
                 print(model_path)
     return loaded_models
 
+# Function to extract text from PDF and process it to get CPI values
+def process_pdf(pdf_path):
+    with pdfplumber.open(pdf_path) as pdf:
+        page7 = pdf.pages[7]  # Page numbering starts from 0
+        page8 = pdf.pages[8]
+        text1 = page7.extract_text()
+        text2 = page8.extract_text()
+    
+    # Combine the extracted text from both pages
+    text_to_extract = text1 + text2
+
+    # Split the text into lines and initialize a dictionary to store category values
+    lines = text_to_extract.split('\n')
+    category_values = {}
+
+    # Iterate through the lines starting from the 4th line (skipping headers)
+    for line in lines[3:]:
+        # Split the line using whitespace
+        columns = line.split()
+        if len(columns) >= 4:
+            # Extract the category and value
+            category = ' '.join(columns[:-3])  # Combine columns as the category name
+            value = columns[-3]  # Get the value from the 4th column
+
+            # Add the category and its value to the dictionary
+            category_values[category] = value
+
+    return category_values
+
+# Function to create input data for CPI prediction
 def create_input_data(selected_category, previous_cpi_value, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
     input_data = np.zeros((1, len(target_cols) + 6))  # Create an empty array with additional columns
     input_data[0, target_cols.index(selected_category)] = previous_cpi_value
@@ -51,92 +82,67 @@ def make_prediction(selected_category, input_data, loaded_models, category_forma
             loaded_model = loaded_models[model_key]
             y_pred = loaded_model.predict(input_data)
             predictions[f'{category_formatted}_CPI_for_{reference_date.strftime("%B_%Y")}_{selected_month}'] = round(y_pred[0][0], 2)
-          
-
-def fetch_previous_cpi_values():
-    url = "https://example.com/previous_cpi_values"  # Replace with the actual URL
-    response = requests.get(url)
-    
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.content, "html.parser")
-        previous_cpi_values = {}
-  
-        previous_cpi_values["Alcoholic beverages and tobacco"] = float(soup.find(id="alc_cpi").text)
-        previous_cpi_values["Clothing and footwear"] = float(soup.find(id="clothing_cpi").text)
-        previous_cpi_values["Communication"] = float(soup.find(id="communication_cpi").text)
-        previous_cpi_values["Education"] = float(soup.find(id="education_cpi").text)
-        previous_cpi_values["Food and non-alcoholic beverages"] = float(soup.find(id="food_cpi").text)
-        previous_cpi_values["Health"] = float(soup.find(id="health_cpi").text)
-        previous_cpi_values["Household contents and services"] = float(soup.find(id="household_cpi").text)
-        previous_cpi_values["Housing and utilities"] = float(soup.find(id="housing_cpi").text)
-        previous_cpi_values["Miscellaneous goods and services"] = float(soup.find(id="miscellaneous_cpi").text)
-        previous_cpi_values["Recreation and culture"] = float(soup.find(id="recreation_cpi").text)
-        previous_cpi_values["Restaurants and hotels"] = float(soup.find(id="restaurants_cpi").text)
-        previous_cpi_values["Transport"] = float(soup.find(id="transport_cpi").text)
-
-        return previous_cpi_values
-    else:
-        st.error("Failed to fetch data from the website")
-        return None
-      
 
 # Streamlit app
 def main():
     # Set the title
     st.title("CPI Prediction Dashboard")
 
-    # Allow the user to select categories for prediction
-    selected_categories = st.multiselect("Select categories to predict:", target_cols, default=target_cols[0])
+    # Allow the user to upload a PDF document
+    uploaded_file = st.file_uploader("Upload a CPI PDF document", type=["pdf"])
 
-    # Display input fields for previous CPI values for each selected category
-    previous_cpi_values = {}
-    for selected_category in selected_categories:
-        previous_cpi_values[selected_category] = st.number_input(f"Enter previous CPI value for {selected_category}:", value=0.0)
+    if uploaded_file is not None:
+        # Process the uploaded PDF file
+        st.text("Processing the uploaded PDF...")
+        category_values = process_pdf(uploaded_file)
 
-    # Display input fields for vehicle sales and currency
-    st.write("Enter Vehicle Sales and Currency Input:")
-    total_local_sales = st.number_input("Total_Local_Sales", value=0.0)
-    total_export_sales = st.number_input("Total_Export_Sales", value=0.0)
-    usd_zar = st.number_input("USD_ZAR", value=0.0)
-    gbp_zar = st.number_input("GBP_ZAR", value=0.0)
-    eur_zar = st.number_input("EUR_ZAR", value=0.0)
+        # Display extracted CPI values
+        st.text("Extracted CPI values from the PDF:")
+        for category, value in category_values.items():
+            st.text(f"{category}: {value}")
 
-    # Load saved models
-    loaded_models = load_models()
+        # Allow the user to select categories for prediction
+        selected_categories = st.multiselect("Select categories to predict:", target_cols, default=target_cols[0])
 
-    # Allow the user to select which month they want to predict
-    selected_month = st.selectbox("Select a month for prediction:", ["Next Month", "Two Months Later", "Three Months Later"])
-
-    if st.button("Predict CPI"):
-        # Dictionary to store predictions
-        predictions = {}
-
-        # Calculate the reference date based on the current date
-        current_date = datetime.date.today()
-        if selected_month == "Next Month":
-            reference_date = current_date.replace(month=current_date.month + 1)
-        elif selected_month == "Two Months Later":
-            reference_date = current_date.replace(month=current_date.month + 2)
-        elif selected_month == "Three Months Later":
-            reference_date = current_date.replace(month=current_date.month + 3)
-
-        # Make predictions for the selected categories
+        # Display input fields for previous CPI values for each selected category
+        previous_cpi_values = {}
         for selected_category in selected_categories:
-            # Create input data excluding the 19th feature (month selection)
-            input_data = create_input_data(selected_category, previous_cpi_values[selected_category], total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)[:, :-1]
-    
-            make_prediction(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, selected_month)
+            previous_cpi_values[selected_category] = st.number_input(f"Enter previous CPI value for {selected_category}:", value=0.0)
 
-        # Display predictions
-        st.write(f"Predicted CPI values for {selected_month} for the selected categories:")
-        for selected_category in selected_categories:
-            category_formatted = selected_category.replace(' ', '_')  # Replace spaces with underscores
-            key = f"{category_formatted}_CPI_for_{reference_date.strftime('%B_%Y')}_{selected_month}"
-    
-            if key in predictions:
-                st.write(f"{selected_category} CPI for {reference_date.strftime('%B_%Y')}: {predictions[key]:.2f}")
-            else:
-                st.write(f"No prediction found for {selected_category} in {selected_month}")
+        # Display input fields for vehicle sales and currency
+        st.write("Enter Vehicle Sales and Currency Input:")
+        total_local_sales = st.number_input("Total_Local_Sales", value=0.0)
+        total_export_sales = st.number_input("Total_Export_Sales", value=0.0)
+        usd_zar = st.number_input("USD_ZAR", value=0.0)
+        gbp_zar = st.number_input("GBP_ZAR", value=0.0)
+        eur_zar = st.number_input("EUR_ZAR", value=0.0)
 
-if __name__ == "__main__":
-    main()
+        # Load saved models
+        loaded_models = load_models()
+
+        # Allow the user to select which month they want to predict
+        selected_month = st.selectbox("Select a month for prediction:", ["Next Month", "Two Months Later", "Three Months Later"])
+
+        if st.button("Predict CPI"):
+            # Dictionary to store predictions
+            predictions = {}
+
+            # Calculate the reference date based on the current date
+            current_date = datetime.date.today()
+            if selected_month == "Next Month":
+                reference_date = current_date.replace(month=current_date.month + 1)
+            elif selected_month == "Two Months Later":
+                reference_date = current_date.replace(month=current_date.month + 2)
+            elif selected_month == "Three Months Later":
+                reference_date = current_date.replace(month=current_date.month + 3)
+
+            # Make predictions for the selected categories
+            for selected_category in selected_categories:
+                # Create input data excluding the 19th feature (month selection)
+                input_data = create_input_data(selected_category, previous_cpi_values[selected_category], total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)[:, :-1]
+        
+                make_prediction(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, selected_month)
+
+            # Display predictions
+            st.text(f"Predicted CPI values for {selected_month} for the selected categories:")
+           
