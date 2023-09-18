@@ -37,10 +37,10 @@ for col in feats_to_lag:
              
              input_data[f"prev_{i}_month_{col}"] = input_data[col].shift(i)
 
-input_data.drop(0)
-input_data.bfill()
-input_data = input_data.drop([0, 1]).reset_index(drop=True)  # Assign the result back to input_data
-st.write(input_data)
+    input_data.drop(0)
+    input_data.bfill()
+#input_data = input_data.drop([0, 1]).reset_index(drop=True)  # Assign the result back to input_data
+    st.write(input_data)
 
 # input_data = input_data({'Month': [selected_date.strftime("%Y-%m")],
 #                          'year_month':[selected_date].strftime("%Y-%m")})
