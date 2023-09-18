@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
+import matplotlib 
 from sklearn.preprocessing import MinMaxScaler
 
 import matplotlib.pyplot as plt  # Import matplotlib for plotting
