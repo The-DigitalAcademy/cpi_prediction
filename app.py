@@ -35,6 +35,7 @@ def preprocess_input_data(selected_month, selected_year):
 
     input_data.drop(0)
     input_data.bfill()
+    st.write(input_data)
 
     # Drop columns that are not needed for prediction
     input_data = input_data.drop(columns=target_cols + ['Total_Local Sales', 'Total_Export_Sales'])
