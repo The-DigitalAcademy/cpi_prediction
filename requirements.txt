@@ -3,5 +3,4 @@ pandas
 numpy
 scikit-learn
 tensorflow
-pdfplumber==0.5.29
-
+pdfplumber
