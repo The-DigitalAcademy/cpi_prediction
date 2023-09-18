@@ -87,8 +87,8 @@ def process_pdf(pdf_path):
 
 
 def create_input_data(selected_category, previous_cpi_value, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
-    input_data = np.zeros((1, len(target_cols) + 6))  # Create an empty array with additional columns
-    input_data[0, target_cols.index(selected_category)] = previous_cpi_value
+    input_data = np.zeros((1, len(target_cols_with_prefixes) + 6))  # Create an empty array with additional columns
+    input_data[0, target_cols_with_prefixes.index(selected_category)] = previous_cpi_value
     
     # Set the values for the non-category columns
     input_data[0, -6] = total_local_sales
@@ -133,7 +133,7 @@ def main():
             
             # Display the previous CPI value for the selected category
             previous_cpi_values[selected_category] = st.number_input(
-                f"Enter previous CPI value for {category_prefix}:", value=0.0
+                f"Previous CPI value for {category_prefix}:", {category_value},value=0.0
             )
 
         # Display input fields for vehicle sales and currency
