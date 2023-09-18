@@ -49,6 +49,7 @@ def preprocess_input_data(selected_month, selected_year):
 if st.button("Predict CPI"):
     # Preprocess input data for the selected month and year
     input_data = preprocess_input_data(selected_month, selected_year)
+    st.write(input_data)
 
     # Ensure that the selected month and year exist in the data
     if not input_data.empty:
