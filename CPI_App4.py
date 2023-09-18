@@ -54,6 +54,39 @@ def process_pdf(pdf_path):
             # Add the category and its value to the dictionary
             category_values[category] = value
 
+    # List of category prefixes to extract values for
+  category_prefixes = ['Headline',
+    'Food and non-',
+    'Alcoholic beverages',
+    'Clothing and footwear',
+    'Housing and utilities',
+    'Household contents',
+    'Health',
+    'Transport',
+    'Communication',
+    'Recreation and culture',
+    'Education',
+    'Restaurants and hotels',
+    'Miscellaneous goods',
+  ]
+
+# Iterate through the category prefixes
+  for prefix in category_prefixes:
+      category_value = None
+
+    # Iterate through the dictionary items
+      for category, value in category_values.items():
+          if category.startswith(prefix):
+            # Split the value by ":" and get the last part
+              category_value = value.split(':')[-1].strip()
+              break  # Exit the loop once the category value is found
+
+    # Print the category and its value
+      if category_value is not None:
+          print(f"{prefix}: {category_value}")
+      else:
+          print(f"{prefix}: Category not found in the extracted data.")
+
     return category_values
 
 # Function to create input data for CPI prediction
