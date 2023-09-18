@@ -3,7 +3,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
-import matplotlib.pyplot as plt  # Import matplotlib for plotting
+#import matplotlib.pyplot as plt  # Import matplotlib for plotting
 
 # Load your scaler and linear regression models for each target column
 scaler = joblib.load("last_scaler.pkl")
