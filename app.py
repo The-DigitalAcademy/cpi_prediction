@@ -1,4 +1,5 @@
-import streamlit as st
+# User input - Select Category
+category = st.selectbox("Select Category", target_cols)import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
