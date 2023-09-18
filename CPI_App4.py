@@ -141,7 +141,7 @@ def main():
         # Display previous CPI values for selected categories
         for selected_category in selected_categories:
             if selected_category in category_values:
-                st.text(f"Previous CPI value for {selected_category}: {category_values[selected_category]}")
+                st.write(f"Current CPI for {selected_category} is: {category_values[selected_category]}")
 
         # Display input fields for vehicle sales and currency
         st.write("Enter Vehicle Sales and Currency Input:")
