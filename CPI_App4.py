@@ -136,14 +136,16 @@ def main():
 
 # ...
 
+# ...
+
 # Allow the user to select categories for prediction
     selected_categories = st.multiselect(
         "Select categories to predict:", list(target_cols_with_prefixes.keys()), default=[list(target_cols_with_prefixes.keys())[0]]
     )
 
-    # Display the previous CPI value for the selected categories
+# Display the previous CPI value for the selected categories
     for selected_category in selected_categories:
-        # Adjust the selected category to match the format used in the PDF
+    # Adjust the selected category to match the format used in the PDF
         selected_category_adjusted = target_cols_with_prefixes.get(selected_category, None)
 
         if selected_category_adjusted:
@@ -151,7 +153,14 @@ def main():
             st.text(f"Current CPI for {selected_category} is: {category_value}")
         else:
             st.text(f"Category {selected_category} not found in the extracted data.")
+
+# Add debugging information
+    st.text("Debugging Information:")
+    st.text(f"Selected Categories: {selected_categories}")
+    st.text(f"Extracted Category Values: {category_values}")
+
 # ...
+
 
 
         
