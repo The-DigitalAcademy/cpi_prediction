@@ -144,24 +144,22 @@ def main():
         "Select categories to predict:", list(target_cols_with_prefixes.keys()), default=[list(target_cols_with_prefixes.keys())[0]]
     )
 
-# Display the previous CPI value for the selected categories
- for selected_category in selected_categories:
-     selected_category_adjusted = None
+    # Display the previous CPI value for the selected categories
+    for selected_category in selected_categories:
+        selected_category_adjusted = None
 
-    # Iterate through target_cols_with_prefixes to find the matching category
-    for category, prefix in target_cols_with_prefixes.items():
-         if selected_category == category:
-             selected_category_adjusted = category
-             break
+        # Iterate through target_cols_with_prefixes to find the matching category
+        for category, prefix in target_cols_with_prefixes.items():
+            if selected_category == category:
+                selected_category_adjusted = category
+                break
 
-     if selected_category_adjusted:
-        # Retrieve the previous CPI value from the extracted data
-         category_value = extracted_category_values.get(selected_category_adjusted, "N/A")
-         st.text(f"Current CPI for {selected_category} is: {category_value}")
-     else:
-         st.text(f"Category {selected_category} not found in the extracted data.")
-
-
+        if selected_category_adjusted:
+            # Retrieve the previous CPI value from the extracted data
+            category_value = extracted_category_values.get(selected_category_adjusted, "N/A")
+            st.text(f"Current CPI for {selected_category} is: {category_value}")
+        else:
+            st.text(f"Category {selected_category} not found in the extracted data.")
 
     # Display input fields for vehicle sales and currency
     st.write("Enter Vehicle Sales and Currency Input:")
@@ -193,16 +191,3 @@ def main():
         # Make predictions for the selected categories
         for selected_category in selected_categories:
             input_data = create_input_data(selected_category, extracted_category_values, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
-            make_prediction(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, selected_month)
-
-            # Display the previous CPI value for the selected category
-            category_value = extracted_category_values.get(target_cols_with_prefixes[selected_category], "N/A")
-            st.text(f"Current CPI for {selected_category} is: {category_value}")
-
-        # Display predictions
-        st.text(f"Predicted CPI values for {selected_month} for the selected categories:")
-        for category, value in predictions.items():
-            st.text(f"{category}: {value}")
-
-if __name__ == "__main__":
-    main()
