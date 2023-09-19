@@ -27,20 +27,20 @@ target_cols_with_prefixes = {
 # Define a global variable to store the extracted category values
 extracted_category_values = {}
 category_values = {}
+
 # Function to extract text from PDF and process it to get CPI values
 def process_pdf(pdf_path):
     with pdfplumber.open(pdf_path) as pdf:
-        page7 = pdf.pages[7]  
+        page7 = pdf.pages[7]
         page8 = pdf.pages[8]
         text1 = page7.extract_text()
         text2 = page8.extract_text()
-    
+
     # Combine the extracted text from both pages
     text_to_extract = text1 + text2
 
     # Split the text into lines and initialize a dictionary to store category values
     lines = text_to_extract.split('\n')
-    # category_values = {}
 
     # Iterate through the lines starting from the 4th line (skipping headers)
     for line in lines[3:]:
@@ -73,7 +73,6 @@ def process_pdf(pdf_path):
             st.text(f"{column}: Category not found in the extracted data.")
 
     return category_values
-    
 
 # Load saved models
 def load_models():
@@ -96,7 +95,7 @@ def create_input_data(selected_category, category_values, total_local_sales, tot
     
     # Iterate through the target columns and find the index for the selected category
     for index, (category, prefix) in enumerate(target_cols_with_prefixes.items()):
-        if category == selected_category_adjusted:
+        if selected_category_adjusted == category.replace(' ', '_'):
             input_data[0, index] = float(category_values.get(prefix, 0.0))
 
     # Set the values for the non-category columns
@@ -148,7 +147,7 @@ def main():
 
         # Iterate through target_cols_with_prefixes to find the matching category
         for category, prefix in target_cols_with_prefixes.items():
-            if selected_category == category:
+            if selected_category in category:
                 selected_category_adjusted = category
                 break
 
@@ -193,7 +192,7 @@ def main():
 
             # Display the previous CPI value for the selected category
             category_value = extracted_category_values.get(target_cols_with_prefixes[selected_category], "N/A")
-            st.text(f"Current CPI for {selected_category} is: {category_values}")
+            st.text(f"Current CPI for {selected_category} is: {category_value}")
 
         # Display predictions
         st.text(f"Predicted CPI values for {selected_month} for the selected categories:")
