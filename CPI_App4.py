@@ -26,10 +26,11 @@ target_cols_with_prefixes = {
 
 # Define a global variable to store the extracted category values
 extracted_category_values = {}
-category_values = {}
 
 # Function to extract text from PDF and process it to get CPI values
 def process_pdf(pdf_path):
+    global extracted_category_values  # Access the global variable
+
     with pdfplumber.open(pdf_path) as pdf:
         page7 = pdf.pages[7]
         page8 = pdf.pages[8]
@@ -41,6 +42,7 @@ def process_pdf(pdf_path):
 
     # Split the text into lines and initialize a dictionary to store category values
     lines = text_to_extract.split('\n')
+    category_values = {}
 
     # Iterate through the lines starting from the 4th line (skipping headers)
     for line in lines[3:]:
@@ -54,25 +56,8 @@ def process_pdf(pdf_path):
             # Add the category and its value to the dictionary
             category_values[category] = value
 
-    # Iterate through the category prefixes
-    for column, prefix in target_cols_with_prefixes.items():
-        category_value = None
-
-        # Iterate through the dictionary items
-        for category, value in category_values.items():
-            if category.startswith(prefix):
-                # Split the value by ":" and get the last part
-                category_value = value.split(':')[-1].strip()
-                break  # Exit the loop once the category value is found
-
-        # Print the category and its value
-        if category_value is not None:
-            st.text("Extracted CPI values from the PDF:")
-            st.text(f"{column}: {category_value}")
-        else:
-            st.text(f"{column}: Category not found in the extracted data.")
-
-    return category_values
+    # Store the extracted category values in the global variable
+    extracted_category_values = category_values
 
 # Load saved models
 def load_models():
@@ -83,9 +68,6 @@ def load_models():
             if os.path.exists(model_path):
                 loaded_model = load_model(model_path)
                 loaded_models[f"{column}_month_{i}"] = loaded_model
-                print(model_path)
-            else:
-                print(model_path)
     return loaded_models
 
 # Function to create input data for predictions
@@ -95,7 +77,7 @@ def create_input_data(selected_category, category_values, total_local_sales, tot
     
     # Iterate through the target columns and find the index for the selected category
     for index, (category, prefix) in enumerate(target_cols_with_prefixes.items()):
-        if selected_category_adjusted == category.replace(' ', '_'):
+        if category == selected_category_adjusted:
             input_data[0, index] = float(category_values.get(prefix, 0.0))
 
     # Set the values for the non-category columns
@@ -128,9 +110,6 @@ def main():
     # Allow the user to upload a PDF document
     uploaded_file = st.file_uploader("Upload a CPI PDF document", type=["pdf"])
 
-    # Initialize category_values dictionary
-    category_values = {}
-
     if uploaded_file is not None:
         # Process the uploaded PDF file and get category values
         st.text("Processing the uploaded PDF...")
@@ -147,7 +126,7 @@ def main():
 
         # Iterate through target_cols_with_prefixes to find the matching category
         for category, prefix in target_cols_with_prefixes.items():
-            if selected_category in category:
+            if selected_category == category:
                 selected_category_adjusted = category
                 break
 
@@ -191,7 +170,8 @@ def main():
             make_prediction(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, selected_month)
 
             # Display the previous CPI value for the selected category
-            category_value = extracted_category_values.get(target_cols_with_prefixes[selected_category], "N/A")
+            selected_category_adjusted = selected_category.replace(' ', '_')
+            category_value = extracted_category_values.get(target_cols_with_prefixes[selected_category_adjusted], "N/A")
             st.text(f"Current CPI for {selected_category} is: {category_value}")
 
         # Display predictions
