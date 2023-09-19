@@ -26,7 +26,7 @@ target_cols_with_prefixes = {
 
 # Define a global variable to store the extracted category values
 extracted_category_values = {}
-
+category_values = {}
 # Function to extract text from PDF and process it to get CPI values
 def process_pdf(pdf_path):
     with pdfplumber.open(pdf_path) as pdf:
@@ -40,7 +40,7 @@ def process_pdf(pdf_path):
 
     # Split the text into lines and initialize a dictionary to store category values
     lines = text_to_extract.split('\n')
-    category_values = {}
+    # category_values = {}
 
     # Iterate through the lines starting from the 4th line (skipping headers)
     for line in lines[3:]:
@@ -59,7 +59,7 @@ def process_pdf(pdf_path):
         category_value = None
 
         # Iterate through the dictionary items
-        for category, value in extracted_category_values.items():
+        for category, value in category_values.items():
             if category.startswith(prefix):
                 # Split the value by ":" and get the last part
                 category_value = value.split(':')[-1].strip()
@@ -193,7 +193,7 @@ def main():
 
             # Display the previous CPI value for the selected category
             category_value = extracted_category_values.get(target_cols_with_prefixes[selected_category], "N/A")
-            st.text(f"Current CPI for {selected_category} is: {extracted_category_values}")
+            st.text(f"Current CPI for {selected_category} is: {category_values}")
 
         # Display predictions
         st.text(f"Predicted CPI values for {selected_month} for the selected categories:")
