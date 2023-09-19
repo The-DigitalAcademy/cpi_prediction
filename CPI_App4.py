@@ -137,7 +137,7 @@ def main():
         st.text("Processing the uploaded PDF...")
         category_values = process_pdf(uploaded_file)
 
-    # Allow the user to select categories for prediction
+# Allow the user to select categories for prediction
     selected_categories = st.multiselect(
         "Select categories to predict:", list(target_cols_with_prefixes.keys()), default=[list(target_cols_with_prefixes.keys())[0]]
     )
@@ -147,6 +147,7 @@ def main():
         selected_category_adjusted = target_cols_with_prefixes[selected_category]
         category_value = category_values.get(selected_category_adjusted, "N/A")
         st.text(f"Current CPI for {selected_category} is: {category_value}")
+
 
         
     # Display input fields for vehicle sales and currency
