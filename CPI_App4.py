@@ -191,3 +191,16 @@ def main():
         # Make predictions for the selected categories
         for selected_category in selected_categories:
             input_data = create_input_data(selected_category, extracted_category_values, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
+            make_prediction(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, selected_month)
+
+            # Display the previous CPI value for the selected category
+            category_value = extracted_category_values.get(target_cols_with_prefixes[selected_category], "N/A")
+            st.text(f"Current CPI for {selected_category} is: {category_value}")
+
+        # Display predictions
+        st.text(f"Predicted CPI values for {selected_month} for the selected categories:")
+        for category, value in predictions.items():
+            st.text(f"{category}: {value}")
+
+if __name__ == "__main__":
+    main()
