@@ -59,7 +59,7 @@ def process_pdf(pdf_path):
         category_value = None
 
         # Iterate through the dictionary items
-        for category, value in category_values.items():
+        for category, value in extracted_category_values.items():
             if category.startswith(prefix):
                 # Split the value by ":" and get the last part
                 category_value = value.split(':')[-1].strip()
