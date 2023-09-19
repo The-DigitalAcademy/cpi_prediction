@@ -121,10 +121,6 @@ def make_prediction(selected_category, input_data, loaded_models, category_forma
 
 
 
-# ... (previous code)
-
-# ... (previous code)
-
 # Streamlit app
 def main():
     # Set the title
@@ -141,19 +137,18 @@ def main():
         st.text("Processing the uploaded PDF...")
         category_values = process_pdf(uploaded_file)
 
-    # Get the list of extracted categories from the PDF
-    extracted_categories = list(category_values.keys())
-
     # Allow the user to select categories for prediction
     selected_categories = st.multiselect(
-        "Select categories to predict:", extracted_categories, default=[extracted_categories[0]]
+        "Select categories to predict:", list(target_cols_with_prefixes.keys()), default=[list(target_cols_with_prefixes.keys())[0]]
     )
 
-    # Display the extracted category names and their values for debugging
-    st.text("Extracted categories and values from PDF:")
-    for category, value in category_values.items():
-        st.text(f"{category}: {value}")
+# Display the previous CPI value for the selected categories
+    for selected_category in selected_categories:
+        selected_category_adjusted = target_cols_with_prefixes[selected_category]
+        category_value = category_values.get(selected_category_adjusted, "N/A")
+        st.text(f"Current CPI for {selected_category} is: {category_value}")
 
+        
     # Display input fields for vehicle sales and currency
     st.write("Enter Vehicle Sales and Currency Input:")
     total_local_sales = st.number_input("Total_Local_Sales", value=0.0)
@@ -183,11 +178,11 @@ def main():
 
         # Make predictions for the selected categories
         for selected_category in selected_categories:
-            input_data = create_input_data(selected_category, category_values[selected_category], total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
+            input_data = create_input_data(selected_category, category_values, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
             make_prediction(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, selected_month)
 
             # Display the previous CPI value for the selected category
-            category_value = category_values.get(selected_category, "N/A")
+            category_value = category_values.get(target_cols_with_prefixes[selected_category], "N/A")
             st.text(f"Current CPI for {selected_category} is: {category_value}")
 
         # Display predictions
@@ -197,3 +192,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
