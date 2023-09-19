@@ -136,7 +136,12 @@ def main():
 
 # ...
 
-# Display the previous CPI value for the selected categories
+# Allow the user to select categories for prediction
+    selected_categories = st.multiselect(
+        "Select categories to predict:", list(target_cols_with_prefixes.keys()), default=[list(target_cols_with_prefixes.keys())[0]]
+    )
+
+#     Display the previous CPI value for the selected categories
     for selected_category in selected_categories:
     # Adjust the selected category to match the format used in the PDF
         selected_category_adjusted = None
