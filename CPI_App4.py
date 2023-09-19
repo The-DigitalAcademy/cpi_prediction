@@ -29,14 +29,12 @@ extracted_category_values = {}
 
 # Function to extract text from PDF and process it to get CPI values
 def process_pdf(pdf_path):
-    global extracted_category_values  # Access the global variable
-
     with pdfplumber.open(pdf_path) as pdf:
-        page7 = pdf.pages[7]
+        page7 = pdf.pages[7]  
         page8 = pdf.pages[8]
         text1 = page7.extract_text()
         text2 = page8.extract_text()
-
+    
     # Combine the extracted text from both pages
     text_to_extract = text1 + text2
 
@@ -56,8 +54,26 @@ def process_pdf(pdf_path):
             # Add the category and its value to the dictionary
             category_values[category] = value
 
-    # Store the extracted category values in the global variable
-    extracted_category_values = category_values
+    # Iterate through the category prefixes
+    for column, prefix in target_cols_with_prefixes.items():
+        category_value = None
+
+        # Iterate through the dictionary items
+        for category, value in category_values.items():
+            if category.startswith(prefix):
+                # Split the value by ":" and get the last part
+                category_value = value.split(':')[-1].strip()
+                break  # Exit the loop once the category value is found
+
+        # Print the category and its value
+        if category_value is not None:
+            st.text("Extracted CPI values from the PDF:")
+            st.text(f"{column}: {category_value}")
+        else:
+            st.text(f"{column}: Category not found in the extracted data.")
+
+    return category_values
+    
 
 # Load saved models
 def load_models():
