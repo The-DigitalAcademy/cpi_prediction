@@ -143,7 +143,7 @@ def main():
 # Display the previous CPI value for the selected categories
     for selected_category in selected_categories:
         selected_category_adjusted = target_cols_with_prefixes[selected_category]
-        category_value = category_values.get(selected_category_adjusted, {category_value})
+        category_value = category_values.get(selected_category_adjusted, 'NA')
         st.text(f"Current CPI for {selected_category} is: {category_value}")
 
 
