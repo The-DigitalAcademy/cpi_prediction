@@ -132,32 +132,30 @@ def main():
     if uploaded_file is not None:
         # Process the uploaded PDF file and get category values
         st.text("Processing the uploaded PDF...")
-        category_values = process_pdf(uploaded_file)
+        process_pdf(uploaded_file)  # Call the process_pdf function to populate extracted_category_values
 
-# ...
-
-# Allow the user to select categories for prediction
+    # Allow the user to select categories for prediction
     selected_categories = st.multiselect(
         "Select categories to predict:", list(target_cols_with_prefixes.keys()), default=[list(target_cols_with_prefixes.keys())[0]]
     )
 
-#     Display the previous CPI value for the selected categories
+    # Display the previous CPI value for the selected categories
     for selected_category in selected_categories:
-    # Adjust the selected category to match the format used in the PDF
         selected_category_adjusted = None
-        for category, value in category_values.items():
-            if selected_category in category:
-                selected_category_adjusted = selected_category
+
+        # Iterate through target_cols_with_prefixes to find the matching category
+        for category, prefix in target_cols_with_prefixes.items():
+            if selected_category == category:
+                selected_category_adjusted = prefix
                 break
 
         if selected_category_adjusted:
-        # Use the adjusted category name to retrieve the value
-            category_value = category_values.get(selected_category_adjusted, "N/A")
+            # Retrieve the previous CPI value from the extracted data
+            category_value = extracted_category_values.get(selected_category_adjusted, "N/A")
             st.text(f"Current CPI for {selected_category} is: {category_value}")
         else:
             st.text(f"Category {selected_category} not found in the extracted data.")
 
-        
     # Display input fields for vehicle sales and currency
     st.write("Enter Vehicle Sales and Currency Input:")
     total_local_sales = st.number_input("Total_Local_Sales", value=0.0)
@@ -187,8 +185,12 @@ def main():
 
         # Make predictions for the selected categories
         for selected_category in selected_categories:
-            input_data = create_input_data(selected_category, category_values[selected_category], total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
+            input_data = create_input_data(selected_category, extracted_category_values, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
             make_prediction(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, selected_month)
+
+            # Display the previous CPI value for the selected category
+            category_value = extracted_category_values.get(target_cols_with_prefixes[selected_category], "N/A")
+            st.text(f"Current CPI for {selected_category} is: {category_value}")
 
         # Display predictions
         st.text(f"Predicted CPI values for {selected_month} for the selected categories:")
