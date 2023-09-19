@@ -148,8 +148,8 @@ def main():
     for selected_category in selected_categories:
         # Match the selected category with the values from the extracted PDF
         category_value = category_values.get(target_cols_with_prefixes[selected_category], "N/A")
-        st.text(f"Current CPI for {selected_category} is: {category_value}")
-
+        st.text(f"Current CPI for {selected_category} is: {value}")
+        
     # Display input fields for vehicle sales and currency
     st.write("Enter Vehicle Sales and Currency Input:")
     total_local_sales = st.number_input("Total_Local_Sales", value=0.0)
