@@ -145,7 +145,7 @@ def main():
     # Display the previous CPI value for the selected category immediately after selection
     for selected_category in selected_categories:
         previous_cpi_value = category_values.get(selected_category, "N/A")
-        st.text(f"Current CPI for {selected_category} is: {previous_cpi_value}")
+        st.text(f"Current CPI for {selected_category} is: {category_value}")
 
     # Display input fields for vehicle sales and currency
     st.write("Enter Vehicle Sales and Currency Input:")
