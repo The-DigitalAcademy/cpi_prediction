@@ -91,16 +91,15 @@ def create_input_data(selected_category, category_value, total_local_sales, tota
     # Iterate through the target columns and find the index for the selected category
     for index, (category, prefix) in enumerate(target_cols_with_prefixes.items()):
         if category == selected_category_adjusted:
-            input_data[0, target_cols_with_prefixes.index(selected_category_adjusted)] = float(category_value)
-
+            input_data[0, index] = float(category_value)
 
     
     # Set the values for the non-category columns
-    input_data[0, -6] = total_local_sales
-    input_data[0, -5] = total_export_sales
-    input_data[0, -4] = usd_zar
-    input_data[0, -3] = gbp_zar
-    input_data[0, -2] = eur_zar
+    input_data[0, -5] = total_local_sales
+    input_data[0, -4] = total_export_sales
+    input_data[0, -3] = usd_zar
+    input_data[0, -2] = gbp_zar
+    input_data[0, -1] = eur_zar
     
     # Apply StandardScaler to scale the input data
     scaler = StandardScaler()
@@ -135,26 +134,26 @@ def main():
         st.text("Processing the uploaded PDF...")
         category_values = process_pdf(uploaded_file)
 
-# Allow the user to select categories for prediction
-selected_categories = st.multiselect(
-    "Select categories to predict:", list(target_cols_with_prefixes.keys()), default=[list(target_cols_with_prefixes.keys())[0]]
-)
+    # Allow the user to select categories for prediction
+    selected_categories = st.multiselect(
+        "Select categories to predict:", list(target_cols_with_prefixes.keys()), default=[list(target_cols_with_prefixes.keys())[0]]
+    )
 
-# Display the previous CPI value for the selected categories
-for selected_category in selected_categories:
-    selected_category_adjusted = None
-    
-    # Iterate through target_cols_with_prefixes to find the matching category
-    for category, prefix in target_cols_with_prefixes.items():
-        if selected_category == category:
-            selected_category_adjusted = prefix
-            break
-    
-    if selected_category_adjusted:
-        category_value = category_values.get(selected_category_adjusted, "N/A")
-        st.text(f"Current CPI for {selected_category} is: {category_value}")
-    else:
-        st.text(f"Category {selected_category} not found in the extracted data.")
+    # Display the previous CPI value for the selected categories
+    for selected_category in selected_categories:
+        selected_category_adjusted = None
+        
+        # Iterate through target_cols_with_prefixes to find the matching category
+        for category, prefix in target_cols_with_prefixes.items():
+            if selected_category == category:
+                selected_category_adjusted = prefix
+                break
+        
+        if selected_category_adjusted:
+            category_value = category_values.get(selected_category_adjusted, "N/A")
+            st.text(f"Current CPI for {selected_category} is: {category_value}")
+        else:
+            st.text(f"Category {selected_category} not found in the extracted data.")
 
         
     # Display input fields for vehicle sales and currency
@@ -186,12 +185,8 @@ for selected_category in selected_categories:
 
         # Make predictions for the selected categories
         for selected_category in selected_categories:
-            input_data = create_input_data(selected_category, category_values, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
+            input_data = create_input_data(selected_category, category_values[selected_category], total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
             make_prediction(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, selected_month)
-
-            # Display the previous CPI value for the selected category
-            category_value = category_values.get(target_cols_with_prefixes[selected_category], "N/A")
-            st.text(f"Current CPI for {selected_category} is: {category_values}")
 
         # Display predictions
         st.text(f"Predicted CPI values for {selected_month} for the selected categories:")
@@ -200,4 +195,3 @@ for selected_category in selected_categories:
 
 if __name__ == "__main__":
     main()
-
