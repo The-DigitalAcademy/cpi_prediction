@@ -24,27 +24,19 @@ target_cols_with_prefixes = {
     'Miscellaneous goods and services': 'Miscellaneous goods',
 }
 
-def load_models():
-    loaded_models = {}
-    for column in target_cols_with_prefixes:
-        for i in range(1, 4):
-            model_path = os.path.join(f"{column}_Deep Neural Network_month_{i}.h5")
-            if os.path.exists(model_path):
-                loaded_model = load_model(model_path)
-                loaded_models[f"{column}_month_{i}"] = loaded_model
-                print(model_path)
-            else:
-                print(model_path)
-    return loaded_models
+# Define a global variable to store the extracted category values
+extracted_category_values = {}
 
 # Function to extract text from PDF and process it to get CPI values
 def process_pdf(pdf_path):
+    global extracted_category_values  # Access the global variable
+
     with pdfplumber.open(pdf_path) as pdf:
-        page7 = pdf.pages[7]  
+        page7 = pdf.pages[7]
         page8 = pdf.pages[8]
         text1 = page7.extract_text()
         text2 = page8.extract_text()
-    
+
     # Combine the extracted text from both pages
     text_to_extract = text1 + text2
 
@@ -64,6 +56,9 @@ def process_pdf(pdf_path):
             # Add the category and its value to the dictionary
             category_values[category] = value
 
+    # Store the extracted category values in the global variable
+    extracted_category_values = category_values
+
     # Iterate through the category prefixes
     for column, prefix in target_cols_with_prefixes.items():
         category_value = None
@@ -82,24 +77,36 @@ def process_pdf(pdf_path):
         else:
             st.text(f"{column}: Category not found in the extracted data.")
 
-    return category_values
-    
-def create_input_data(selected_category, category_value, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
+# Load saved models
+def load_models():
+    loaded_models = {}
+    for column in target_cols_with_prefixes:
+        for i in range(1, 4):
+            model_path = os.path.join(f"{column}_Deep Neural Network_month_{i}.h5")
+            if os.path.exists(model_path):
+                loaded_model = load_model(model_path)
+                loaded_models[f"{column}_month_{i}"] = loaded_model
+                print(model_path)
+            else:
+                print(model_path)
+    return loaded_models
+
+# Function to create input data for predictions
+def create_input_data(selected_category, category_values, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
     input_data = np.zeros((1, len(target_cols_with_prefixes) + 5))  # Create an empty array with additional columns
     selected_category_adjusted = selected_category.replace(' ', '_')
     
     # Iterate through the target columns and find the index for the selected category
     for index, (category, prefix) in enumerate(target_cols_with_prefixes.items()):
         if category == selected_category_adjusted:
-            input_data[0, index] = float(category_value)
+            input_data[0, index] = float(category_values.get(prefix, 0.0))
 
-    
     # Set the values for the non-category columns
-    input_data[0, -5] = total_local_sales
-    input_data[0, -4] = total_export_sales
-    input_data[0, -3] = usd_zar
-    input_data[0, -2] = gbp_zar
-    input_data[0, -1] = eur_zar
+    input_data[0, -6] = total_local_sales
+    input_data[0, -5] = total_export_sales
+    input_data[0, -4] = usd_zar
+    input_data[0, -3] = gbp_zar
+    input_data[0, -2] = eur_zar
     
     # Apply StandardScaler to scale the input data
     scaler = StandardScaler()
@@ -115,8 +122,6 @@ def make_prediction(selected_category, input_data, loaded_models, category_forma
             loaded_model = loaded_models[model_key]
             y_pred = loaded_model.predict(input_data)
             predictions[f'{category_formatted}_CPI_for_{reference_date.strftime("%B_%Y")}_{selected_month}'] = round(y_pred[0][0], 2)
-
-
 
 # Streamlit app
 def main():
