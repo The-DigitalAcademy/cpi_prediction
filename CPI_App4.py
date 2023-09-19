@@ -145,21 +145,22 @@ def main():
     )
 
 # Display the previous CPI value for the selected categories
-    for selected_category in selected_categories:
-        selected_category_adjusted = None
+ for selected_category in selected_categories:
+     selected_category_adjusted = None
 
     # Iterate through target_cols_with_prefixes to find the matching category
-        for category, prefix in target_cols_with_prefixes.items():
-            if selected_category == category:
-                selected_category_adjusted = category
-                break
+    for category, prefix in target_cols_with_prefixes.items():
+         if selected_category == category:
+             selected_category_adjusted = category
+             break
 
-        if selected_category_adjusted:
+     if selected_category_adjusted:
         # Retrieve the previous CPI value from the extracted data
-            category_value = extracted_category_values.get(selected_category_adjusted, "N/A")
-            st.text(f"Current CPI for {selected_category} is: {category_value}")
-        else:
-            st.text(f"Category {selected_category} not found in the extracted data.")
+         category_value = extracted_category_values.get(selected_category_adjusted, "N/A")
+         st.text(f"Current CPI for {selected_category} is: {category_value}")
+     else:
+         st.text(f"Category {selected_category} not found in the extracted data.")
+
 
 
     # Display input fields for vehicle sales and currency
