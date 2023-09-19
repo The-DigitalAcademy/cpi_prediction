@@ -136,18 +136,25 @@ def main():
         category_values = process_pdf(uploaded_file)
 
 # Allow the user to select categories for prediction
-    selected_categories = st.multiselect(
-        "Select categories to predict:", list(target_cols_with_prefixes.keys()), default=[list(target_cols_with_prefixes.keys())[0]]
-    )
+selected_categories = st.multiselect(
+    "Select categories to predict:", list(target_cols_with_prefixes.keys()), default=[list(target_cols_with_prefixes.keys())[0]]
+)
 
 # Display the previous CPI value for the selected categories
-    for selected_category in selected_categories:
-        selected_category_adjusted = target_cols_with_prefixes[selected_category]
-        
-            # Display the previous CPI value for the selected category
-        category_value = category_values.get(target_cols_with_prefixes[selected_category], "N/A")
+for selected_category in selected_categories:
+    selected_category_adjusted = None
+    
+    # Iterate through target_cols_with_prefixes to find the matching category
+    for category, prefix in target_cols_with_prefixes.items():
+        if selected_category == category:
+            selected_category_adjusted = prefix
+            break
+    
+    if selected_category_adjusted:
+        category_value = category_values.get(selected_category_adjusted, "N/A")
         st.text(f"Current CPI for {selected_category} is: {category_value}")
-
+    else:
+        st.text(f"Category {selected_category} not found in the extracted data.")
 
         
     # Display input fields for vehicle sales and currency
