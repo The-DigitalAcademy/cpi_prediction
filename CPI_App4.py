@@ -177,7 +177,7 @@ def main():
 
             # Display the previous CPI value for the selected category
             category_value = extracted_category_values.get(target_cols_with_prefixes[selected_category], "N/A")
-            st.text(f"Current CPI for {selected_category} is: {category_value}")
+            st.text(f"Current CPI for {selected_category} is: {extracted_category_values}")
 
         # Display predictions
         st.text(f"Predicted CPI values for {selected_month} for the selected categories:")
