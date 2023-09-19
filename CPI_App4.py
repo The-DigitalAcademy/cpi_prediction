@@ -121,6 +121,8 @@ def make_prediction(selected_category, input_data, loaded_models, category_forma
 
 
 
+# ... (previous code)
+
 # Streamlit app
 def main():
     # Set the title
@@ -144,7 +146,8 @@ def main():
 
     # Display the previous CPI value for the selected category immediately after selection
     for selected_category in selected_categories:
-        previous_cpi_value = category_values.get(selected_category, "N/A")
+        # Match the selected category with the values from the extracted PDF
+        category_value = category_values.get(target_cols_with_prefixes[selected_category], "N/A")
         st.text(f"Current CPI for {selected_category} is: {category_value}")
 
     # Display input fields for vehicle sales and currency
@@ -180,8 +183,8 @@ def main():
             make_prediction(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, selected_month)
 
             # Display the previous CPI value for the selected category
-            previous_cpi_value = category_values.get(selected_category, "N/A")
-            st.text(f"Current CPI for {selected_category} is: {previous_cpi_value}")
+            category_value = category_values.get(target_cols_with_prefixes[selected_category], "N/A")
+            st.text(f"Current CPI for {selected_category} is: {category_value}")
 
         # Display predictions
         st.text(f"Predicted CPI values for {selected_month} for the selected categories:")
@@ -190,4 +193,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
