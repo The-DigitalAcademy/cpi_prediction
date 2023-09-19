@@ -93,9 +93,7 @@ def create_input_data(selected_category, category_value, total_local_sales, tota
         if category == selected_category_adjusted:
             input_data[0, target_cols_with_prefixes.index(selected_category_adjusted)] = float(category_value)
 
-    # input_data = np.zeros((1, len(target_cols) + 6))  # Create an empty array with additional columns
-    # input_data[0, target_cols_with_prefixes.index(selected_category)] = previous_cpi_value
-    
+
     
     # Set the values for the non-category columns
     input_data[0, -6] = total_local_sales
@@ -184,7 +182,7 @@ def main():
 
             # Display the previous CPI value for the selected category
             category_value = category_values.get(target_cols_with_prefixes[selected_category], "N/A")
-            st.text(f"Current CPI for {selected_category} is: {category_value}")
+            st.text(f"Current CPI for {selected_category} is: {category_values}")
 
         # Display predictions
         st.text(f"Predicted CPI values for {selected_month} for the selected categories:")
