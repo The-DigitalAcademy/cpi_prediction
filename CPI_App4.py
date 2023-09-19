@@ -176,4 +176,4 @@ def main():
                 st.text(f"{category}: {value}")
 
 if __name__ == "__main__":
-    main()`
+    main()
