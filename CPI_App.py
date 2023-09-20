@@ -110,6 +110,9 @@ def make_predictions(selected_category, input_data, loaded_models, category_form
                 predictions[percentage_change_key] = None  # No previous value available
 
 # Streamlit app
+# ... (previous code)
+
+# Streamlit app
 def main():
     # Set the title
     st.title("CPI Vision")
@@ -193,5 +196,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
