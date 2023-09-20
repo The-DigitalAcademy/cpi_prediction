@@ -75,12 +75,12 @@ def process_pdf(pdf_path):
                 category_value = value.split(':')[-1].strip()
                 break  # Exit the loop once the category value is found
 
-        # Print the category and its value
-        if category_value is not None:
-            st.text("Extracted CPI values from the PDF:")
-            st.text(f"{column}: {category_value}")
-        else:
-            st.text(f"{column}: Category not found in the extracted data.")
+        # # Print the category and its value
+        # if category_value is not None:
+        #     st.text("Extracted CPI values from the PDF:")
+        #     st.text(f"{column}: {category_value}")
+        # else:
+        #     st.text(f"{column}: Category not found in the extracted data.")
 
     return category_values
     
@@ -185,9 +185,7 @@ def main():
                 for category, value in predictions.items():
                     st.text(f"{category}: {value}")
 
-        
-
-        # Add code for managing models here if needed
+    
 
     elif menu == "CPI Dashboard":
         # Display the Dashboard section
