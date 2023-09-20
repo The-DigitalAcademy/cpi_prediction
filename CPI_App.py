@@ -187,3 +187,11 @@ elif menu == "Model":
             # Display the predicted CPI values and percentage changes in a table
             st.text("Predicted CPI values and Percentage Changes for the next three months for the selected category:")
             st.table(table_data)
+
+
+    elif menu == "CPI Dashboard":
+        # Display the Dashboard section
+        st.header("Dashboard")
+
+if __name__ == "__main__":
+    main()
