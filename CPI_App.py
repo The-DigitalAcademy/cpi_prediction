@@ -61,21 +61,28 @@ def process_pdf(pdf_path):
             category = ' '.join(columns[:-3])  # Combine columns as the category name
             value = columns[-3]  # Get the value from the 4th column
 
-            # Replace '.' with ',' and attempt to convert the value to float
-            try:
-                value = float(value.replace(',', '.'))
-            except ValueError:
-                # Handle cases where the value cannot be converted to float
-                value = None
-
             # Add the category and its value to the dictionary
             category_values[category] = value
-            
-            # Debugging: Print the extracted category and value
-            print(f"Extracted: {category} -> {value}")
+
+    # Iterate through the category prefixes
+    for column, prefix in target_cols_with_prefixes.items():
+        category_value = None
+
+        # Iterate through the dictionary items
+        for category, value in category_values.items():
+            if category.startswith(prefix):
+                # Split the value by ":" and get the last part
+                category_value = value.split(':')[-1].strip()
+                break  # Exit the loop once the category value is found
+
+        # Print the category and its value
+        if category_value is not None:
+            st.text("Extracted CPI values from the PDF:")
+            st.text(f"{column}: {category_value}")
+        else:
+            st.text(f"{column}: Category not found in the extracted data.")
 
     return category_values
-
 
 # Function to create input data
 def create_input_data(selected_category, category_value, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
@@ -151,11 +158,21 @@ def main():
             selected_category = st.selectbox("Select a category to view extracted CPI value:", list(target_cols_with_prefixes.keys()))
 
             if selected_category:
-                extracted_cpi_value = category_values[selected_category]#target_cols_with_prefixes.items()
+                for index, (selected_category, prefix) in enumerate(target_cols_with_prefixes.items()):
+                    extracted_cpi_value = float(category_values)
                 if extracted_cpi_value is not None:
                     st.write(f"Extracted CPI value for {selected_category}: {extracted_cpi_value}")
                 else:
                     st.write(f"No CPI value found for {selected_category}")
+
+
+
+
+    # # Iterate through the target columns and find the index for the selected category
+    # for index, (category, prefix) in enumerate(target_cols_with_prefixes.items()):
+    #     if category == selected_category_adjusted:
+    #         input_data[0, index] = float(category_value)
+            
 
             # Display input fields for vehicle sales and currency
             st.write("Enter Vehicle Sales and Currency Input:")
