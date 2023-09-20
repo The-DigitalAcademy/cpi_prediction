@@ -104,7 +104,6 @@ def make_predictions(selected_category, input_data, loaded_models, category_form
                 percentage_change = ((predicted_cpi - extracted_cpi) / extracted_cpi) * 100
                 predictions[f'{category_formatted}_Percentage_Change_for_{reference_date.strftime("%B_%Y")}_Month_{i}'] = round(percentage_change, 2)
 
-# Streamlit app
 def main():
     # Set the title
     st.title("CPI Vision")
@@ -141,6 +140,9 @@ def main():
 
             # Load saved models
             loaded_models = load_models()
+
+            # Initialize the predictions dictionary
+            predictions = {}
 
             if st.button("Predict CPI"):
                 # Create a table to display the predicted CPI values and percentage changes for all three months
@@ -183,3 +185,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
