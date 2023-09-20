@@ -82,7 +82,7 @@ def process_pdf(pdf_path):
         else:
             st.text(f"{column}: Category not found in the extracted data.")
 
-    return category_values,category_value
+    return category_values
 
 # Function to create input data
 def create_input_data(selected_category, category_value, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
@@ -147,7 +147,7 @@ def main():
         # Display the Model section
         st.header("Model")
         # Allow the user to upload a PDF document
-        uploaded_file,category_value = st.file_uploader("Upload Current CPI PDF document", type=["pdf"])
+        uploaded_file = st.file_uploader("Upload Current CPI PDF document", type=["pdf"])
 
         if uploaded_file is not None:
             # Process the uploaded PDF file
