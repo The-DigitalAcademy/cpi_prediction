@@ -24,6 +24,8 @@ target_cols_with_prefixes = {
     'Miscellaneous goods and services': 'Miscellaneous goods',
 }
 
+predictions = {}
+
 def load_models():
     loaded_models = {}
     for column in target_cols_with_prefixes:
