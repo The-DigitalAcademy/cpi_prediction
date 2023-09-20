@@ -1,240 +1,71 @@
-import streamlit as st
-import pandas as pd
-import os
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import mean_squared_error
-from tensorflow.keras.models import Sequential, load_model
-from tensorflow.keras.layers import Dense
-import datetime
-from collections import defaultdict
-
-target_cols = ['Alcoholic beverages and tobacco', 'Clothing and footwear',
-       'Communication', 'Education', 'Food and non-alcoholic beverages',
-       'Headline_CPI', 'Health', 'Household contents and services',
-       'Housing and utilities', 'Miscellaneous goods and services',
-       'Recreation and culture', 'Restaurants and hotels ', 'Transport']
-
-# Function to preprocess the data
-def preprocess_data(cpi_csv, vehicles_csv, currency_csv):
-    # Load CSV data
-    cpi_hist = pd.read_csv(cpi_csv)
-    vehicles = pd.read_csv(vehicles_csv)
-    currency_df = pd.read_csv(currency_csv)
-
-    ######################################## HISTORY CPI ############################################
-
-    cpi_hist['Month'] = pd.to_datetime(cpi_hist['Month'])
-    cpi_pivot = cpi_hist.pivot(index='Month', columns='Category', values='Value').reset_index()
-    cpi_pivot = cpi_pivot.sort_values("Month").reset_index(drop=True)
-    cpi_pivot['Month'] = pd.to_datetime(cpi_pivot['Month'], format='%B %Y-%d')
-
-    date_str = '2023-04-30'
-    date_obj = pd.to_datetime(date_str)
-    new_row = pd.DataFrame({'Month': [date_obj]})
-    cpi_pivot = pd.concat([cpi_pivot, new_row]).reset_index(drop=True)
-
-    cpi_pivot['Month'] = pd.to_datetime(cpi_pivot['Month'])
-    cpi_pivot['year_month'] = pd.to_datetime(cpi_pivot['Month'], format='%Y-%b').dt.strftime('%Y-%m')
-
-    feats_to_lag = [col for col in cpi_pivot.columns if col not in ['Month', 'year_month']]
-
-    # Create a new column for the rolling average and calculate the average for all 8 features
-    for col in feats_to_lag:
-        for i in range(1, 8):
-            cpi_pivot[f"prev_{i}_month_{col}"] = cpi_pivot[col].shift(i)
-
-    # Calculate the rolling average for the current feature
-    for col in feats_to_lag:
-        cpi_pivot[f"Average_{col}"] = cpi_pivot[[f"prev_{i}_month_{col}" for i in range(1, 8)]].mean(axis=1)
-
-    # List the columns to keep (those with "prev" in their names)
-    columns_to_drop = [col for col in cpi_pivot.columns if 'prev' in col]
-
-    cpi_pivot = cpi_pivot.drop(columns=columns_to_drop)
-
-    ####################################### VEHICLES ##############################################################
-
-    start_date = datetime.datetime.strptime("2020-12-31", "%Y-%m-%d")
-    end_date = datetime.datetime.strptime("2023-03-31", "%Y-%m-%d")
-
-    # difference between each date. M means one month end
-    D = 'M'
-
-    date_list = pd.date_range(start_date, end_date, freq=D)[::-1]
-    vehicles['Month'] = date_list
-    vehicles['Month'] = pd.to_datetime(vehicles['Month'], format='%Y-%b-%d')
-    vehicles['year_month'] = pd.to_datetime(vehicles['Month'], format='%Y-%b').dt.strftime('%Y-%m')
-
-    columns_to_drop = [
-        'Local_Passenger_Vehicles', 'Export_Sales_Passenger_Vehicles',
-        'Local_Light_Commercial_Vehicles', 'Export_Sales_Light_Commercial_Vehicles',
-        'Local_Medium_Commercial_Vehicles', 'Export_Sales_Medium_Commercial_Vehicles',
-        'Local_Heavy_Commercial_Vehicles', 'Export_Sales_Heavy_Commercial_Vehicles',
-        'Local_Extra_Heavy_Commercial_Vehicles', 'Export_Sales_Extra_Heavy_Commercial_Vehicles',
-        'Local_Bus_Sales', 'Export_Sales_Buses'
-    ]
-
-    vehicles = vehicles.drop(columns=columns_to_drop)
-
-    cpi_vehicles = cpi_pivot.merge(vehicles[['year_month', 'Total_Local Sales', 'Total_Export_Sales']],
-                                    on='year_month', how='left')
-
-    #################################################### CURRENCY DATA ###############################################
-
-    currency_df['Date'] = pd.to_datetime(currency_df['Date'])
-    currency_df['year_month'] = pd.to_datetime(currency_df['Date'], format='%Y-%b').dt.strftime('%Y-%m')
-
-    df_merged = cpi_vehicles.merge(currency_df, on='year_month', how='left')
-
-    df_merged = df_merged.drop(0)
-    df_merged = df_merged.bfill()
-    # df_merged = df_merged.drop(['Month'], axis=1)
-
-    df_merged = df_merged.drop(['Date'], axis=1)
-    df_merged = df_merged.dropna()
-       
-    return df_merged
-
-
-
-# Function to train and save models
-def train_and_save_models(df_merged):     
-
-    X = df_merged.drop(columns=['year_month','Month'] + target_cols)
-    y= df_merged[target_cols]
-       
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-       
-# Specify which columns to standardize (excluding 'Month')
-    columns_to_standardize = [col for col in X_train.columns if col != 'Month']
-
-    # Initialize the StandardScaler
-    scaler = StandardScaler()
-
-    # Fit and transform the scaler on the selected columns in both training and test sets
-    X_train[columns_to_standardize] = scaler.fit_transform(X_train[columns_to_standardize])
-    X_test[columns_to_standardize] = scaler.transform(X_test[columns_to_standardize])
-
-    ####### MODEL TRAINING ##########
-
-    # Directory to save the models
-    save_directory = "saved_models/"
-
-    # Ensure the directory exists
-    os.makedirs(save_directory, exist_ok=True)
-
-    models = defaultdict(dict)
-
-    model_types = [
-        ('Linear Regressor', Sequential([
-            Dense(1, input_dim=X_train.shape[1], activation='linear')
-        ])),
-        ('Deep Neural Network', Sequential([
-            Dense(128, activation='relu', input_dim=X_train.shape[1]),
-            Dense(64, activation='relu'),
-            Dense(1, activation='linear')
-        ]))
-    ]
-
-    for column in target_cols:
-        mse_values = []
-
-        for model_name, model_architecture in model_types:
-            # Create the model instance
-            model = model_architecture
-
-            if isinstance(model, Sequential):
-                # Compile the model
-                model.compile(optimizer='adam', loss='mean_squared_error')
-
-                # Fit the model
-                model.fit(X_train, y_train[column], epochs=100, batch_size=32, verbose=0)
-
-                # Save the model
-                model.save(os.path.join(save_directory, f"{column}_{model_name}.h5"))
-
-                # Make predictions
-                y_pred = model.predict(X_test)
-
-                # Calculate mean squared error for evaluation
-                mse = mean_squared_error(y_test[column], y_pred)
-                mse_values.append((model_name, mse))
-
-        if mse_values:
-            # Choose the best model based on the lowest MSE
-            best_model_name, best_mse = min(mse_values, key=lambda x: x[1])
-            print(f"Best Model for {column}: {best_model_name}, Mean Squared Error: {best_mse}")
-
-            # Store the trained best model
-            best_model = [model_architecture for model_name, model_architecture in model_types if
-                          model_name == best_model_name][0]
-            models[column]['model'] = best_model
-            models[column]['mse'] = best_mse
-        else:
-            print(f"No models found for {column}.")
-
-    ############################# END OF TRAINING ###################
-
-    return save_directory,X_test
-
-# ...
-
-# Function to make predictions using trained models
-def make_predictions(data, models):
-    # Directory where models are saved
-    save_directory = "saved_models/"
-
-    # Define a dictionary to store the loaded models
-    loaded_models = {}
-
-    # Load the models for each target column
-    for column in target_cols:
-        # Check if a model exists for the column
-        model_path = os.path.join(save_directory, f"{column}_Deep Neural Network.h5")
-        if os.path.exists(model_path):
-            loaded_model = load_model(model_path)
-            loaded_models[column] = loaded_model
-
-    # Get X_test from the tuple returned by train_and_save_models
-    X_test = data[1]
-
-    # Make predictions for each target column on the test data (X_test)
-    predictions = {}
-    for column, model in loaded_models.items():
-        y_pred = model.predict(X_test)
-        predictions[column] = round(y_pred[0][0], 2)
-
-    return predictions
-
-
 # Streamlit app
 def main():
     # Set the title
-    st.title("CPI Dashboard")
-    st.sidebar.title("Model")
+    st.title("CPI Vision")
 
-    # Upload CSV files
-    uploaded_cpi = st.sidebar.file_uploader("Upload CPI History CSV", type=["csv"])
-    uploaded_vehicles = st.sidebar.file_uploader("Upload Vehicles CSV", type=["csv"])
-    uploaded_currency = st.sidebar.file_uploader("Upload Currency CSV", type=["csv"])
+    # Create a sidebar navigation
+    menu = st.sidebar.radio("Navigation", ["Model", "Dashboard"])
 
-    if st.sidebar.button("Submit"):
-        # Check if files are uploaded
-        if uploaded_cpi is None or uploaded_vehicles is None or uploaded_currency is None:
-            st.sidebar.error("Please upload all three CSV files.")
-        else:
-            # Preprocess data
-            df_merged = preprocess_data(uploaded_cpi, uploaded_vehicles, uploaded_currency)
+    if menu == "Model":
+        # Display the Model section
+        st.header("Model")
+        st.write("This is the Model section. You can load and manage models here.")
 
-            # Train models
-            trained_models = train_and_save_models(df_merged)
-            # input_for_predictions = df_merged.tail(1), axis=1)
+        # Add code for managing models here if needed
 
-            # Display predictions
-            st.write("Predicted CPI values:")
-            predictions = make_predictions(trained_models, df_merged)
-            st.write(predictions)
+    elif menu == "Dashboard":
+        # Display the Dashboard section
+        st.header("Dashboard")
+
+        # Allow the user to upload a PDF document
+        uploaded_file = st.file_uploader("Upload a CPI PDF document", type=["pdf"])
+
+        if uploaded_file is not None:
+            # Process the uploaded PDF file
+            st.text("Processing the uploaded PDF...")
+            category_values = process_pdf(uploaded_file)
+
+            # Allow the user to select categories for prediction
+            selected_categories = st.multiselect(
+                "Select categories to predict:", list(target_cols_with_prefixes.keys()), default=[list(target_cols_with_prefixes.keys())[0]]
+            )
+
+            # Display input fields for vehicle sales and currency
+            st.write("Enter Vehicle Sales and Currency Input:")
+            total_local_sales = st.number_input("Total_Local_Sales", value=0.0)
+            total_export_sales = st.number_input("Total_Export_Sales", value=0.0)
+            usd_zar = st.number_input("USD_ZAR", value=0.0)
+            gbp_zar = st.number_input("GBP_ZAR", value=0.0)
+            eur_zar = st.number_input("EUR_ZAR", value=0.0)
+
+            # Load saved models
+            loaded_models = load_models()
+
+            # Allow the user to select which month they want to predict
+            selected_month = st.selectbox("Select a month for prediction:", ["Next Month", "Two Months Later", "Three Months Later"])
+
+            if st.button("Predict CPI"):
+                # Dictionary to store predictions
+                predictions = {}
+
+                # Calculate the reference date based on the current date
+                current_date = datetime.date.today()
+                if selected_month == "Next Month":
+                    reference_date = current_date.replace(month=current_date.month + 1)
+                elif selected_month == "Two Months Later":
+                    reference_date = current_date.replace(month=current_date.month + 2)
+                elif selected_month == "Three Months Later":
+                    reference_date = current_date.replace(month=current_date.month + 3)
+
+                # Make predictions for the selected categories
+                for selected_category in selected_categories:
+                    input_data = create_input_data(selected_category, category_values, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
+                    make_prediction(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, selected_month)
+
+                # Display predictions
+                st.text(f"Predicted CPI values for {selected_month} for the selected categories:")
+                for category, value in predictions.items():
+                    st.text(f"{category}: {value}")
 
 if __name__ == "__main__":
     main()
