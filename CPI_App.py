@@ -129,7 +129,7 @@ def main():
     menu = st.sidebar.radio("Navigation", ["Home", "Model", "Dashboard"])
 
     if menu == "Home":
-        st.header("Meet the team"):
+        st.header("Meet the team")
     
 
     elif menu == "Model":
