@@ -127,20 +127,13 @@ def main():
 
     # Create a sidebar navigation
     menu = st.sidebar.radio("Navigation", ["Model", "Dashboard"])
+    
 
     if menu == "Model":
         # Display the Model section
         st.header("Model")
-        st.write("This is the Model section. You can load and manage models here.")
-
-        # Add code for managing models here if needed
-
-    elif menu == "Dashboard":
-        # Display the Dashboard section
-        st.header("Dashboard")
-
-        # Allow the user to upload a PDF document
-        uploaded_file = st.file_uploader("Upload a CPI PDF document", type=["pdf"])
+         # Allow the user to upload a PDF document
+        uploaded_file = st.file_uploader("Upload Current CPI PDF document", type=["pdf"])
 
         if uploaded_file is not None:
             # Process the uploaded PDF file
@@ -189,5 +182,14 @@ def main():
                 for category, value in predictions.items():
                     st.text(f"{category}: {value}")
 
+        
+
+        # Add code for managing models here if needed
+
+    elif menu == "CPI Dashboard":
+        # Display the Dashboard section
+        st.header("Dashboard")
+
+       
 if __name__ == "__main__":
     main()
