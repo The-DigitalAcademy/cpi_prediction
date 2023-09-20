@@ -132,65 +132,72 @@ def main():
         st.header("Meet the team")
     
 
-    elif menu == "Model":
-        # Display the Model section
-        st.header("Model")
-         # Allow the user to upload a PDF document
-        uploaded_file = st.file_uploader("Upload Current CPI PDF document", type=["pdf"])
+   elif menu == "Model":
+    # Display the Model section
+    st.header("Model")
+    # Allow the user to upload a PDF document
+    uploaded_file = st.file_uploader("Upload Current CPI PDF document", type=["pdf"])
 
-        if uploaded_file is not None:
-            # Process the uploaded PDF file
-            st.text("Processing the uploaded PDF...")
-            category_values = process_pdf(uploaded_file)
+    if uploaded_file is not None:
+        # Process the uploaded PDF file
+        st.text("Processing the uploaded PDF...")
+        category_values = process_pdf(uploaded_file)
 
-            # Allow the user to select categories for prediction
-            selected_categories = st.multiselect(
-                "Select categories to predict:", list(target_cols_with_prefixes.keys()), default=[list(target_cols_with_prefixes.keys())[0]]
-            )
+        # Allow the user to select categories for prediction
+        selected_categories = st.multiselect(
+            "Select categories to predict:", list(target_cols_with_prefixes.keys()), default=[list(target_cols_with_prefixes.keys())[0]]
+        )
 
-            # Display input fields for vehicle sales and currency
-            st.write("Enter Vehicle Sales and Currency Input:")
-            total_local_sales = st.number_input("Total_Local_Sales", value=0.0)
-            total_export_sales = st.number_input("Total_Export_Sales", value=0.0)
-            usd_zar = st.number_input("USD_ZAR", value=0.0)
-            gbp_zar = st.number_input("GBP_ZAR", value=0.0)
-            eur_zar = st.number_input("EUR_ZAR", value=0.0)
+        # Display input fields for vehicle sales and currency
+        st.write("Enter Vehicle Sales and Currency Input:")
+        total_local_sales = st.number_input("Total_Local_Sales", value=0.0)
+        total_export_sales = st.number_input("Total_Export_Sales", value=0.0)
+        usd_zar = st.number_input("USD_ZAR", value=0.0)
+        gbp_zar = st.number_input("GBP_ZAR", value=0.0)
+        eur_zar = st.number_input("EUR_ZAR", value=0.0)
 
-            # Load saved models
-            loaded_models = load_models()
+        # Load saved models
+        loaded_models = load_models()
 
-            # Allow the user to select which month they want to predict
-            selected_month = st.selectbox("Select a month for prediction:", ["Next Month", "Two Months Later", "Three Months Later"])
+        if st.button("Predict CPI"):
+            # Create a table to display the predicted CPI values for all three months
+            table_data = []
 
-            if st.button("Predict CPI"):
-                # Dictionary to store predictions
-                predictions = {}
+            # Calculate the reference date based on the current date
+            current_date = datetime.date.today()
 
-                # Calculate the reference date based on the current date
-                current_date = datetime.date.today()
-                if selected_month == "Next Month":
-                    reference_date = current_date.replace(month=current_date.month + 1)
-                elif selected_month == "Two Months Later":
-                    reference_date = current_date.replace(month=current_date.month + 2)
-                elif selected_month == "Three Months Later":
-                    reference_date = current_date.replace(month=current_date.month + 3)
+            # Create headers for the table
+            headers = ["Category"]
+            for i in range(1, 4):
+                reference_date = current_date.replace(month=current_date.month + i)
+                headers.append(f"{reference_date.strftime('%B %Y')}")
 
-                # Make predictions for the selected categories
-                for selected_category in selected_categories:
+            table_data.append(headers)
+
+            # Make predictions for the selected categories
+            for selected_category in selected_categories:
+                # Create a row for each category
+                row = [selected_category]
+
+                # Make predictions for all three months
+                for i in range(1, 4):
+                    reference_date = current_date.replace(month=current_date.month + i)
                     input_data = create_input_data(selected_category, category_values, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
-                    make_prediction(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, selected_month)
+                    prediction = make_prediction(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), reference_date)
+                    row.append(prediction)
 
-                # Display predictions
-                st.text(f"Predicted CPI values for {selected_month} for the selected categories:")
-                for category, value in predictions.items():
-                    st.text(f"{category}: {value}")
+                table_data.append(row)
+
+            # Display the predicted CPI values in a table
+            st.text("Predicted CPI values for the next three months for the selected categories:")
+            st.table(table_data)
 
     
 
     elif menu == "CPI Dashboard":
         # Display the Dashboard section
         st.header("Dashboard")
-
+        
        
 if __name__ == "__main__":
     main()
