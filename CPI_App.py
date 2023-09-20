@@ -88,22 +88,18 @@ def create_input_data(selected_category, category_value, total_local_sales, tota
     
     return input_data_scaled
 
+# ... (previous code)
+
 # Function to make predictions for a category
-def make_predictions(selected_category, input_data, loaded_models, category_formatted, predictions, reference_date, selected_month):
+def make_predictions(selected_category, input_data, loaded_models, category_formatted, category_values, predictions, reference_date, selected_month):
     for i in range(1, 4):
         model_key = f"{selected_category}_month_{i}"
         if model_key in loaded_models:
             loaded_model = loaded_models[model_key]
             y_pred = loaded_model.predict(input_data)
-            predicted_cpi = round(y_pred[0][0], 2)
-            predictions[f'{category_formatted}_CPI_for_{reference_date.strftime("%B_%Y")}_Month_{i}'] = predicted_cpi
-            
-            # Calculate the percentage change
-            if selected_category in category_values:
-                extracted_cpi = float(category_values[selected_category])
-                percentage_change = ((predicted_cpi - extracted_cpi) / extracted_cpi) * 100
-                predictions[f'{category_formatted}_Percentage_Change_for_{reference_date.strftime("%B_%Y")}_Month_{i}'] = round(percentage_change, 2)
+            predictions[f'{category_formatted}_CPI_for_{reference_date.strftime("%B_%Y")}_{selected_month}'] = round(y_pred[0][0], 2)
 
+# Streamlit app
 def main():
     # Set the title
     st.title("CPI Vision")
@@ -169,7 +165,7 @@ def main():
                     for i in range(1, 4):
                         reference_date = current_date.replace(month=current_date.month + i)
                         input_data = create_input_data(selected_category, category_values.get(selected_category, 0), total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
-                        make_predictions(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, f"Month {i}")
+                        make_predictions(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), category_values, predictions, reference_date, f"Month {i}")
                         row.append(predictions[f'{selected_category.replace(" ", "_")}_CPI_for_{reference_date.strftime("%B_%Y")}_Month_{i}'])
                         row.append(predictions[f'{selected_category.replace(" ", "_")}_Percentage_Change_for_{reference_date.strftime("%B_%Y")}_Month_{i}'])
 
@@ -185,4 +181,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
 
