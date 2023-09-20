@@ -24,8 +24,6 @@ target_cols_with_prefixes = {
     'Miscellaneous goods and services': 'Miscellaneous goods',
 }
 
-predictions = {}
-
 def load_models():
     loaded_models = {}
     for column in target_cols_with_prefixes:
@@ -119,17 +117,15 @@ def make_predictions(selected_category, input_data, loaded_models, category_form
         if model_key in loaded_models:
             loaded_model = loaded_models[model_key]
             y_pred = loaded_model.predict(input_data)
-            predictions[f'{category_formatted}_CPI_for_{reference_date.strftime("%B_%Y")}_{selected_month}'] = round(y_pred[0][0], 2)
+            predictions[f'{category_formatted}_CPI_for_{reference_date.strftime("%B_%Y")}_Month_{i}'] = round(y_pred[0][0], 2)
 
+# Streamlit app
 def main():
     # Set the title
     st.title("CPI Vision")
 
     # Create a sidebar navigation
     menu = st.sidebar.radio("Navigation", ["Home", "Model", "CPI Dashboard"])
-
-    # Define the predictions dictionary
-    predictions = {}
 
     if menu == "Home":
         st.header("Meet the team")
@@ -158,41 +154,49 @@ def main():
             gbp_zar = st.number_input("GBP_ZAR", value=0.0)
             eur_zar = st.number_input("EUR_ZAR", value=0.0)
 
+            # Initialize an empty predictions dictionary
+            predictions = {}
+
             # Load saved models
             loaded_models = load_models()
 
-            if st.button("Predict CPI"):
-                # Create a table to display the predicted CPI values for all three months
-                table_data = []
+# ...
 
-                # Calculate the reference date based on the current date
-                current_date = datetime.date.today()
+    if st.button("Predict CPI"):
+    # Create a table to display the predicted CPI values for all three months
+        table_data = []
 
-                # Create headers for the table
-                headers = ["Category"]
-                for i in range(1, 4):
-                    reference_date = current_date.replace(month=current_date.month + i)
-                    headers.append(f"{reference_date.strftime('%B %Y')}")
+    # Calculate the reference date based on the current date
+        current_date = datetime.date.today()
 
-                table_data.append(headers)
+    # Create headers for the table
+        headers = ["Category"]
+        for i in range(1, 4):
+            reference_date = current_date.replace(month=current_date.month + i)
+            headers.append(f"{reference_date.strftime('%B %Y')}")
 
-                # Make predictions for the selected categories
-                for selected_category in selected_categories:
-                    # Create a row for each category
-                    row = [selected_category]
+        table_data.append(headers)
 
-                    # Make predictions for all three months
-                    for i in range(1, 4):
-                        reference_date = current_date.replace(month=current_date.month + i)
-                        input_data = create_input_data(selected_category, category_values, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
-                        make_predictions(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, f"Month {i}")
-                        row.append(predictions[f'{selected_category.replace(" ", "_")}_CPI_for_{reference_date.strftime("%B_%Y")}_Month_{i}'])
+    # Make predictions for the selected categories
+        for selected_category in selected_categories:
+        # Create a row for each category
+            row = [selected_category]
 
-                    table_data.append(row)
+        # Make predictions for all three months
+            for i in range(1, 4):
+                reference_date = current_date.replace(month=current_date.month + i)
+                input_data = create_input_data(selected_category, category_values, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
+                make_predictions(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, f"Month {i}")
+                row.append(predictions[f'{selected_category.replace(" ", "_")}_CPI_for_{reference_date.strftime("%B_%Y")}_Month_{i}'])
 
-                # Display the predicted CPI values in a table
-                st.text("Predicted CPI values for the next three months for the selected categories:")
-                st.table(table_data)
+            table_data.append(row)
+
+    # Display the predicted CPI values in a table
+        st.text("Predicted CPI values for the next three months for the selected categories:")
+        st.table(table_data)
+
+# ...
+
 
     elif menu == "CPI Dashboard":
         # Display the Dashboard section
@@ -200,4 +204,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
