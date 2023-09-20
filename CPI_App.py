@@ -35,7 +35,6 @@ def load_models():
     return loaded_models
 
 
-# Function to extract text from PDF and process it to get CPI values
 def process_pdf(pdf_path):
     with pdfplumber.open(pdf_path) as pdf:
         page7 = pdf.pages[7]  
@@ -59,29 +58,14 @@ def process_pdf(pdf_path):
             category = ' '.join(columns[:-3])  # Combine columns as the category name
             value = columns[-3]  # Get the value from the 4th column
 
+            # Replace '.' with ',' and convert the value to float
+            value = value.replace('.', ',')
+            value = float(value.replace(',', '.'))
+
             # Add the category and its value to the dictionary
             category_values[category] = value
 
-    # Iterate through the category prefixes
-    for column, prefix in target_cols_with_prefixes.items():
-        category_value = None
-
-        # Iterate through the dictionary items
-        for category, value in category_values.items():
-            if category.startswith(prefix):
-                # Split the value by ":" and get the last part
-                category_value = value.split(':')[-1].strip()
-                break  # Exit the loop once the category value is found
-
-        # # Print the category and its value
-        # if category_value is not None:
-        #     st.text("Extracted CPI values from the PDF:")
-        #     st.text(f"{column}: {category_value}")
-        # else:
-        #     st.text(f"{column}: Category not found in the extracted data.")
-
     return category_values
-
 
 # Function to create input data
 def create_input_data(selected_category, category_value, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
