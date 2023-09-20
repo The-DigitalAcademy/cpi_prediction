@@ -127,8 +127,6 @@ def make_predictions(selected_category, input_data, loaded_models, category_form
                 predictions[percentage_change_key] = None  # No previous value available
     return predictions
 
-# ...
-
 # Streamlit app
 def main():
     # Set the title
@@ -155,17 +153,11 @@ def main():
             selected_categories = st.multiselect(
                 "Select categories to predict:", list(target_cols_with_prefixes.keys()), default=[list(target_cols_with_prefixes.keys())[0]]
             )
-            if selected_categories:
-                st.write(f"Extracted CPI value for {selected_categories}: {category_values[selected_categories]}")
 
-
-
-
-
-
-
-            
-
+            # Display extracted CPI values for selected categories
+            for selected_category in selected_categories:
+                if selected_category in category_values:
+                    st.write(f"Extracted CPI value for {selected_category}: {category_values[selected_category]}")
 
             # Display input fields for vehicle sales and currency
             st.write("Enter Vehicle Sales and Currency Input:")
@@ -202,7 +194,7 @@ def main():
                     # Make predictions for all three months
                     input_data = create_input_data(selected_category, category_values.get(selected_category, 0), total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
                     predictions = make_predictions(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), category_values, reference_date, f"Month {i}")
-                    
+
                     for i in range(1, 4):
                         predicted_cpi_key = f'{selected_category.replace(" ", "_")}_CPI_for_{reference_date.strftime("%B_%Y")}_Month_{i}'
                         percentage_change_key = f'{selected_category.replace(" ", "_")}_Percentage_Change_for_{reference_date.strftime("%B_%Y")}_Month_{i}'
