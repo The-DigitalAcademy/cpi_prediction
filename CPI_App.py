@@ -128,8 +128,8 @@ def main():
     # Create a sidebar navigation
     menu = st.sidebar.radio("Navigation", ["Home", "Model", "Dashboard"])
 
-    if menu == "Home"
-    st.header("Meet the team"):
+    if menu == "Home":
+        st.header("Meet the team"):
     
 
     elif menu == "Model":
