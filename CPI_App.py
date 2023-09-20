@@ -159,7 +159,7 @@ def main():
 
             if selected_category:
                 for index, (selected_category, prefix) in enumerate(target_cols_with_prefixes.items()):
-                    extracted_cpi_value = float(category_values)
+                    extracted_cpi_value = category_values
                 if extracted_cpi_value is not None:
                     st.write(f"Extracted CPI value for {selected_category}: {extracted_cpi_value}")
                 else:
