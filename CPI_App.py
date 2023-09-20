@@ -139,12 +139,33 @@ def main():
         if uploaded_file is not None:
             # Process the uploaded PDF file
             st.text("Processing the uploaded PDF...")
-            category_values = process_pdf(uploaded_file)
+            category_value = process_pdf(uploaded_file)
 
             # Allow the user to select categories for prediction
             selected_categories = st.multiselect(
                 "Select categories to predict:", list(target_cols_with_prefixes.keys()), default=[list(target_cols_with_prefixes.keys())[0]]
             )
+
+
+
+            if selected_categories:
+                st.text("Extracted CPI values from the PDF:")
+                for selected_category in selected_categories:
+                # Initialize the extracted_cpi_value
+                    extracted_cpi_value = None
+
+                # Loop through categories to find the selected one
+                    for category, prefix in target_cols_with_prefixes.items():
+                        if category == selected_category:
+                        # Extract the CPI value for the selected category
+                            extracted_cpi_value = float(category_value)
+                            break  # Exit the loop once the category is found
+
+                    if extracted_cpi_value is not None:
+                        st.text(f"{selected_category}: {extracted_cpi_value}")
+                    else:
+                        st.text(f"{selected_category}: Category not found in the extracted data.")
+
 
             # Display input fields for vehicle sales and currency
             st.write("Enter Vehicle Sales and Currency Input:")
