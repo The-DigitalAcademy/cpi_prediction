@@ -154,16 +154,18 @@ def main():
             st.text("Processing the uploaded PDF...")
             category_values = process_pdf(uploaded_file)
 
-            # Allow the user to select categories for prediction
-            selected_category = st.selectbox("Select a category to view extracted CPI value:", list(target_cols_with_prefixes.keys()))
+# Allow the user to select categories for prediction
+        selected_category = st.selectbox("Select a category to view extracted CPI value:", list(target_cols_with_prefixes.keys()))
 
-            if selected_category:
-                for index, (selected_category, prefix) in enumerate(target_cols_with_prefixes.items()):
-                    extracted_cpi_value = category_values
-                if extracted_cpi_value is not None:
-                    st.write(f"Extracted CPI value for {selected_category}: {extracted_cpi_value}")
-                else:
-                    st.write(f"No CPI value found for {selected_category}")
+        if selected_category:
+    # Retrieve the extracted CPI value for the selected category from the category_values dictionary
+            extracted_cpi_value = category_values.get(selected_category, None)
+    
+        if extracted_cpi_value is not None:
+            extracted_cpi_value = float(extracted_cpi_value)  # Convert to float
+            st.write(f"Extracted CPI value for {selected_category}: {extracted_cpi_value}")
+        else:
+            st.write(f"No CPI value found for {selected_category}")
 
 
 
