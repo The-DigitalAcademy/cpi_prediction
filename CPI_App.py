@@ -97,7 +97,17 @@ def make_predictions(selected_category, input_data, loaded_models, category_form
         if model_key in loaded_models:
             loaded_model = loaded_models[model_key]
             y_pred = loaded_model.predict(input_data)
-            predictions[f'{category_formatted}_CPI_for_{reference_date.strftime("%B_%Y")}_{selected_month}'] = round(y_pred[0][0], 2)
+            predicted_cpi_key = f'{category_formatted}_CPI_for_{reference_date.strftime("%B_%Y")}_{selected_month}'
+            percentage_change_key = f'{category_formatted}_Percentage_Change_for_{reference_date.strftime("%B_%Y")}_{selected_month}'
+
+            if predicted_cpi_key in predictions:
+                previous_cpi_value = float(predictions[predicted_cpi_key])
+                percentage_change = ((y_pred[0][0] - previous_cpi_value) / previous_cpi_value) * 100
+                predictions[predicted_cpi_key] = round(y_pred[0][0], 2)
+                predictions[percentage_change_key] = round(percentage_change, 2)
+            else:
+                predictions[predicted_cpi_key] = round(y_pred[0][0], 2)
+                predictions[percentage_change_key] = None  # No previous value available
 
 # Streamlit app
 def main():
@@ -181,6 +191,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
