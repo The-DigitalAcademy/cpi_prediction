@@ -36,6 +36,8 @@ def load_models():
                 loaded_models[f"{column}_month_{i}"] = loaded_model
     return loaded_models
 
+# Inside the process_pdf function
+
 def process_pdf(pdf_path):
     with pdfplumber.open(pdf_path) as pdf:
         page7 = pdf.pages[7]  
@@ -68,8 +70,12 @@ def process_pdf(pdf_path):
 
             # Add the category and its value to the dictionary
             category_values[category] = value
+            
+            # Debugging: Print the extracted category and value
+            print(f"Extracted: {category} -> {value}")
 
     return category_values
+
 
 # Function to create input data
 def create_input_data(selected_category, category_value, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
