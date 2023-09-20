@@ -178,13 +178,31 @@ def main():
                     for i in range(1, 4):
                         reference_date = current_date.replace(month=current_date.month + i)
                         input_data = create_input_data(selected_category, category_values.get(selected_category, 0), total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
-                        make_predictions(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), category_values, predictions, reference_date, f"Month {i}")
+                        make_predictions(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, f"Month {i}")
                         predicted_cpi_key = f'{selected_category.replace(" ", "_")}_CPI_for_{reference_date.strftime("%B_%Y")}_Month_{i}'
                         percentage_change_key = f'{selected_category.replace(" ", "_")}_Percentage_Change_for_{reference_date.strftime("%B_%Y")}_Month_{i}'
                         row.append(predictions.get(predicted_cpi_key, ""))
                         row.append(predictions.get(percentage_change_key, ""))
 
                     table_data.append(row)
+
+
+
+            #     ##############
+            #             # Make predictions for all three months
+            # for i in range(1, 4):
+            #     reference_date = current_date.replace(month=current_date.month + i)
+            #     input_data = create_input_data(selected_category, category_values.get(selected_category, 0), total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
+            #     make_predictions(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, f"Month {i}")
+            #     row.append(predictions[f'{selected_category.replace(" ", "_")}_CPI_for_{reference_date.strftime("%B_%Y")}_Month_{i}'])
+
+            # table_data.append(row)
+
+    # Display the predicted CPI values in a table
+        st.text("Predicted CPI values for the next three months for the selected categories:")
+        st.table(table_data)
+
+                #############
 
                 # Display the predicted CPI values and percentage changes in a table
                 st.text("Predicted CPI values and Percentage Changes for the next three months for the selected categories:")
