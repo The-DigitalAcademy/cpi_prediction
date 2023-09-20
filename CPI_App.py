@@ -147,24 +147,28 @@ def main():
             )
 
 
+# ...
 
-            if selected_categories:
-                st.text("Extracted CPI values from the PDF:")
-                for selected_category in selected_categories:
-                # Initialize the extracted_cpi_value
-                    extracted_cpi_value = None
+        if selected_categories:
+            st.text("Extracted CPI values from the PDF:")
+            for selected_category in selected_categories:
+        # Initialize the extracted_cpi_value
+                extracted_cpi_value = None
 
-                # Loop through categories to find the selected one
-                    for category, prefix in target_cols_with_prefixes.items():
-                        if category == selected_category:
-                        # Extract the CPI value for the selected category
-                            extracted_cpi_value = category_values.get(selected_category, None)
-                            break  # Exit the loop once the category is found
+        # Loop through categories to find the selected one
+                for category, prefix in target_cols_with_prefixes.items():
+                    if category == selected_category:
+                # Extract the CPI value for the selected category
+                        extracted_cpi_value = category_values.get(selected_category, None)
+                        break  # Exit the loop once the category is found
 
-                    if extracted_cpi_value is not None:
-                        st.text(f"{selected_category}: {extracted_cpi_value}")
-                    else:
-                        st.text(f"{selected_category}: Category not found in the extracted data.")
+                if extracted_cpi_value is not None:
+                    st.text(f"{selected_category}: {extracted_cpi_value}")
+                else:
+                    st.text(f"{selected_category}: Category not found in the extracted data.")
+
+# ...
+
 
 
             # Display input fields for vehicle sales and currency
