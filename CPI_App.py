@@ -111,7 +111,7 @@ def create_input_data(selected_category, category_value, total_local_sales, tota
     return input_data_scaled
 
 # Function to make predictions for a category
-def make_prediction(selected_category, input_data, loaded_models, category_formatted, predictions, reference_date, selected_month):
+def make_predictions(selected_category, input_data, loaded_models, category_formatted, predictions, reference_date, selected_month):
     for i in range(1, 4):
         model_key = f"{selected_category}_month_{i}"
         if model_key in loaded_models:
