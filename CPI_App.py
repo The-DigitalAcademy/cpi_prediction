@@ -34,7 +34,6 @@ def load_models():
                 loaded_models[f"{column}_month_{i}"] = loaded_model
     return loaded_models
 
-# Function to extract text from PDF and process it to get CPI values
 def process_pdf(pdf_path):
     with pdfplumber.open(pdf_path) as pdf:
         page7 = pdf.pages[7]  
@@ -56,8 +55,9 @@ def process_pdf(pdf_path):
         if len(columns) >= 4:
             # Extract the category and value
             category = ' '.join(columns[:-3])  # Combine columns as the category name
-            value = columns[-3]  # Get the value from the 4th column
-
+            # Replace '.' with ',' and convert to float
+            value = float(columns[-3].replace('.', '').replace(',', '.'))
+            
             # Add the category and its value to the dictionary
             category_values[category] = value
 
@@ -132,9 +132,10 @@ def main():
             category_values = process_pdf(uploaded_file)
 
             # Allow the user to select categories for prediction
-            selected_categories = st.multiselect(
-                "Select categories to predict:", list(target_cols_with_prefixes.keys()), default=[list(target_cols_with_prefixes.keys())[0]]
-            )
+            selected_category = st.selectbox("Select a category:", list(category_values.keys()))
+            if selected_category:
+                st.write(f"Extracted CPI value for {selected_category}: {category_values[selected_category]}")
+
 
             # Display input fields for vehicle sales and currency
             st.write("Enter Vehicle Sales and Currency Input:")
