@@ -82,7 +82,7 @@ def process_pdf(pdf_path):
         else:
             st.text(f"{column}: Category not found in the extracted data.")
 
-    return category_values
+    return category_values,category_value
 
 # Function to create input data
 def create_input_data(selected_category, category_value, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
@@ -153,20 +153,17 @@ def main():
             # Process the uploaded PDF file
             st.text("Processing the uploaded PDF...")
             category_values = process_pdf(uploaded_file)
+            
+        # Allow the user to select categories for prediction
+            selected_category = st.selectbox("Select a category to view extracted CPI value:", list(target_cols_with_prefixes.keys()))
 
-# Allow the user to select categories for prediction
-        selected_category = st.selectbox("Select a category to view extracted CPI value:", list(target_cols_with_prefixes.keys()))
-
-        if selected_category:
-    # Retrieve the extracted CPI value for the selected category from the category_values dictionary
-            extracted_cpi_value = category_values.get(selected_category, None)
-    
-        if extracted_cpi_value is not None:
-            extracted_cpi_value = float(extracted_cpi_value)  # Convert to float
-            st.write(f"Extracted CPI value for {selected_category}: {extracted_cpi_value}")
-        else:
-            st.write(f"No CPI value found for {selected_category}")
-
+            if selected_category:
+                for index, (selected_category, prefix) in enumerate(target_cols_with_prefixes.items()):
+                    extracted_cpi_value[0,index] = float(category_values)
+                if extracted_cpi_value is not None:
+                    st.write(f"Extracted CPI value for {selected_category}: {extracted_cpi_value}")
+                else:
+                    st.write(f"No CPI value found for {selected_category}")
 
 
 
