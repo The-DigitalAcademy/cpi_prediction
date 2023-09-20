@@ -161,8 +161,8 @@ def main():
                 headers = ["Category"]
                 for i in range(1, 4):
                     reference_date = current_date.replace(month=current_date.month + i)
-                    headers.append(f"{reference_date.strftime('%B %Y')}")
-                    headers.append(f"Percentage Change")
+                    headers.append(f"{reference_date.strftime('%B %Y')} (CPI)")
+                    headers.append(f"{reference_date.strftime('%B %Y')} (Percentage Change)")
 
                 table_data.append(headers)
 
@@ -176,8 +176,10 @@ def main():
                         reference_date = current_date.replace(month=current_date.month + i)
                         input_data = create_input_data(selected_category, category_values.get(selected_category, 0), total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
                         make_predictions(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), category_values, predictions, reference_date, f"Month {i}")
-                        row.append(predictions[f'{selected_category.replace(" ", "_")}_CPI_for_{reference_date.strftime("%B_%Y")}_Month_{i}'])
-                        row.append(predictions[f'{selected_category.replace(" ", "_")}_Percentage_Change_for_{reference_date.strftime("%B_%Y")}_Month_{i}'])
+                        predicted_cpi_key = f'{selected_category.replace(" ", "_")}_CPI_for_{reference_date.strftime("%B_%Y")}_Month_{i}'
+                        percentage_change_key = f'{selected_category.replace(" ", "_")}_Percentage_Change_for_{reference_date.strftime("%B_%Y")}_Month_{i}'
+                        row.append(predictions.get(predicted_cpi_key, ""))
+                        row.append(predictions.get(percentage_change_key, ""))
 
                     table_data.append(row)
 
@@ -191,7 +193,5 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
 
 
