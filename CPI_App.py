@@ -147,7 +147,7 @@ def main():
         # Display the Model section
         st.header("Model")
         # Allow the user to upload a PDF document
-        uploaded_file = st.file_uploader("Upload Current CPI PDF document", type=["pdf"])
+        uploaded_file,category_value = st.file_uploader("Upload Current CPI PDF document", type=["pdf"])
 
         if uploaded_file is not None:
             # Process the uploaded PDF file
