@@ -126,10 +126,13 @@ def main():
     st.title("CPI Vision")
 
     # Create a sidebar navigation
-    menu = st.sidebar.radio("Navigation", ["Model", "Dashboard"])
+    menu = st.sidebar.radio("Navigation", ["Home", "Model", "Dashboard"])
+
+    if menu == "Home"
+    st.header("Meet the team")
     
 
-    if menu == "Model":
+    elif menu == "Model":
         # Display the Model section
         st.header("Model")
          # Allow the user to upload a PDF document
