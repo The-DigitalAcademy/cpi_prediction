@@ -199,8 +199,8 @@ def main():
             # table_data.append(row)
 
     # Display the predicted CPI values in a table
-        st.text("Predicted CPI values for the next three months for the selected categories:")
-        st.table(table_data)
+            st.text("Predicted CPI values for the next three months for the selected categories:")
+            st.table(table_data)
 
                 #############
 
