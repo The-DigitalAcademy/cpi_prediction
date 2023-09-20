@@ -121,13 +121,15 @@ def make_predictions(selected_category, input_data, loaded_models, category_form
             y_pred = loaded_model.predict(input_data)
             predictions[f'{category_formatted}_CPI_for_{reference_date.strftime("%B_%Y")}_{selected_month}'] = round(y_pred[0][0], 2)
 
-# Streamlit app
 def main():
     # Set the title
     st.title("CPI Vision")
 
     # Create a sidebar navigation
     menu = st.sidebar.radio("Navigation", ["Home", "Model", "CPI Dashboard"])
+
+    # Define the predictions dictionary
+    predictions = {}
 
     if menu == "Home":
         st.header("Meet the team")
@@ -159,43 +161,38 @@ def main():
             # Load saved models
             loaded_models = load_models()
 
-# ...
+            if st.button("Predict CPI"):
+                # Create a table to display the predicted CPI values for all three months
+                table_data = []
 
-    if st.button("Predict CPI"):
-    # Create a table to display the predicted CPI values for all three months
-        table_data = []
+                # Calculate the reference date based on the current date
+                current_date = datetime.date.today()
 
-    # Calculate the reference date based on the current date
-        current_date = datetime.date.today()
+                # Create headers for the table
+                headers = ["Category"]
+                for i in range(1, 4):
+                    reference_date = current_date.replace(month=current_date.month + i)
+                    headers.append(f"{reference_date.strftime('%B %Y')}")
 
-    # Create headers for the table
-        headers = ["Category"]
-        for i in range(1, 4):
-            reference_date = current_date.replace(month=current_date.month + i)
-            headers.append(f"{reference_date.strftime('%B %Y')}")
+                table_data.append(headers)
 
-        table_data.append(headers)
+                # Make predictions for the selected categories
+                for selected_category in selected_categories:
+                    # Create a row for each category
+                    row = [selected_category]
 
-    # Make predictions for the selected categories
-        for selected_category in selected_categories:
-        # Create a row for each category
-            row = [selected_category]
+                    # Make predictions for all three months
+                    for i in range(1, 4):
+                        reference_date = current_date.replace(month=current_date.month + i)
+                        input_data = create_input_data(selected_category, category_values, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
+                        make_predictions(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, f"Month {i}")
+                        row.append(predictions[f'{selected_category.replace(" ", "_")}_CPI_for_{reference_date.strftime("%B_%Y")}_Month_{i}'])
 
-        # Make predictions for all three months
-            for i in range(1, 4):
-                reference_date = current_date.replace(month=current_date.month + i)
-                input_data = create_input_data(selected_category, category_values, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
-                make_predictions(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, f"Month {i}")
-                row.append(predictions[f'{selected_category.replace(" ", "_")}_CPI_for_{reference_date.strftime("%B_%Y")}_Month_{i}'])
+                    table_data.append(row)
 
-            table_data.append(row)
-
-    # Display the predicted CPI values in a table
-        st.text("Predicted CPI values for the next three months for the selected categories:")
-        st.table(table_data)
-
-# ...
-
+                # Display the predicted CPI values in a table
+                st.text("Predicted CPI values for the next three months for the selected categories:")
+                st.table(table_data)
 
     elif menu == "CPI Dashboard":
         # Display the Dashboard section
@@ -203,3 +200,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
