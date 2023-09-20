@@ -142,12 +142,14 @@ def main():
             # Allow the user to select categories for prediction
             selected_category = st.selectbox("Select a category to view extracted CPI value:", list(target_cols_with_prefixes.keys()))
 
+            # Allow the user to select categories for prediction
             if selected_category:
-                extracted_cpi_value = category_values[selected_category]#target_cols_with_prefixes.items()
+                extracted_cpi_value = category_values.get(selected_category)
                 if extracted_cpi_value is not None:
-                    st.write(f"Extracted CPI value for {selected_category}: {extracted_cpi_value}")
-                else:
-                    st.write(f"No CPI value found for {selected_category}")
+                st.write(f"Extracted CPI value for {selected_category}: {extracted_cpi_value}")
+            else:
+                st.write(f"No CPI value found for {selected_category}")
+
 
             # Display input fields for vehicle sales and currency
             st.write("Enter Vehicle Sales and Currency Input:")
