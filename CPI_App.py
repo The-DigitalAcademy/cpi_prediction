@@ -139,7 +139,7 @@ def main():
         if uploaded_file is not None:
             # Process the uploaded PDF file
             st.text("Processing the uploaded PDF...")
-            category_value = process_pdf(uploaded_file)
+            category_values = process_pdf(uploaded_file)
 
             # Allow the user to select categories for prediction
             selected_categories = st.multiselect(
