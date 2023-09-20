@@ -24,19 +24,27 @@ target_cols_with_prefixes = {
     'Miscellaneous goods and services': 'Miscellaneous goods',
 }
 
-# Define a global variable to store the extracted category values
-extracted_category_values = {}
+def load_models():
+    loaded_models = {}
+    for column in target_cols_with_prefixes:
+        for i in range(1, 4):
+            model_path = os.path.join(f"{column}_Deep Neural Network_month_{i}.h5")
+            if os.path.exists(model_path):
+                loaded_model = load_model(model_path)
+                loaded_models[f"{column}_month_{i}"] = loaded_model
+                print(model_path)
+            else:
+                print(model_path)
+    return loaded_models
 
 # Function to extract text from PDF and process it to get CPI values
 def process_pdf(pdf_path):
-    global extracted_category_values  # Access the global variable
-
     with pdfplumber.open(pdf_path) as pdf:
-        page7 = pdf.pages[7]
+        page7 = pdf.pages[7]  
         page8 = pdf.pages[8]
         text1 = page7.extract_text()
         text2 = page8.extract_text()
-
+    
     # Combine the extracted text from both pages
     text_to_extract = text1 + text2
 
@@ -56,30 +64,39 @@ def process_pdf(pdf_path):
             # Add the category and its value to the dictionary
             category_values[category] = value
 
-    # Store the extracted category values in the global variable
-    extracted_category_values = category_values
+    # Iterate through the category prefixes
+    for column, prefix in target_cols_with_prefixes.items():
+        category_value = None
 
-# Load saved models
-def load_models():
-    loaded_models = {}
-    for column in target_cols_with_prefixes:
-        for i in range(1, 4):
-            model_path = os.path.join(f"{column}_Deep Neural Network_month_{i}.h5")
-            if os.path.exists(model_path):
-                loaded_model = load_model(model_path)
-                loaded_models[f"{column}_month_{i}"] = loaded_model
-    return loaded_models
+        # Iterate through the dictionary items
+        for category, value in category_values.items():
+            if category.startswith(prefix):
+                # Split the value by ":" and get the last part
+                category_value = value.split(':')[-1].strip()
+                break  # Exit the loop once the category value is found
 
-# Function to create input data for predictions
-def create_input_data(selected_category, category_values, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
+        # Print the category and its value
+        if category_value is not None:
+            st.text("Extracted CPI values from the PDF:")
+            st.text(f"{column}: {category_value}")
+        else:
+            st.text(f"{column}: Category not found in the extracted data.")
+
+    return category_values
+    
+def create_input_data(selected_category, category_value, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
     input_data = np.zeros((1, len(target_cols_with_prefixes) + 5))  # Create an empty array with additional columns
     selected_category_adjusted = selected_category.replace(' ', '_')
     
     # Iterate through the target columns and find the index for the selected category
     for index, (category, prefix) in enumerate(target_cols_with_prefixes.items()):
         if category == selected_category_adjusted:
-            input_data[0, index] = float(category_values.get(category, 0.0))  # Use the original category name here
+            input_data[0, target_cols_with_prefixes.index(selected_category_adjusted)] = float(category_value)
 
+    # input_data = np.zeros((1, len(target_cols) + 6))  # Create an empty array with additional columns
+    # input_data[0, target_cols_with_prefixes.index(selected_category)] = previous_cpi_value
+    
+    
     # Set the values for the non-category columns
     input_data[0, -6] = total_local_sales
     input_data[0, -5] = total_export_sales
@@ -102,6 +119,10 @@ def make_prediction(selected_category, input_data, loaded_models, category_forma
             y_pred = loaded_model.predict(input_data)
             predictions[f'{category_formatted}_CPI_for_{reference_date.strftime("%B_%Y")}_{selected_month}'] = round(y_pred[0][0], 2)
 
+
+
+# ... (previous code)
+
 # Streamlit app
 def main():
     # Set the title
@@ -110,22 +131,25 @@ def main():
     # Allow the user to upload a PDF document
     uploaded_file = st.file_uploader("Upload a CPI PDF document", type=["pdf"])
 
+    # Initialize category_values dictionary
+    category_values = {}
+
     if uploaded_file is not None:
         # Process the uploaded PDF file and get category values
         st.text("Processing the uploaded PDF...")
-        process_pdf(uploaded_file)  # Call the process_pdf function to populate extracted_category_values
+        category_values = process_pdf(uploaded_file)
 
     # Allow the user to select categories for prediction
     selected_categories = st.multiselect(
         "Select categories to predict:", list(target_cols_with_prefixes.keys()), default=[list(target_cols_with_prefixes.keys())[0]]
     )
 
-    # Display the previous CPI value for the selected categories
+    # Display the previous CPI value for the selected category immediately after selection
     for selected_category in selected_categories:
-        selected_category_adjusted = selected_category.replace(' ', '_')
-        category_value = extracted_category_values.get(target_cols_with_prefixes[selected_category_adjusted], "N/A")
+        # Match the selected category with the values from the extracted PDF
+        category_value = category_values.get(target_cols_with_prefixes[selected_category], "N/A")
         st.text(f"Current CPI for {selected_category} is: {category_value}")
-
+        
     # Display input fields for vehicle sales and currency
     st.write("Enter Vehicle Sales and Currency Input:")
     total_local_sales = st.number_input("Total_Local_Sales", value=0.0)
@@ -157,6 +181,10 @@ def main():
         for selected_category in selected_categories:
             input_data = create_input_data(selected_category, category_values, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
             make_prediction(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, selected_month)
+
+            # Display the previous CPI value for the selected category
+            category_value = category_values.get(target_cols_with_prefixes[selected_category], "N/A")
+            st.text(f"Current CPI for {selected_category} is: {category_value}")
 
         # Display predictions
         st.text(f"Predicted CPI values for {selected_month} for the selected categories:")
