@@ -153,6 +153,8 @@ def main():
             # Process the uploaded PDF file
             st.text("Processing the uploaded PDF...")
             category_values = process_pdf(uploaded_file)
+        selected_category = st.selectbox("Select a category to view extracted CPI value:", list(target_cols_with_prefixes.keys()))
+
             
         if selected_category:
         # Initialize the extracted_cpi_value
