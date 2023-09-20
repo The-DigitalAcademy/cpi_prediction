@@ -152,9 +152,19 @@ def main():
             category_values = process_pdf(uploaded_file)
 
             # Allow the user to select categories for prediction
-            selected_category = st.selectbox("Select a category:", list(category_values.keys()))
-            if selected_category:
-                st.write(f"Extracted CPI value for {selected_category}: {category_values[selected_category]}")
+            selected_categories = st.multiselect(
+                "Select categories to predict:", list(target_cols_with_prefixes.keys()), default=[list(target_cols_with_prefixes.keys())[0]]
+            )
+            if selected_categories:
+                st.write(f"Extracted CPI value for {selected_categories}: {category_values[selected_categories]}")
+
+
+
+
+
+
+
+            
 
 
             # Display input fields for vehicle sales and currency
