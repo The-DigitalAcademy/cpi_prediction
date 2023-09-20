@@ -6,6 +6,7 @@ import numpy as np
 from tensorflow.keras.models import load_model
 from sklearn.preprocessing import StandardScaler
 
+
 # Define the target columns with their corresponding prefixes
 target_cols_with_prefixes = {
     'Headline CPI': 'Headline',
@@ -14,7 +15,7 @@ target_cols_with_prefixes = {
     'Clothing and footwear': 'Clothing and footwear',
     'Housing and utilities': 'Housing and utilities',
     'Household contents and services': 'Household contents',
-    'Health': 'Health',a
+    'Health': 'Health',
     'Transport': 'Transport',
     'Communication': 'Communication',
     'Recreation and culture': 'Recreation and culture',
@@ -22,6 +23,7 @@ target_cols_with_prefixes = {
     'Restaurants and hotels ': 'Restaurants and hotels',
     'Miscellaneous goods and services': 'Miscellaneous goods',
 }
+
 
 # Function to load models
 def load_models():
