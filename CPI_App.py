@@ -34,7 +34,6 @@ def load_models():
                 loaded_models[f"{column}_month_{i}"] = loaded_model
     return loaded_models
 
-
 def process_pdf(pdf_path):
     with pdfplumber.open(pdf_path) as pdf:
         page7 = pdf.pages[7]  
@@ -58,9 +57,12 @@ def process_pdf(pdf_path):
             category = ' '.join(columns[:-3])  # Combine columns as the category name
             value = columns[-3]  # Get the value from the 4th column
 
-            # Replace '.' with ',' and convert the value to float
-            value = value.replace('.', ',')
-            value = float(value.replace(',', '.'))
+            # Replace '.' with ',' and attempt to convert the value to float
+            try:
+                value = float(value.replace(',', '.'))
+            except ValueError:
+                # Handle cases where the value cannot be converted to float
+                value = None
 
             # Add the category and its value to the dictionary
             category_values[category] = value
