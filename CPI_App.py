@@ -140,10 +140,10 @@ def main():
             category_values = process_pdf(uploaded_file)
 
             # Allow the user to select categories for prediction
-            selected_category = st.selectbox("Select a category to view extracted CPI value:", list(category_values.keys()))
+            selected_category = st.selectbox("Select a category to view extracted CPI value:", list(target_cols_with_prefixes.keys()))
 
             if selected_category:
-                extracted_cpi_value = category_values[selected_category]
+                extracted_cpi_value = category_values[selected_category]#target_cols_with_prefixes.items()
                 if extracted_cpi_value is not None:
                     st.write(f"Extracted CPI value for {selected_category}: {extracted_cpi_value}")
                 else:
