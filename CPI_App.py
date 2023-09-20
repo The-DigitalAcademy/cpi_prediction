@@ -87,7 +87,8 @@ def create_input_data(selected_category, category_value, total_local_sales, tota
     return input_data_scaled
 
 # Function to make predictions for a category
-def make_predictions(selected_category, input_data, loaded_models, category_formatted, category_values, predictions, reference_date, selected_month):
+def make_predictions(selected_category, input_data, loaded_models, category_formatted, category_values, reference_date, selected_month):
+    predictions = {}
     for i in range(1, 4):
         model_key = f"{selected_category}_month_{i}"
         if model_key in loaded_models:
@@ -96,17 +97,17 @@ def make_predictions(selected_category, input_data, loaded_models, category_form
             predicted_cpi_key = f'{category_formatted}_CPI_for_{reference_date.strftime("%B_%Y")}_Month_{i}'
             percentage_change_key = f'{category_formatted}_Percentage_Change_for_{reference_date.strftime("%B_%Y")}_Month_{i}'
 
-            if predicted_cpi_key in predictions:
-                previous_cpi_value = float(category_values.get(predicted_cpi_key, 0))
+            if predicted_cpi_key in category_values:
+                previous_cpi_value = float(category_values[predicted_cpi_key])
                 percentage_change = ((y_pred[0][0] - previous_cpi_value) / previous_cpi_value) * 100
                 predictions[predicted_cpi_key] = round(y_pred[0][0], 2)
                 predictions[percentage_change_key] = round(percentage_change, 2)
             else:
                 predictions[predicted_cpi_key] = round(y_pred[0][0], 2)
                 predictions[percentage_change_key] = None  # No previous value available
-
-    
     return predictions
+
+# ...
 
 # Streamlit app
 def main():
@@ -168,10 +169,10 @@ def main():
                     row = [selected_category]
 
                     # Make predictions for all three months
+                    input_data = create_input_data(selected_category, category_values.get(selected_category, 0), total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
+                    predictions = make_predictions(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), category_values, reference_date, f"Month {i}")
+                    
                     for i in range(1, 4):
-                        reference_date = current_date.replace(month=current_date.month + i)
-                        input_data = create_input_data(selected_category, category_values.get(selected_category, 0), total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
-                        predictions = make_predictions(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), reference_date, f"Month {i}")
                         predicted_cpi_key = f'{selected_category.replace(" ", "_")}_CPI_for_{reference_date.strftime("%B_%Y")}_Month_{i}'
                         percentage_change_key = f'{selected_category.replace(" ", "_")}_Percentage_Change_for_{reference_date.strftime("%B_%Y")}_Month_{i}'
                         row.append(predictions.get(predicted_cpi_key, ""))
