@@ -158,7 +158,7 @@ def main():
                     for category, prefix in target_cols_with_prefixes.items():
                         if category == selected_category:
                         # Extract the CPI value for the selected category
-                            extracted_cpi_value = float(category_value)
+                            extracted_cpi_value = category_values.get(selected_category, None)
                             break  # Exit the loop once the category is found
 
                     if extracted_cpi_value is not None:
