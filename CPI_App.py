@@ -87,8 +87,7 @@ def create_input_data(selected_category, category_value, total_local_sales, tota
     return input_data_scaled
 
 # Function to make predictions for a category
-def make_predictions(selected_category, input_data, loaded_models, category_formatted, reference_date, selected_month):
-    predictions = {}
+def make_predictions(selected_category, input_data, loaded_models, category_formatted, category_values, predictions, reference_date, selected_month):
     for i in range(1, 4):
         model_key = f"{selected_category}_month_{i}"
         if model_key in loaded_models:
@@ -98,13 +97,14 @@ def make_predictions(selected_category, input_data, loaded_models, category_form
             percentage_change_key = f'{category_formatted}_Percentage_Change_for_{reference_date.strftime("%B_%Y")}_Month_{i}'
 
             if predicted_cpi_key in predictions:
-                previous_cpi_value = float(predictions[predicted_cpi_key])
+                previous_cpi_value = float(category_values.get(predicted_cpi_key, 0))
                 percentage_change = ((y_pred[0][0] - previous_cpi_value) / previous_cpi_value) * 100
                 predictions[predicted_cpi_key] = round(y_pred[0][0], 2)
                 predictions[percentage_change_key] = round(percentage_change, 2)
             else:
                 predictions[predicted_cpi_key] = round(y_pred[0][0], 2)
                 predictions[percentage_change_key] = None  # No previous value available
+
     
     return predictions
 
