@@ -141,17 +141,14 @@ def main():
                     # Initialize the extracted_cpi_value
                     extracted_cpi_value = None
 
-                   for selected_category in selected_categories:
-                        extracted_cpi_value = None
-    
-    # Check if the selected_category is in the category_values dictionary
+                    # Check if the selected_category is in the category_values dictionary
                     if selected_category in category_values:
                         extracted_cpi_value = category_values[selected_category]
-    
+
                     if extracted_cpi_value is not None:
-        st.text(f"{selected_category}: {extracted_cpi_value}")
-    else:
-        st.text(f"{selected_category}: Category not found in the extracted data.")
+                        st.text(f"{selected_category}: {extracted_cpi_value}")
+                    else:
+                        st.text(f"{selected_category}: Category not found in the extracted data.")
         
             # Display input fields for vehicle sales and currency
             st.write("Enter Vehicle Sales and Currency Input:")
