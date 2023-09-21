@@ -64,17 +64,6 @@ def process_pdf(pdf_path):
             # Add the category and its value to the dictionary
             category_values[category] = value
 
-    # Iterate through the category prefixes
-    for column, prefix in target_cols_with_prefixes.items():
-        category_value = None
-
-        # Iterate through the dictionary items
-        for category, value in category_values.items():
-            if category.startswith(prefix):
-                # Split the value by ":" and get the last part
-                category_value = value.split(':')[-1].strip()
-                break  # Exit the loop once the category value is found
-
     return category_values
     
 def create_input_data(selected_category, category_value, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
@@ -84,7 +73,7 @@ def create_input_data(selected_category, category_value, total_local_sales, tota
     # Iterate through the target columns and find the index for the selected category
     for index, (category, prefix) in enumerate(target_cols_with_prefixes.items()):
         if category == selected_category_adjusted:
-            input_data[0, target_cols_with_prefixes.index(selected_category_adjusted)] = float(category_value)
+            input_data[0, index] = float(category_value)
     
     # Set the values for the non-category columns
     input_data[0, -6] = total_local_sales
@@ -141,65 +130,56 @@ def main():
                     # Initialize the extracted_cpi_value
                     extracted_cpi_value = None
 
-                    # Loop through categories to find the selected one
-                    for category, prefix in target_cols_with_prefixes.items():
-                        if category == selected_category:
-                            # Extract the CPI value for the selected category
-                            extracted_cpi_value = category_values.get(selected_category, None)
-                            break  # Exit the loop once the category is found
+                    # Check if the selected_category is in the target_cols_with_prefixes dictionary
+                    if selected_category in target_cols_with_prefixes:
+                        # Loop through categories to find the selected one
+                        for category, prefix in target_cols_with_prefixes.items():
+                            if category == selected_category:
+                                # Extract the CPI value for the selected category
+                                extracted_cpi_value = category_values.get(category, None)
+                                break  # Exit the loop once the category is found
 
                     if extracted_cpi_value is not None:
                         st.text(f"{selected_category}: {extracted_cpi_value}")
                     else:
                         st.text(f"{selected_category}: Category not found in the extracted data.")
 
-            # Display input fields for vehicle sales and currency
-            st.write("Enter Vehicle Sales and Currency Input:")
-            total_local_sales = st.number_input("Total_Local_Sales", value=0.0)
-            total_export_sales = st.number_input("Total_Export_Sales", value=0.0)
-            usd_zar = st.number_input("USD_ZAR", value=0.0)
-            gbp_zar = st.number_input("GBP_ZAR", value=0.0)
-            eur_zar = st.number_input("EUR_ZAR", value=0.0)
+# ...
 
-            # Initialize an empty predictions dictionary
-            predictions = {}
+        if st.button("Predict CPI"):
+            # Create a table to display the predicted CPI values for all three months
+            table_data = []
 
-            # Load saved models
-            loaded_models = load_models()
+            # Calculate the reference date based on the current date
+            current_date = datetime.date.today()
 
-            # Create a "Predict CPI" button
-            if st.button("Predict CPI"):
-                # Create a table to display the predicted CPI values for all three months
-                table_data = []
+            # Create headers for the table
+            headers = ["Category"]
+            for i in range(1, 4):
+                reference_date = current_date.replace(month=current_date.month + i)
+                headers.append(f"{reference_date.strftime('%B %Y')}")
 
-                # Calculate the reference date based on the current date
-                current_date = datetime.date.today()
+            table_data.append(headers)
 
-                # Create headers for the table
-                headers = ["Category"]
+            # Make predictions for the selected categories
+            for selected_category in selected_categories:
+                # Create a row for each category
+                row = [selected_category]
+
+                # Make predictions for all three months
                 for i in range(1, 4):
                     reference_date = current_date.replace(month=current_date.month + i)
-                    headers.append(f"{reference_date.strftime('%B %Y')}")
+                    input_data = create_input_data(selected_category, category_values.get(selected_category, 0), 0.0, 0.0, 0.0, 0.0, 0.0)
+                    make_predictions(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, f"Month {i}")
+                    row.append(predictions[f'{selected_category.replace(" ", "_")}_CPI_for_{reference_date.strftime("%B_%Y")}_Month_{i}'])
 
-                table_data.append(headers)
+                table_data.append(row)
 
-                # Make predictions for the selected categories
-                for selected_category in selected_categories:
-                    # Create a row for each category
-                    row = [selected_category]
+            # Display the predicted CPI values in a table
+            st.text("Predicted CPI values for the next three months for the selected categories:")
+            st.table(table_data)
 
-                    # Make predictions for all three months
-                    for i in range(1, 4):
-                        reference_date = current_date.replace(month=current_date.month + i)
-                        input_data = create_input_data(selected_category, category_values, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
-                        make_predictions(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, f"Month {i}")
-                        row.append(predictions[f'{selected_category.replace(" ", "_")}_CPI_for_{reference_date.strftime("%B_%Y")}_Month_{i}'])
-
-                    table_data.append(row)
-
-                # Display the predicted CPI values in a table
-                st.text("Predicted CPI values for the next three months for the selected categories:")
-                st.table(table_data)
+# ...
 
     elif menu == "CPI Dashboard":
         # Display the Dashboard section
