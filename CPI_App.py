@@ -77,14 +77,16 @@ def process_pdf(pdf_path):
 
     return category_values
     
-def create_input_data(selected_category, category_value, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
+def create_input_data(selected_category, category_values, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar):
     input_data = np.zeros((1, len(target_cols_with_prefixes) + 5))  # Create an empty array with additional columns
     selected_category_adjusted = selected_category.replace(' ', '_')
     
     # Iterate through the target columns and find the index for the selected category
     for index, (category, prefix) in enumerate(target_cols_with_prefixes.items()):
         if category == selected_category_adjusted:
-            input_data[0, index] = float(category_value)
+            category_value = category_values.get(selected_category, None)
+            if category_value is not None:
+                input_data[0, index] = float(category_value)
     
     # Set the values for the non-category columns
     input_data[0, -6] = total_local_sales
@@ -98,6 +100,7 @@ def create_input_data(selected_category, category_value, total_local_sales, tota
     input_data_scaled = scaler.fit_transform(input_data)
     
     return input_data_scaled
+
 
 # Function to make predictions for a category
 def make_predictions(selected_category, input_data, loaded_models, category_formatted, predictions, reference_date, selected_month):
