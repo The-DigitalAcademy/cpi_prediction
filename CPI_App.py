@@ -141,21 +141,18 @@ def main():
                     # Initialize the extracted_cpi_value
                     extracted_cpi_value = None
 
-                    # Check if the selected_category is in the target_cols_with_prefixes dictionary
-                    if selected_category in target_cols_with_prefixes:
-                        # Loop through categories to find the selected one
-                        for category, prefix in target_cols_with_prefixes.items():
-                            if category == selected_category:
-                                # Extract the CPI value for the selected category
-                                extracted_cpi_value = category_values.get(category, None)
-                                break  # Exit the loop once the category is found
-
+                   for selected_category in selected_categories:
+                        extracted_cpi_value = None
+    
+    # Check if the selected_category is in the category_values dictionary
+                    if selected_category in category_values:
+                        extracted_cpi_value = category_values[selected_category]
+    
                     if extracted_cpi_value is not None:
-                        st.text(f"{selected_category}: {extracted_cpi_value}")
-                
-                    else:
-                        st.text(f"{selected_category}: Category not found in the extracted data.")
-
+        st.text(f"{selected_category}: {extracted_cpi_value}")
+    else:
+        st.text(f"{selected_category}: Category not found in the extracted data.")
+        
             # Display input fields for vehicle sales and currency
             st.write("Enter Vehicle Sales and Currency Input:")
             total_local_sales = st.number_input("Total_Local_Sales", value=0.0)
