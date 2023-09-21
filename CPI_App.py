@@ -84,7 +84,7 @@ def create_input_data(selected_category, category_value, total_local_sales, tota
     # Iterate through the target columns and find the index for the selected category
     for index, (category, prefix) in enumerate(target_cols_with_prefixes.items()):
         if category == selected_category_adjusted:
-            input_data[0, target_cols_with_prefixes.index(selected_category_adjusted)] = float(category_value)
+            input_data[0, index] = float(category_value)
     
     # Set the values for the non-category columns
     input_data[0, -6] = total_local_sales
@@ -135,7 +135,7 @@ def main():
                 "Select categories to predict:", list(target_cols_with_prefixes.keys()), default=[list(target_cols_with_prefixes.keys())[0]]
             )
 
-           if selected_categories:
+            if selected_categories:
                 st.text("Extracted CPI values from the PDF:")
                 for selected_category in selected_categories:
                     # Initialize the extracted_cpi_value
