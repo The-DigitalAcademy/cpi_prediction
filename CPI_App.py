@@ -166,6 +166,13 @@ def main():
 
             # Create a "Predict CPI" button
             if st.button("Predict CPI"):
+
+                    # Get the input data for the selected category
+                input_data = create_input_data(selected_category, category_values, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
+    
+    # Display the input data
+                st.text("Input Data:")
+                st.write(input_data)
                 # Create a table to display the predicted CPI values for all three months
                 table_data = []
 
