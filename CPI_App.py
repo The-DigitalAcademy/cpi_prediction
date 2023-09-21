@@ -84,9 +84,7 @@ def create_input_data(selected_category, category_values, total_local_sales, tot
     # Iterate through the target columns and find the index for the selected category
     for index, (category, prefix) in enumerate(target_cols_with_prefixes.items()):
         if category == selected_category_adjusted:
-            category_value = category_values.get(selected_category, None)
-            if category_value is not None:
-                input_data[0, index] = float(category_value)
+            input_data[0, index] = float(category_values[selected_category])
     
     # Set the values for the non-category columns
     input_data[0, -6] = total_local_sales
@@ -101,13 +99,13 @@ def create_input_data(selected_category, category_values, total_local_sales, tot
     
     return input_data_scaled
 
-
 # Function to make predictions for a category
-def make_predictions(selected_category, input_data, loaded_models, category_formatted, predictions, reference_date, selected_month):
+def make_predictions(selected_category, category_values, loaded_models, category_formatted, predictions, reference_date, selected_month):
     for i in range(1, 4):
         model_key = f"{selected_category}_month_{i}"
         if model_key in loaded_models:
             loaded_model = loaded_models[model_key]
+            input_data = create_input_data(selected_category, category_values, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
             y_pred = loaded_model.predict(input_data)
             predictions[f'{category_formatted}_CPI_for_{reference_date.strftime("%B_%Y")}_Month_{i}'] = round(y_pred[0][0], 2)
 
@@ -169,13 +167,6 @@ def main():
 
             # Create a "Predict CPI" button
             if st.button("Predict CPI"):
-
-                    # Get the input data for the selected category
-                input_data = create_input_data(selected_category, category_values, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
-    
-    # Display the input data
-                st.text("Input Data:")
-                st.write(input_data)
                 # Create a table to display the predicted CPI values for all three months
                 table_data = []
 
@@ -198,8 +189,7 @@ def main():
                     # Make predictions for all three months
                     for i in range(1, 4):
                         reference_date = current_date.replace(month=current_date.month + i)
-                        input_data = create_input_data(selected_category, category_values, total_local_sales, total_export_sales, usd_zar, gbp_zar, eur_zar)
-                        make_predictions(selected_category, input_data, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, f"Month {i}")
+                        make_predictions(selected_category, category_values, loaded_models, selected_category.replace(' ', '_'), predictions, reference_date, f"Month {i}")
                         row.append(predictions[f'{selected_category.replace(" ", "_")}_CPI_for_{reference_date.strftime("%B_%Y")}_Month_{i}'])
 
                     table_data.append(row)
