@@ -1,5 +1,6 @@
 tensorflow
 streamlit
+matplotlib
 plotly
 scikit-learn
 
