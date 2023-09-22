@@ -1,2 +1,9 @@
 tensorflow
 plotly
+streamlit
+pandas
+numpy
+plotly
+scikit-learn==1.2.2
+tensorflow
+pdfplumber
