@@ -27,10 +27,7 @@ def resize_image(image_path, size=(150, 150)):
 st.set_page_config(page_title="CPI Vision Prediction", layout="wide")
 
 # Load the dataset
-import pandas as pd
-
-url = 'https://raw.githubusercontent.com/The-DigitalAcademy/cpi_prediction/Zweli/train.csv'
-input_data = pd.read_csv(url)
+input_data = pd.read_csv('train.csv')
 
 # Sidebar
 with st.sidebar:
@@ -60,7 +57,7 @@ with st.sidebar:
 current_date = datetime.date(2023, 4, 30)  # Starting from April 2023
 end_date = datetime.date(2025, 12, 30)  # Extend data up to December 2024
 
-#while current_date <= end_date:
+while current_date <= end_date:
     year_month = current_date.strftime('%Y-%m')
     month = current_date.strftime('%Y-%m-%d')
     input_data = input_data.append({'year_month': year_month, 'Month': month}, ignore_index=True)
