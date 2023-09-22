@@ -27,7 +27,10 @@ def resize_image(image_path, size=(150, 150)):
 st.set_page_config(page_title="CPI Vision Prediction", layout="wide")
 
 # Load the dataset
-input_data = pd.read_csv('https://github.com/The-DigitalAcademy/cpi_prediction/blob/Zweli/train.csv')
+import pandas as pd
+
+url = 'https://raw.githubusercontent.com/The-DigitalAcademy/cpi_prediction/Zweli/train.csv'
+input_data = pd.read_csv(url)
 
 # Sidebar
 with st.sidebar:
