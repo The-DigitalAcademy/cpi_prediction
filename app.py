@@ -115,7 +115,7 @@ elif page_selection == "Prediction":
             percentage_change = ((predicted_cpi[0] - prev_month) / prev_month) * 100
             if percentage_change > 0:
                 change_icon = "📈"
-                change_text = f"Increased by {percentage_change:.2f}%
+                change_text = f"Increased by {percentage_change:.2f}%"
                elif percentage_change < 0:
                 change_icon = "📉"
                 change_text = f"Decreased by {abs(percentage_change):.2f}%"
