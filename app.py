@@ -17,12 +17,12 @@ scaler = joblib.load("last_scaler.pkl")
 target_cols = ['Alcoholic beverages and tobacco', 'Clothing and footwear', 'Communication', 'Education', 'Food and non-alcoholic beverages', 'Headline_CPI', 'Health', 'Household contents and services', 'Housing and utilities', 'Miscellaneous goods and services', 'Recreation and culture', 'Restaurants and hotels ', 'Transport']
 model_dict = {target_col: joblib.load(f"{target_col}_model.pkl") for target_col in target_cols}
 
-
 # Resize all images to a consistent size
 def resize_image(image_path, size=(150, 150)):
     image = Image.open(image_path)
     image = image.resize(size)
     return image
+
 # Set page configuration and title
 st.set_page_config(page_title="CPI Vision Prediction", layout="wide")
 
@@ -50,19 +50,10 @@ with st.sidebar:
                 'nav-link-selected': {'background-color': '#6187D2'},
                 }
     )
-    
-
 
 # Add future months and years to the dataset
 current_date = datetime.date(2023, 4, 30)  # Starting from April 2023
 end_date = datetime.date(2025, 12, 30)  # Extend data up to December 2024
-
-# while current_date <= end_date:
-#     year_month = current_date.strftime('%Y-%m')
-#     month = current_date.strftime('%Y-%m-%d')
-#     input_data = input_data.concat({'year_month': year_month, 'Month': month}, ignore_index=True)
-#     current_date = current_date + pd.DateOffset(months=1)
-import pandas as pd
 
 # Initialize an empty DataFrame
 input_data = pd.DataFrame(columns=['year_month', 'Month'])
@@ -80,9 +71,6 @@ while current_date <= end_date:
 
     # Increment current_date by one month
     current_date = current_date + pd.DateOffset(months=1)
-
-
-
 
 # Load your CPI dataset (replace 'Book6.csv' with your dataset file path)
 def load_data():
@@ -116,28 +104,12 @@ def meet_the_team():
             st.write(f"**{member['name']}**")
             st.write(f"**Position**: {member['position']}")
             st.write(member['description'])
+
 # Page selection
 if page_selection == "Overview":
     
-    st.title(" CPI Vision Application Overview")
-    # Add the "Overview" page
-     # Resize and display the image
-     # Create a container to center-align the content
-    #center_container = st.beta_container()
-
-    # # Resize and display the image within the container
-    # with center_container:
-    #     st.image('CPI-basket.png', width=500) 
-    # image = Image.open('CPI-basket.png')
-    # resized_image = image.resize((500, 300))  # A
-
-    # Resize and display the image, centered
-    #image = Image.open('CPI-basket.png')
-    #resized_image = image.resize((400, 250))  # Adjust the size as needed
-    #st.title("CPI Overview")
-    # Center-align the image
-    #st.image(resized_image, use_column_width=True, caption='CPI Overview')
-
+    st.title("CPI Vision Application Overview")
+    
     # Introduction
     st.write("Welcome to the CPI (Consumer Price Index) Overview page.")
     st.write("This page provides a general overview of CPI data and the purpose of this application.")
@@ -153,15 +125,11 @@ if page_selection == "Overview":
              "Users can select a category, a month, and a year to get predictions.")
     
     # Data Source
-    #st.header("Data Source")
     st.write("The data used in this application is sourced from the CPI Nowcast Challenge, and it covers the period from January 2022 to March 2023.")
-    
     
 
 elif page_selection == "Prediction":
     st.title("CPI Vision App")
-    #image = Image.open("CPI-logo.png")
-    #st.image(image, caption="CPI Logo")
     st.header("Predict CPI")
     
     # User input - Select Category
@@ -171,6 +139,7 @@ elif page_selection == "Prediction":
     selected_month = st.selectbox("Select Month", ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"])
     selected_year = st.selectbox("Select Year", ["2023", "2024", "2025"])
 
+    # Create a function to preprocess input
     # Create a function to preprocess input data for prediction based on the selected month and year
     def preprocess_input_data(selected_month, selected_year):
         global input_data  # Declare input_data as a global variable
@@ -256,71 +225,6 @@ elif page_selection == "Prediction":
         else:
             st.write(f"No data available for {selected_year}-{selected_month}. Please select a different month and year.")
 
-# elif page_selection == "Dashboard":
-#     st.header("Dashboard")
-    
-#     # User input - Select Category for the dashboard
-#     selected_category = st.selectbox("Select Category for the Dashboard", target_cols)
-    
-#     # Filter data for the selected category
-#     category_data = input_data[['year_month', selected_category]].copy()
-    
-#     # Create a column for percentage change
-#     category_data['Percentage Change'] = (category_data[selected_category] - category_data[selected_category].shift(1)) / category_data[selected_category].shift(1) * 100
-    
-#     # Display the selected category name
-#     st.write(f"Dashboard for: {selected_category}")
-    
-#     # Create a subplot with two traces (bar and line)
-#     fig = make_subplots(specs=[[{"secondary_y": True}]])
-    
-#     # Add bar trace (CPI Values)
-#     fig.add_trace(
-#         go.Bar(x=category_data['year_month'], y=category_data[selected_category], name='CPI Values', marker_color='blue'),
-#         secondary_y=False,
-#     )
-    
-#     # Add line trace (Percentage Change)
-#     fig.add_trace(
-#         go.Scatter(x=category_data['year_month'], y=category_data['Percentage Change'], mode='lines+markers', name='Percentage Change', line=dict(color='red')),
-#         secondary_y=True,
-#     )
-    
-#     # Update layout
-#     fig.update_layout(
-#         title=f'{selected_category} CPI and Percentage Change',
-#         xaxis_title="Month",
-#         yaxis_title="CPI Values",
-#         yaxis2_title="Percentage Change",
-#         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-#     )
-
-#     # Set Y-axis limits for the visual under the dashboard page
-#     fig.update_yaxes(range=[97, 105], secondary_y=False)
-
-#     st.plotly_chart(fig, use_container_width=True)
-
-#     # Calculate the percentage contribution of each category in the CPI value
-#     contribution_data = input_data.copy()
-#     contribution_data['Year'], contribution_data['Month'] = contribution_data['year_month'].str.split('-', 1).str
-#     contribution_data = contribution_data.groupby(['Year', 'Month'])[target_cols].mean()
-#     contribution_data = (contribution_data / contribution_data.sum(axis=1, skipna=True).values.reshape(-1, 1)) * 100
-    
-#     # Create a treemap chart for category contributions
-#     treemap_fig = go.Figure(go.Treemap(
-#         labels=[f"{year}-{month}" for year, month in contribution_data.index],
-#         parents=['' for _ in contribution_data.index],
-#         values=contribution_data[selected_category].values,
-#     ))
-
-#     # Customize the treemap layout
-#     treemap_fig.update_layout(
-#         title=f'{selected_category} Contribution to CPI Over Time',
-#     )
-
-#     # Display the treemap chart
-#     st.plotly_chart(treemap_fig, use_container_width=True)
-
 elif page_selection == "Dashboard":
     st.header("Dashboard Insights")
 
@@ -386,12 +290,4 @@ elif page_selection == "Contact Us":
         st.markdown("By submitting this form, you consent to receiving email communications from us regarding your "
                     "inquiry. We may use the email address you provide to respond to your message and provide any "
                     "necessary assistance or information.")
-        with st.form("Email Form"):
-            subject = st.text_input(label='Subject', placeholder='Please enter subject of your email')
-            fullname = st.text_input(label='Full Name', placeholder='Please enter your full name')
-            email = st.text_input(label='Email Address', placeholder='Please enter your email address')
-            text = st.text_area(label='Email Text', placeholder='Please enter your text here')
-            uploaded_file = st.file_uploader("Attachment")
-            #submit_res = st.form_submit_button("Send")
-        st.markdown("Thank you for reaching out to us. We appreciate your interest in our loan approval web "
-                    "application and look forward to connecting with you soon")
+        
