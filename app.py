@@ -25,15 +25,17 @@ st.set_page_config(page_title="CPI Vision Prediction", layout="wide")
 
 current_date = datetime.date(2023, 4, 30)
 end_date = datetime.date(2025, 12, 30)
+ts_end == pd.Timestamp(end_date)
+ts_date == pd.Timestamp(current_date)
 
 data_list = []
 
-while current_date <= end_date:
-    year_month = current_date.strftime('%Y-%m')
-    month = current_date.strftime('%Y-%m-%d')
+while ts_date <= ts_end:
+    year_month = ts_date.strftime('%Y-%m')
+    month = ts_end.strftime('%Y-%m-%d')
     new_row = {'year_month': year_month, 'Month': month}
     data_list.append(new_row)
-    current_date = current_date.replace(day=1) + pd.DateOffset(months=1)
+    ts_date = ts_date.replace(day=1) + pd.DateOffset(months=1)
 
 input_data = pd.DataFrame(data_list)
 
