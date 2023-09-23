@@ -62,15 +62,21 @@ end_date = datetime.date(2025, 12, 30)  # Extend data up to December 2024
 #     month = current_date.strftime('%Y-%m-%d')
 #     input_data = input_data.concat({'year_month': year_month, 'Month': month}, ignore_index=True)
 #     current_date = current_date + pd.DateOffset(months=1)
+import pandas as pd
+
+# Initialize an empty DataFrame
+input_data = pd.DataFrame(columns=['year_month', 'Month'])
+
+# Your code for date range iteration and appending data
 while current_date <= end_date:
     year_month = current_date.strftime('%Y-%m')
     month = current_date.strftime('%Y-%m-%d')
 
-    # Create a new DataFrame with the data to append
-    new_data = pd.DataFrame({'year_month': [year_month], 'Month': [month]})
+    # Create a new row as a dictionary
+    new_row = {'year_month': year_month, 'Month': month}
 
-    # Append the new data to the input_data DataFrame
-    input_data = input_data.append(new_data, ignore_index=True)
+    # Append the new row to the input_data DataFrame
+    input_data = input_data.append(new_row, ignore_index=True)
 
     # Increment current_date by one month
     current_date = current_date + pd.DateOffset(months=1)
