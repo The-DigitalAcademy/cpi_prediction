@@ -25,8 +25,8 @@ st.set_page_config(page_title="CPI Vision Prediction", layout="wide")
 
 current_date = datetime.date(2023, 4, 30)
 end_date = datetime.date(2025, 12, 30)
-ts_end == pd.Timestamp(end_date)
-ts_date == pd.Timestamp(current_date)
+ts_end = pd.Timestamp(end_date)
+ts_date = pd.Timestamp(current_date)
 
 data_list = []
 
