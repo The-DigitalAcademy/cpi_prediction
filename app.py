@@ -9,7 +9,7 @@ import numpy as np
 import joblib
 import pickle
 from plotly.subplots import make_subplots
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 from streamlit_option_menu import option_menu
 
 scaler = joblib.load("last_scaler.pkl")
@@ -61,6 +61,24 @@ def meet_the_team():
             st.image(resize_image(member['image']), caption=member['name'], use_column_width=True)
             st.write(f"**{member['name']}**")
             st.write(f"**Position**: {member['position']}")
+
+page_selection = option_menu(
+    menu_title=None,
+    options=["Overview", "Prediction", "Dashboard", "Meet the Team", "Contact Us"],
+    icons=['file-earmark-text', 'eye', 'graph-up', 'file-earmark-spreadsheet', 'envelope'],
+    menu_icon='cast',
+    default_index=0,
+    styles={"container": {'padding': '0!important', 'background_color': 'red'},
+            'icon': {'color': 'red', 'font-size': '18px'},
+            'nav-link': {
+                'font-size': '15px',
+                'text-align': 'left',
+                'margin': '0px',
+                '--hover-color': '#4BAAFF',
+            },
+            'nav-link-selected': {'background-color': '#6187D2'},
+            }
+)
 
 if page_selection == "Overview":
     st.title("CPI Vision Application Overview")
@@ -116,7 +134,7 @@ elif page_selection == "Prediction":
             if percentage_change > 0:
                 change_icon = "📈"
                 change_text = f"Increased by {percentage_change:.2f}%"
-               elif percentage_change < 0:
+            elif percentage_change < 0:
                 change_icon = "📉"
                 change_text = f"Decreased by {abs(percentage_change):.2f}%"
             else:
