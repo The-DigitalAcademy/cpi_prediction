@@ -57,11 +57,18 @@ with st.sidebar:
 current_date = datetime.date(2023, 4, 30)  # Starting from April 2023
 end_date = datetime.date(2025, 12, 30)  # Extend data up to December 2024
 
+# while current_date <= end_date:
+#     year_month = current_date.strftime('%Y-%m')
+#     month = current_date.strftime('%Y-%m-%d')
+#     input_data = input_data.concat({'year_month': year_month, 'Month': month}, ignore_index=True)
+#     current_date = current_date + pd.DateOffset(months=1)
 while current_date <= end_date:
     year_month = current_date.strftime('%Y-%m')
     month = current_date.strftime('%Y-%m-%d')
-    input_data = input_data.concat({'year_month': year_month, 'Month': month}, ignore_index=True)
+    new_data = pd.DataFrame({'year_month': [year_month], 'Month': [month]})
+    input_data = pd.concat([input_data, new_data], ignore_index=True)
     current_date = current_date + pd.DateOffset(months=1)
+
 
 # Load your CPI dataset (replace 'Book6.csv' with your dataset file path)
 def load_data():
