@@ -65,9 +65,16 @@ end_date = datetime.date(2025, 12, 30)  # Extend data up to December 2024
 while current_date <= end_date:
     year_month = current_date.strftime('%Y-%m')
     month = current_date.strftime('%Y-%m-%d')
-    new_data = pd.DataFrame({'year_month': [year_month], 'Month': [month]})
-    input_data = pd.concat([input_data, new_data], ignore_index=True)
-    current_date = current_date + pd.DateOffset(months=1)
+    
+    # Convert current_date to Timestamp
+    current_timestamp = pd.Timestamp(current_date)
+    
+    input_data = input_data.append({'year_month': year_month, 'Month': month}, ignore_index=True)
+    
+    # Increment current_date by one month
+    current_timestamp = current_timestamp + pd.DateOffset(months=1)
+    current_date = current_timestamp.date()
+
 
 
 # Load your CPI dataset (replace 'Book6.csv' with your dataset file path)
