@@ -59,6 +59,10 @@ end_date = datetime.date(2025, 12, 30)  # Extend data up to December 2024
 input_data = pd.DataFrame(columns=['year_month', 'Month'])
 
 # Your code for date range iteration and appending data
+# Initialize an empty list to store data
+data_list = []
+
+# Your code for date range iteration and appending data
 while current_date <= end_date:
     year_month = current_date.strftime('%Y-%m')
     month = current_date.strftime('%Y-%m-%d')
@@ -66,11 +70,15 @@ while current_date <= end_date:
     # Create a new row as a dictionary
     new_row = {'year_month': year_month, 'Month': month}
 
-    # Append the new row to the input_data DataFrame
-    input_data = input_data.append(new_row, ignore_index=True)
+    # Append the new row to the data_list
+    data_list.append(new_row)
 
     # Increment current_date by one month
     current_date = current_date + pd.DateOffset(months=1)
+
+# Create a DataFrame from the data_list
+input_data = pd.DataFrame(data_list)
+
 
 # Load your CPI dataset (replace 'Book6.csv' with your dataset file path)
 def load_data():
